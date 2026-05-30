@@ -5,6 +5,8 @@ from users.schemas import UserCreate, LoginRequest, TokenResponse, UserResponse
 from users.views import register_user, login_user
 from users.permissions import get_current_user
 from users.models import User
+from stats.schemas import UserStats
+from stats.views import get_my_stats
 
 users_router = APIRouter(prefix="/api/users", tags=["users"])
 
@@ -32,3 +34,8 @@ def login(data: LoginRequest, db: Session = Depends(get_db)):
 @users_router.get("/me", response_model=UserResponse)
 def get_me(current_user: User = Depends(get_current_user)):
     return current_user
+
+
+@users_router.get("/me/stats", response_model=UserStats)
+def my_stats(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    return get_my_stats(current_user, db)

@@ -6,6 +6,10 @@ from routers.project_routers import projects_router
 from routers.bid_routers import bids_router
 from routers.wallet_routers import wallet_router
 from routers.escrow_routers import escrow_router
+from routers.chat_routers import chats_router
+from routers.review_routers import reviews_router
+from routers.profile_routers import profiles_router
+from routers.stats_routers import stats_router
 
 Base.metadata.create_all(bind=engine)
 
@@ -24,3 +28,7 @@ app.include_router(projects_router)
 app.include_router(bids_router)
 app.include_router(wallet_router)
 app.include_router(escrow_router)
+app.include_router(chats_router)
+app.include_router(reviews_router)
+app.include_router(profiles_router)
+app.include_router(stats_router)

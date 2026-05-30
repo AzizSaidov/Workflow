@@ -1,6 +1,6 @@
 import uuid
 import enum
-from sqlalchemy import Column, String, Text, Enum, DateTime
+from sqlalchemy import Column, String, Text, Enum, DateTime, Float
 from sqlalchemy.dialects.postgresql import UUID
 from database import Base
 from utils import get_dushanbe_time
@@ -21,4 +21,6 @@ class User(Base):
     full_name = Column(String, nullable=False)
     avatar_url = Column(String, nullable=True)
     bio = Column(Text, nullable=True)
+    latitude = Column(Float, nullable=True)
+    longitude = Column(Float, nullable=True)
     created_at = Column(DateTime(timezone=True), default=get_dushanbe_time)
