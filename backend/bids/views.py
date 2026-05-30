@@ -5,6 +5,8 @@ from bids.models import Bid, BidStatus
 from bids.schemas import BidCreate
 from projects.models import Project, ProjectStatus
 from users.models import User, UserRole
+from notifications.models import NotificationType
+from notifications.views import create_notification
 
 
 def create_bid(project_id: UUID, data: BidCreate, freelancer: User, db: Session) -> Bid:
@@ -20,6 +22,13 @@ def create_bid(project_id: UUID, data: BidCreate, freelancer: User, db: Session)
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="You already bid on this project")
     bid = Bid(project_id=project_id, freelancer_id=freelancer.id, **data.model_dump())
     db.add(bid)
+    create_notification(
+        user_id=project.client_id,
+        type=NotificationType.new_bid,
+        title="Новая заявка",
+        message=f"{freelancer.full_name} подал заявку на проект «{project.title}»",
+        db=db,
+    )
     db.commit()
     db.refresh(bid)
     return bid
@@ -47,7 +56,6 @@ def accept_bid(bid_id: UUID, current_user: User, db: Session) -> Bid:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not your project")
     if project.status != ProjectStatus.open:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Project is not open")
-    # accept this bid, reject all others
     bid.status = BidStatus.accepted
     project.assigned_freelancer_id = bid.freelancer_id
     db.query(Bid).filter(
@@ -55,6 +63,13 @@ def accept_bid(bid_id: UUID, current_user: User, db: Session) -> Bid:
         Bid.id != bid_id,
         Bid.status == BidStatus.pending,
     ).update({"status": BidStatus.rejected})
+    create_notification(
+        user_id=bid.freelancer_id,
+        type=NotificationType.bid_accepted,
+        title="Заявка принята",
+        message=f"Ваша заявка на проект «{project.title}» принята!",
+        db=db,
+    )
     db.commit()
     db.refresh(bid)
     return bid

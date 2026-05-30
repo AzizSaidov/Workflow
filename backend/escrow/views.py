@@ -7,6 +7,8 @@ from wallet.models import Wallet
 from bids.models import Bid, BidStatus
 from projects.models import Project, ProjectStatus
 from users.models import User
+from notifications.models import NotificationType
+from notifications.views import create_notification
 from utils import get_dushanbe_time
 
 
@@ -86,6 +88,13 @@ def release(tx_id: UUID, client: User, db: Session) -> Transaction:
     tx.released_at = get_dushanbe_time()
     project.status = ProjectStatus.completed
 
+    create_notification(
+        user_id=tx.freelancer_id,
+        type=NotificationType.payment_received,
+        title="Оплата получена",
+        message=f"Вам выплачено {tx.amount} за проект «{project.title}»",
+        db=db,
+    )
     db.commit()
     db.refresh(tx)
     return tx
@@ -104,6 +113,13 @@ def dispute(tx_id: UUID, client: User, db: Session) -> Transaction:
     tx.status = EscrowStatus.disputed
     project.status = ProjectStatus.disputed
 
+    create_notification(
+        user_id=tx.freelancer_id,
+        type=NotificationType.project_disputed,
+        title="Открыт спор",
+        message=f"Заказчик открыл спор по проекту «{project.title}»",
+        db=db,
+    )
     db.commit()
     db.refresh(tx)
     return tx

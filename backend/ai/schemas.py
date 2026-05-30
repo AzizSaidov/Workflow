@@ -1,0 +1,31 @@
+from pydantic import BaseModel
+
+
+class HelpProjectRequest(BaseModel):
+    title: str
+    rough_description: str
+    category: str
+    budget: str
+
+
+class HelpProjectResponse(BaseModel):
+    description: str
+
+
+class HelpBidRequest(BaseModel):
+    project_title: str
+    project_description: str
+    skills: list[str]
+
+
+class HelpBidResponse(BaseModel):
+    cover_letter: str
+
+
+class AIChatRequest(BaseModel):
+    message: str
+    context: str | None = None
+
+
+class AIChatResponse(BaseModel):
+    text: str

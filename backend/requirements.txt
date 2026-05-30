@@ -8,3 +8,6 @@ python-jose[cryptography]
 passlib[bcrypt]
 bcrypt
 python-dotenv
+httpx
+python-multipart
+aiofiles

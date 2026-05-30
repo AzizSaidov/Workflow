@@ -6,7 +6,7 @@ from projects.models import Project, ProjectStatus
 from escrow.models import Transaction, EscrowStatus
 from bids.models import Bid
 from profiles.models import FreelancerProfile
-from stats.schemas import GlobalStats, UserLocation, UserStats
+from stats.schemas import GlobalStats, UserLocation, UserStats, TopFreelancerResponse, CategoryStats
 
 
 def get_global_stats(db: Session) -> GlobalStats:
@@ -70,6 +70,46 @@ def get_my_stats(user: User, db: Session) -> UserStats:
         total_earned=Decimal(str(total_earned)),
         average_rating=average_rating,
     )
+
+
+def get_top_freelancers(db: Session) -> list[TopFreelancerResponse]:
+    rows = (
+        db.query(FreelancerProfile, User)
+        .join(User, User.id == FreelancerProfile.user_id)
+        .order_by(FreelancerProfile.rating.desc())
+        .limit(10)
+        .all()
+    )
+    return [
+        TopFreelancerResponse(
+            user_id=profile.user_id,
+            full_name=user.full_name,
+            avatar_url=user.avatar_url,
+            rating=Decimal(str(profile.rating)),
+            total_jobs=profile.total_jobs,
+        )
+        for profile, user in rows
+    ]
+
+
+def get_recent_projects(db: Session) -> list[Project]:
+    return (
+        db.query(Project)
+        .filter(Project.status == ProjectStatus.open)
+        .order_by(Project.created_at.desc())
+        .limit(10)
+        .all()
+    )
+
+
+def get_category_stats(db: Session) -> list[CategoryStats]:
+    rows = (
+        db.query(Project.category, func.count(Project.id).label("count"))
+        .group_by(Project.category)
+        .order_by(func.count(Project.id).desc())
+        .all()
+    )
+    return [CategoryStats(category=row.category, count=row.count) for row in rows]
 
 
 def get_user_locations(db: Session) -> list[UserLocation]:

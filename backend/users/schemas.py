@@ -23,6 +23,14 @@ class UserResponse(BaseModel):
     model_config = {"from_attributes": True}
 
 
+class UserUpdate(BaseModel):
+    full_name: str | None = None
+    bio: str | None = None
+    avatar_url: str | None = None
+    latitude: float | None = None
+    longitude: float | None = None
+
+
 class LoginRequest(BaseModel):
     email: EmailStr
     password: str

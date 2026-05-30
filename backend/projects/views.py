@@ -5,6 +5,8 @@ from fastapi import HTTPException, status
 from projects.models import Project, ProjectStatus
 from projects.schemas import ProjectCreate, ProjectUpdate
 from users.models import User, UserRole
+from notifications.models import NotificationType
+from notifications.views import create_notification
 
 
 def get_projects(
@@ -67,3 +69,22 @@ def delete_project(project_id: UUID, current_user: User, db: Session) -> None:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not your project")
     db.delete(project)
     db.commit()
+
+
+def deliver_project(project_id: UUID, freelancer: User, db: Session) -> Project:
+    project = get_project(project_id, db)
+    if project.assigned_freelancer_id != freelancer.id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="You are not assigned to this project")
+    if project.status != ProjectStatus.in_progress:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Project is not in progress")
+    project.status = ProjectStatus.delivered
+    create_notification(
+        user_id=project.client_id,
+        type=NotificationType.project_delivered,
+        title="Работа сдана",
+        message=f"Фрилансер сдал работу по проекту «{project.title}»",
+        db=db,
+    )
+    db.commit()
+    db.refresh(project)
+    return project

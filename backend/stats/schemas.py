@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from uuid import UUID
 from decimal import Decimal
 from users.models import UserRole
 
@@ -15,6 +16,21 @@ class UserLocation(BaseModel):
     lat: float
     lng: float
     role: UserRole
+
+
+class TopFreelancerResponse(BaseModel):
+    user_id: UUID
+    full_name: str
+    avatar_url: str | None
+    rating: Decimal
+    total_jobs: int
+
+    model_config = {"from_attributes": True}
+
+
+class CategoryStats(BaseModel):
+    category: str
+    count: int
 
 
 class UserStats(BaseModel):
