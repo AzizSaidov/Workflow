@@ -1,0 +1,18 @@
+node_modules/
+dist/
+build/
+.env
+.env.local
+__pycache__/
+*.pyc
+venv/
+.venv/
+*.egg-info/
+.DS_Store
+Thumbs.db
+STYLE_GUIDE_1.md
+страничка входа.html
+01_ОПИСАНИЕ_ПРОЕКТА.md
+02_ТЗ_FRONTEND.md
+03_ТЗ_BACKEND.md
+CLAUDE.md
