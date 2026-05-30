@@ -4,6 +4,8 @@ from database import Base, engine
 from routers.user_routers import users_router
 from routers.project_routers import projects_router
 from routers.bid_routers import bids_router
+from routers.wallet_routers import wallet_router
+from routers.escrow_routers import escrow_router
 
 Base.metadata.create_all(bind=engine)
 
@@ -20,3 +22,5 @@ app.add_middleware(
 app.include_router(users_router)
 app.include_router(projects_router)
 app.include_router(bids_router)
+app.include_router(wallet_router)
+app.include_router(escrow_router)
