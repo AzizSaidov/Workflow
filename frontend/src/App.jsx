@@ -8,6 +8,8 @@ import Dashboard from './pages/Dashboard'
 import ProjectsFeed from './pages/ProjectsFeed'
 import ProjectDetail from './pages/ProjectDetail'
 import CreateProject from './pages/CreateProject'
+import Profile from './pages/Profile'
+import Wallet from './pages/Wallet'
 
 export default function App() {
   return (
@@ -25,8 +27,8 @@ export default function App() {
         <Route path="/projects" element={<ProtectedRoute><ProjectsFeed /></ProtectedRoute>} />
         <Route path="/projects/new" element={<ProtectedRoute><CreateProject /></ProtectedRoute>} />
         <Route path="/projects/:id" element={<ProtectedRoute><ProjectDetail /></ProtectedRoute>} />
-        <Route path="/wallet" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-        <Route path="/profile/:id" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+        <Route path="/wallet" element={<ProtectedRoute><Wallet /></ProtectedRoute>} />
+        <Route path="/profile/:id" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
         <Route path="/admin" element={<ProtectedRoute requireRole="admin"><Dashboard /></ProtectedRoute>} />
 
         <Route path="*" element={<Navigate to="/" replace />} />
