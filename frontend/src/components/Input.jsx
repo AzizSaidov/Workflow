@@ -36,6 +36,7 @@ export default function Input({
           value={value}
           onChange={onChange}
           disabled={disabled}
+          autoComplete="off"
           className="input"
           style={{
             paddingLeft: icon ? 40 : 16,

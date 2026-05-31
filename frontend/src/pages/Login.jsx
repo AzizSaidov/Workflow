@@ -28,7 +28,7 @@ export default function Login() {
     setLoading(true)
     try {
       const { data } = await authApi.login(form.email, form.password)
-      const me = await authApi.getMe()
+      const me = await authApi.getMe(data.access_token)
       login(me.data, data.access_token, data.refresh_token)
       navigate(from, { replace: true })
     } catch (err) {

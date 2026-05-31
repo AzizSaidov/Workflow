@@ -12,7 +12,10 @@ export const authApi = {
     })
   },
 
-  getMe: () => client.get('/users/me'),
+  getMe: (token) => client.get('/users/me', token
+    ? { headers: { Authorization: `Bearer ${token}` } }
+    : undefined
+  ),
 
   refresh: (refreshToken) =>
     client.post('/users/refresh', { refresh_token: refreshToken }),

@@ -43,7 +43,7 @@ export default function Register() {
     try {
       await authApi.register({ full_name: form.full_name, email: form.email, password: form.password, role: form.role })
       const { data: tokens } = await authApi.login(form.email, form.password)
-      const { data: me } = await authApi.getMe()
+      const { data: me } = await authApi.getMe(tokens.access_token)
       login(me, tokens.access_token, tokens.refresh_token)
       navigate('/dashboard', { replace: true })
     } catch (err) {
