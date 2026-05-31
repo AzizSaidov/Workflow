@@ -15,6 +15,8 @@ from routers.notification_routers import notifications_router
 from routers.ai_routers import ai_router
 from routers.search_routers import search_router
 from routers.report_routers import reports_router
+from routers.category_routers import categories_router
+from routers.language_routers import languages_router
 
 Base.metadata.create_all(bind=engine)
 
@@ -42,3 +44,5 @@ app.include_router(notifications_router)
 app.include_router(ai_router)
 app.include_router(search_router)
 app.include_router(reports_router)
+app.include_router(categories_router)
+app.include_router(languages_router)
