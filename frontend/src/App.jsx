@@ -1,201 +1,136 @@
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import useThemeStore from './store/themeStore'
 import StarBackground from './components/StarBackground'
-import ThemeToggle from './components/ThemeToggle'
+import Navbar from './components/Navbar'
+import Footer from './components/Footer'
+import Button from './components/Button'
+import Card from './components/Card'
+import Input from './components/Input'
+import Select from './components/Select'
+import Tag from './components/Tag'
+import Avatar from './components/Avatar'
+import Rating from './components/Rating'
 
-export default function App() {
+function DemoPage() {
   const { isDark } = useThemeStore()
-
   return (
     <div className="page-wrapper" style={{ background: 'var(--bg)' }}>
-      <StarBackground isDark={isDark} intensity="full" />
+      <StarBackground isDark={isDark} intensity="reduced" />
       <div className="glow-blob glow-1" />
       <div className="glow-blob glow-2" />
       <div className="glow-blob glow-3" />
 
-      {/* Theme toggle */}
-      <div style={{ position: 'fixed', top: 20, right: 20, zIndex: 10 }}>
-        <ThemeToggle />
-      </div>
+      <Navbar />
 
-      <div style={{
-        position: 'relative',
-        zIndex: 2,
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        minHeight: '100vh',
-        padding: '60px 24px',
-      }}>
-        {/* Logo */}
-        <div style={{
-          fontFamily: 'Syne, sans-serif',
-          fontWeight: 800,
-          fontSize: 24,
-          letterSpacing: '-0.5px',
-          marginBottom: 40,
-          color: 'var(--text-primary)',
-        }}>
-          work<span style={{ color: 'var(--accent)' }}>flow</span>
-        </div>
+      <div style={{ paddingTop: 96, paddingBottom: 80, position: 'relative', zIndex: 2 }}>
+        <div className="container" style={{ display: 'flex', flexDirection: 'column', gap: 48 }}>
 
-        {/* Badge */}
-        <div style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: 7,
-          fontSize: 12,
-          padding: '6px 16px',
-          borderRadius: 20,
-          marginBottom: 16,
-          fontWeight: 500,
-          background: isDark ? 'rgba(127,119,221,0.08)' : 'rgba(80,70,200,0.08)',
-          border: isDark ? '0.5px solid rgba(127,119,221,0.2)' : '0.5px solid rgba(80,70,200,0.22)',
-          color: isDark ? '#AFA9EC' : '#4038B2',
-        }}>
-          <span className="blink" style={{
-            width: 6, height: 6, borderRadius: '50%',
-            background: isDark ? '#7F77DD' : '#4038B2',
-            display: 'inline-block',
-          }} />
-          Добро пожаловать
-        </div>
-
-        {/* Title */}
-        <h1 style={{
-          fontFamily: 'Syne, sans-serif',
-          fontSize: 44,
-          fontWeight: 800,
-          letterSpacing: '-1.8px',
-          textAlign: 'center',
-          lineHeight: 1.08,
-          marginBottom: 12,
-          color: 'var(--text-primary)',
-        }}>
-          Кто ты?
-        </h1>
-        <p style={{
-          fontSize: 16,
-          textAlign: 'center',
-          fontWeight: 300,
-          marginBottom: 48,
-          maxWidth: 360,
-          lineHeight: 1.7,
-          color: 'var(--text-secondary)',
-        }}>
-          Выбери роль — это займёт меньше минуты. Можно сменить позже.
-        </p>
-
-        {/* Role cards */}
-        <div style={{ display: 'flex', gap: 20, width: '100%', maxWidth: 620, marginBottom: 36 }}>
-          {/* Client */}
-          <div style={{
-            flex: 1,
-            borderRadius: 22,
-            padding: '34px 26px',
-            cursor: 'pointer',
-            position: 'relative',
-            overflow: 'hidden',
-            background: 'var(--bg-card)',
-            border: isDark ? '1px solid rgba(127,119,221,0.15)' : '1px solid rgba(80,70,200,0.18)',
-            transition: 'transform 0.3s, border-color 0.3s, box-shadow 0.3s',
-          }}
-            onMouseEnter={e => {
-              e.currentTarget.style.transform = 'translateY(-7px)'
-              e.currentTarget.style.borderColor = isDark ? 'rgba(127,119,221,0.55)' : 'rgba(80,70,200,0.5)'
-              e.currentTarget.style.boxShadow = isDark ? '0 0 40px rgba(127,119,221,0.12)' : '0 8px 40px rgba(80,70,200,0.13)'
-            }}
-            onMouseLeave={e => {
-              e.currentTarget.style.transform = 'translateY(0)'
-              e.currentTarget.style.borderColor = isDark ? 'rgba(127,119,221,0.15)' : 'rgba(80,70,200,0.18)'
-              e.currentTarget.style.boxShadow = 'none'
-            }}
-          >
-            <div style={{
-              width: 58, height: 58, borderRadius: 15,
-              background: isDark ? 'rgba(127,119,221,0.12)' : 'rgba(80,70,200,0.1)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              marginBottom: 20,
-            }}>
-              <i className="ti ti-briefcase" style={{ fontSize: 25, color: isDark ? '#7F77DD' : '#4038B2' }} />
+          {/* Buttons */}
+          <section>
+            <h2 style={{ marginBottom: 20, fontSize: 18, fontWeight: 700, color: 'var(--text-secondary)', letterSpacing: 1, textTransform: 'uppercase', fontSize: 12 }}>Кнопки</h2>
+            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
+              <Button variant="primary" icon="plus">Создать проект</Button>
+              <Button variant="green" icon="check">Принять заявку</Button>
+              <Button variant="outline" icon="search">Найти работу</Button>
+              <Button variant="danger" icon="trash">Удалить</Button>
+              <Button variant="primary" size="sm">Маленькая</Button>
+              <Button variant="primary" size="lg" iconRight="arrow-right">Большая</Button>
+              <Button variant="primary" loading>Загрузка...</Button>
             </div>
-            <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 22, fontWeight: 800, marginBottom: 7, color: 'var(--text-primary)' }}>
-              Заказчик
+          </section>
+
+          {/* Tags */}
+          <section>
+            <h2 style={{ marginBottom: 20, fontSize: 12, fontWeight: 700, color: 'var(--text-secondary)', letterSpacing: 1, textTransform: 'uppercase' }}>Теги и статусы</h2>
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              <Tag color="purple">React</Tag>
+              <Tag color="green">Python</Tag>
+              <Tag color="amber">В работе</Tag>
+              <Tag color="red">Срочно</Tag>
+              <Tag status="open" />
+              <Tag status="in_progress" />
+              <Tag status="delivered" />
+              <Tag status="completed" />
+              <Tag status="disputed" />
+              <Tag status="cancelled" />
             </div>
-            <p style={{ fontSize: 13, lineHeight: 1.65, marginBottom: 22, fontWeight: 300, color: 'var(--text-secondary)' }}>
-              Размещаю проекты и нанимаю лучших специалистов для своих задач.
-            </p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 9, marginBottom: 26 }}>
-              {['Публикация проектов', 'Выбор из заявок фрилансеров', 'Безопасная эскроу-оплата', 'Отзывы и рейтинги'].map(f => (
-                <div key={f} style={{ display: 'flex', alignItems: 'center', gap: 9, fontSize: 13, color: 'var(--text-secondary)' }}>
-                  <span style={{ width: 4, height: 4, borderRadius: '50%', background: isDark ? '#7F77DD' : '#4038B2', flexShrink: 0 }} />
-                  {f}
-                </div>
+          </section>
+
+          {/* Avatar + Rating */}
+          <section>
+            <h2 style={{ marginBottom: 20, fontSize: 12, fontWeight: 700, color: 'var(--text-secondary)', letterSpacing: 1, textTransform: 'uppercase' }}>Аватары и рейтинг</h2>
+            <div style={{ display: 'flex', gap: 20, alignItems: 'center', flexWrap: 'wrap' }}>
+              <Avatar name="Азиз Саидов" size={56} online />
+              <Avatar name="Камила Юсупова" size={44} />
+              <Avatar size={36} />
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                <Rating value={4.9} count={87} />
+                <Rating value={3.5} count={12} size={11} />
+              </div>
+            </div>
+          </section>
+
+          {/* Inputs */}
+          <section>
+            <h2 style={{ marginBottom: 20, fontSize: 12, fontWeight: 700, color: 'var(--text-secondary)', letterSpacing: 1, textTransform: 'uppercase' }}>Поля ввода</h2>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, maxWidth: 800 }}>
+              <Input label="Email" placeholder="you@example.com" icon="mail" />
+              <Input label="Пароль" type="password" placeholder="••••••••" icon="lock" />
+              <Input label="С ошибкой" placeholder="Введите текст" error="Обязательное поле" />
+              <Select
+                label="Категория"
+                placeholder="Выберите категорию"
+                options={[
+                  { value: 'dev', label: 'Разработка' },
+                  { value: 'design', label: 'Дизайн' },
+                  { value: 'marketing', label: 'Маркетинг' },
+                ]}
+              />
+              <Input label="Поиск" placeholder="Найти проект..." icon="search" iconRight="adjustments-horizontal" />
+              <Input label="Бюджет" placeholder="50 000" icon="currency-dollar" hint="Минимальная сумма в TJS" />
+            </div>
+          </section>
+
+          {/* Cards */}
+          <section>
+            <h2 style={{ marginBottom: 20, fontSize: 12, fontWeight: 700, color: 'var(--text-secondary)', letterSpacing: 1, textTransform: 'uppercase' }}>Карточки</h2>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20 }}>
+              {[
+                { title: 'Разработка сайта', budget: '200 000 TJS', tag: 'open', skills: ['React', 'Node.js'] },
+                { title: 'Дизайн логотипа', budget: '50 000 TJS', tag: 'in_progress', skills: ['Figma', 'Illustrator'] },
+                { title: 'SEO оптимизация', budget: '80 000 TJS', tag: 'delivered', skills: ['SEO', 'Analytics'] },
+              ].map((p) => (
+                <Card key={p.title}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
+                    <h3 style={{ fontSize: 16, fontWeight: 600, color: 'var(--text-primary)' }}>{p.title}</h3>
+                    <Tag status={p.tag} />
+                  </div>
+                  <div style={{ display: 'flex', gap: 6, marginBottom: 16, flexWrap: 'wrap' }}>
+                    {p.skills.map((s) => <Tag key={s} color="purple">{s}</Tag>)}
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, color: 'var(--accent)' }}>{p.budget}</span>
+                    <Button variant="outline" size="sm" iconRight="arrow-right">Подробнее</Button>
+                  </div>
+                </Card>
               ))}
             </div>
-            <button className="btn btn-primary" style={{ width: '100%', padding: '13px 0', borderRadius: 12, fontSize: 14, fontWeight: 600, fontFamily: 'Syne, sans-serif' }}>
-              <i className="ti ti-arrow-right" /> Я заказчик
-            </button>
-          </div>
+          </section>
 
-          {/* Freelancer */}
-          <div style={{
-            flex: 1,
-            borderRadius: 22,
-            padding: '34px 26px',
-            cursor: 'pointer',
-            position: 'relative',
-            overflow: 'hidden',
-            background: 'var(--bg-card)',
-            border: isDark ? '1px solid rgba(93,202,165,0.15)' : '1px solid rgba(16,140,103,0.18)',
-            transition: 'transform 0.3s, border-color 0.3s, box-shadow 0.3s',
-          }}
-            onMouseEnter={e => {
-              e.currentTarget.style.transform = 'translateY(-7px)'
-              e.currentTarget.style.borderColor = isDark ? 'rgba(93,202,165,0.5)' : 'rgba(16,140,103,0.45)'
-              e.currentTarget.style.boxShadow = isDark ? '0 0 40px rgba(93,202,165,0.1)' : '0 8px 40px rgba(16,140,103,0.11)'
-            }}
-            onMouseLeave={e => {
-              e.currentTarget.style.transform = 'translateY(0)'
-              e.currentTarget.style.borderColor = isDark ? 'rgba(93,202,165,0.15)' : 'rgba(16,140,103,0.18)'
-              e.currentTarget.style.boxShadow = 'none'
-            }}
-          >
-            <div style={{
-              width: 58, height: 58, borderRadius: 15,
-              background: isDark ? 'rgba(93,202,165,0.12)' : 'rgba(16,140,103,0.1)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              marginBottom: 20,
-            }}>
-              <i className="ti ti-code" style={{ fontSize: 25, color: isDark ? '#5DCAA5' : '#108C67' }} />
-            </div>
-            <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 22, fontWeight: 800, marginBottom: 7, color: 'var(--text-primary)' }}>
-              Фрилансер
-            </div>
-            <p style={{ fontSize: 13, lineHeight: 1.65, marginBottom: 22, fontWeight: 300, color: 'var(--text-secondary)' }}>
-              Нахожу интересные проекты и зарабатываю на своих навыках.
-            </p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 9, marginBottom: 26 }}>
-              {['Поиск и фильтрация проектов', 'Подача заявок (биддинг)', 'Портфолио и профиль', 'Гарантированная оплата'].map(f => (
-                <div key={f} style={{ display: 'flex', alignItems: 'center', gap: 9, fontSize: 13, color: 'var(--text-secondary)' }}>
-                  <span style={{ width: 4, height: 4, borderRadius: '50%', background: isDark ? '#5DCAA5' : '#108C67', flexShrink: 0 }} />
-                  {f}
-                </div>
-              ))}
-            </div>
-            <button className="btn btn-green" style={{ width: '100%', padding: '13px 0', borderRadius: 12, fontSize: 14, fontWeight: 600, fontFamily: 'Syne, sans-serif' }}>
-              <i className="ti ti-arrow-right" /> Я фрилансер
-            </button>
-          </div>
         </div>
-
-        {/* Divider */}
-        <div className="gradient-divider" style={{ width: 340, marginBottom: 26 }} />
-        <p style={{ fontSize: 14, color: 'var(--text-muted)' }}>
-          Уже есть аккаунт?{' '}
-          <a href="#" style={{ color: 'var(--accent)', fontWeight: 500 }}>Войти</a>
-        </p>
       </div>
+
+      <Footer />
     </div>
+  )
+}
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="*" element={<DemoPage />} />
+      </Routes>
+    </BrowserRouter>
   )
 }
