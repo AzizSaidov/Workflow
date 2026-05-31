@@ -1,0 +1,213 @@
+/* ========= RESET ========= */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+/* ========= DARK THEME (default) ========= */
+:root {
+  --bg:              #07070E;
+  --bg-card:         #0D0D18;
+  --bg-input:        #0D0D18;
+  --accent:          #7F77DD;
+  --accent-green:    #1D9E75;
+  --accent-teal:     #5DCAA5;
+  --accent-light:    #AFA9EC;
+  --border:          rgba(255,255,255,0.07);
+  --border-hover:    rgba(127,119,221,0.45);
+  --text-primary:    #FFFFFF;
+  --text-secondary:  rgba(255,255,255,0.38);
+  --text-muted:      rgba(255,255,255,0.22);
+  --shadow-card:     0 4px 24px rgba(0,0,0,0.4);
+}
+
+/* ========= LIGHT THEME ========= */
+[data-theme="light"] {
+  --bg:              #F0EFFB;
+  --bg-card:         #FFFFFF;
+  --bg-input:        #FFFFFF;
+  --accent:          #4038B2;
+  --accent-green:    #108C67;
+  --accent-teal:     #108C67;
+  --accent-light:    #7B72D4;
+  --border:          rgba(80,70,200,0.12);
+  --border-hover:    rgba(80,70,200,0.45);
+  --text-primary:    #0F0E1A;
+  --text-secondary:  #5A5570;
+  --text-muted:      #7A758E;
+  --shadow-card:     0 4px 24px rgba(80,70,200,0.08);
+}
+
+/* ========= BASE ========= */
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text-primary);
+  min-height: 100vh;
+  transition: background 0.3s, color 0.3s;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Syne', sans-serif;
+}
+
+a { color: inherit; text-decoration: none; }
+button { cursor: pointer; font-family: 'DM Sans', sans-serif; }
+img { max-width: 100%; }
+
+/* ========= SCROLLBAR ========= */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: rgba(127,119,221,0.3); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(127,119,221,0.5); }
+
+/* ========= UTILITY ========= */
+.page-wrapper {
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* ========= TAGS ========= */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 3px 11px;
+  border-radius: 20px;
+  font-family: 'DM Sans', sans-serif;
+}
+.tag-purple { background: rgba(127,119,221,0.12); color: #AFA9EC; }
+.tag-green  { background: rgba(29,158,117,0.12);  color: #5DCAA5; }
+.tag-amber  { background: rgba(239,159,39,0.12);  color: #EF9F27; }
+.tag-red    { background: rgba(239,68,68,0.12);   color: #F87171; }
+.tag-muted  { background: rgba(255,255,255,0.05); color: var(--text-muted); }
+
+/* ========= CARD ========= */
+.card {
+  background: var(--bg-card);
+  border: 0.5px solid var(--border);
+  border-radius: 16px;
+  padding: 22px;
+  transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+}
+.card:hover {
+  border-color: var(--border-hover);
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-card);
+}
+
+/* ========= INPUTS ========= */
+.input {
+  width: 100%;
+  background: var(--bg-input);
+  border: 0.5px solid rgba(255,255,255,0.1);
+  border-radius: 10px;
+  padding: 12px 16px;
+  color: var(--text-primary);
+  font-size: 14px;
+  font-family: 'DM Sans', sans-serif;
+  outline: none;
+  transition: border-color 0.2s;
+}
+[data-theme="light"] .input {
+  border-color: rgba(80,70,200,0.15);
+}
+.input:focus { border-color: rgba(127,119,221,0.5); }
+[data-theme="light"] .input:focus { border-color: rgba(64,56,178,0.5); }
+.input::placeholder { color: var(--text-muted); }
+
+/* ========= BUTTONS ========= */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 10px 22px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: 'DM Sans', sans-serif;
+  border: none;
+  transition: opacity 0.2s, transform 0.15s;
+}
+.btn:hover { opacity: 0.87; }
+.btn:active { transform: scale(0.98); }
+
+.btn-primary  { background: var(--accent); color: #fff; }
+.btn-green    { background: var(--accent-green); color: #fff; }
+.btn-outline  {
+  background: transparent;
+  color: var(--text-secondary);
+  border: 0.5px solid rgba(255,255,255,0.15);
+}
+[data-theme="light"] .btn-outline {
+  border-color: rgba(80,70,200,0.2);
+  color: var(--accent);
+}
+.btn-danger   { background: rgba(239,68,68,0.12); color: #F87171; border: 0.5px solid rgba(239,68,68,0.25); }
+.btn-sm       { padding: 7px 16px; font-size: 13px; }
+.btn-lg       { padding: 14px 32px; font-size: 16px; }
+
+/* ========= DIVIDER with gradient ========= */
+.gradient-divider {
+  width: 100%;
+  height: 1px;
+  position: relative;
+  overflow: hidden;
+  background: rgba(255,255,255,0.04);
+}
+[data-theme="light"] .gradient-divider { background: rgba(80,70,200,0.07); }
+.gradient-divider::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, #7F77DD 25%, #5DCAA5 50%, #AFA9EC 75%, transparent);
+  background-size: 300% 100%;
+  animation: divSlide 3.5s linear infinite;
+}
+[data-theme="light"] .gradient-divider::after {
+  background: linear-gradient(90deg, transparent, #4038B2 25%, #108C67 50%, #7B72D4 75%, transparent);
+  background-size: 300% 100%;
+}
+@keyframes divSlide {
+  0%   { background-position: 300% 0; }
+  100% { background-position: -300% 0; }
+}
+
+/* ========= GLOW blobs ========= */
+.glow-blob {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 1;
+}
+.glow-1 {
+  width: 600px; height: 600px;
+  top: -180px; left: -180px;
+  background: radial-gradient(circle, rgba(127,119,221,0.14) 0%, transparent 68%);
+  animation: gm1 9s ease-in-out infinite;
+}
+.glow-2 {
+  width: 500px; height: 500px;
+  bottom: -130px; right: -130px;
+  background: radial-gradient(circle, rgba(93,202,165,0.11) 0%, transparent 68%);
+  animation: gm2 11s ease-in-out infinite;
+}
+[data-theme="light"] .glow-1 {
+  background: radial-gradient(circle, rgba(80,70,200,0.16) 0%, transparent 68%);
+}
+[data-theme="light"] .glow-2 {
+  background: radial-gradient(circle, rgba(16,140,103,0.14) 0%, transparent 68%);
+}
+@keyframes gm1 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(45px,30px)} }
+@keyframes gm2 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(-35px,-45px)} }
+
+/* ========= BLINK dot ========= */
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+.blink { animation: blink 2s infinite; }
