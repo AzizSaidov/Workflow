@@ -4,9 +4,31 @@ export default function StarBackground({ isDark = true, intensity = 'full' }) {
   const canvasRef = useRef(null)
   const animRef = useRef(null)
   const isDarkRef = useRef(isDark)
+  const canvasAlphaRef = useRef(1)
+  const fadingRef = useRef(false)
 
   useEffect(() => {
-    isDarkRef.current = isDark
+    if (isDarkRef.current === isDark) return
+    // Fade out → switch → fade in
+    fadingRef.current = true
+    canvasAlphaRef.current = 1
+    const fadeOut = setInterval(() => {
+      canvasAlphaRef.current -= 0.07
+      if (canvasAlphaRef.current <= 0) {
+        canvasAlphaRef.current = 0
+        isDarkRef.current = isDark
+        clearInterval(fadeOut)
+        const fadeIn = setInterval(() => {
+          canvasAlphaRef.current += 0.07
+          if (canvasAlphaRef.current >= 1) {
+            canvasAlphaRef.current = 1
+            fadingRef.current = false
+            clearInterval(fadeIn)
+          }
+        }, 16)
+      }
+    }, 16)
+    return () => clearInterval(fadeOut)
   }, [isDark])
 
   useEffect(() => {
@@ -54,28 +76,44 @@ export default function StarBackground({ isDark = true, intensity = 'full' }) {
       s.vx = Math.cos(ang) * sp; s.vy = Math.sin(ang) * sp; s.a = 1
     }
 
-    // Orbs (light)
-    const orbCount = intensity === 'full' ? 16 : 8
-    const lightOrbs = []
-    for (let i = 0; i < orbCount; i++) {
-      lightOrbs.push({
-        x: Math.random() * 1200, y: Math.random() * 800,
-        r: Math.random() * 110 + 50,
-        vx: (Math.random() - 0.5) * 0.22, vy: (Math.random() - 0.5) * 0.16,
+    // === LIGHT THEME: mesh blobs + dot grid ===
+    const blobCount = intensity === 'full' ? 6 : 4
+    const lightBlobs = []
+    const blobColors = [
+      [80, 72, 213],   // purple
+      [13, 146, 104],  // green
+      [128, 121, 224], // light purple
+      [80, 72, 213],
+      [13, 146, 104],
+      [100, 90, 220],
+    ]
+    for (let i = 0; i < blobCount; i++) {
+      lightBlobs.push({
+        x: Math.random() * 1400,
+        y: Math.random() * 900,
+        r: Math.random() * 260 + 140,
+        vx: (Math.random() - 0.5) * 0.18,
+        vy: (Math.random() - 0.5) * 0.13,
         phase: Math.random() * Math.PI * 2,
-        col: Math.random() > 0.5 ? [64, 56, 178] : [16, 140, 103],
+        col: blobColors[i % blobColors.length],
       })
     }
-    const sparkCount = intensity === 'full' ? 160 : 70
-    const lightSparks = []
-    for (let i = 0; i < sparkCount; i++) {
-      lightSparks.push({
-        x: Math.random() * 1200, y: Math.random() * 800,
-        r: Math.random() * 2.2 + 0.5,
-        vx: (Math.random() - 0.5) * 0.14, vy: (Math.random() - 0.5) * 0.1,
+    // Dot grid
+    const dotGridSpacing = intensity === 'full' ? 38 : 52
+    // Floating colored particles
+    const particleCount = intensity === 'full' ? 55 : 25
+    const lightParticles = []
+    for (let i = 0; i < particleCount; i++) {
+      const c = Math.random() > 0.5 ? [80, 72, 213] : [13, 146, 104]
+      lightParticles.push({
+        x: Math.random() * 1400,
+        y: Math.random() * 900,
+        r: Math.random() * 3 + 1,
+        vx: (Math.random() - 0.5) * 0.12,
+        vy: (Math.random() - 0.5) * 0.09,
         phase: Math.random() * Math.PI * 2,
-        speed: Math.random() * 0.025 + 0.008,
-        col: Math.random() > 0.5 ? [64, 56, 178] : [16, 140, 103],
+        speed: Math.random() * 0.02 + 0.006,
+        col: c,
       })
     }
 
@@ -84,6 +122,13 @@ export default function StarBackground({ isDark = true, intensity = 'full' }) {
     function frame() {
       ctx.clearRect(0, 0, canvas.width, canvas.height)
       tt += 0.016
+
+      const masterAlpha = canvasAlphaRef.current
+      if (masterAlpha < 0.01) {
+        animRef.current = requestAnimationFrame(frame)
+        return
+      }
+      ctx.globalAlpha = masterAlpha
 
       if (isDarkRef.current) {
         for (let i = 0; i < darkStars.length; i++) {
@@ -121,41 +166,62 @@ export default function StarBackground({ isDark = true, intensity = 'full' }) {
           }
         }
       } else {
-        for (let i = 0; i < lightOrbs.length; i++) {
-          const o = lightOrbs[i]
+        // --- Mesh blobs ---
+        for (let i = 0; i < lightBlobs.length; i++) {
+          const o = lightBlobs[i]
           o.x += o.vx; o.y += o.vy
-          if (o.x < -150) o.x = canvas.width + 150
-          if (o.x > canvas.width + 150) o.x = -150
-          if (o.y < -150) o.y = canvas.height + 150
-          if (o.y > canvas.height + 150) o.y = -150
-          const pulse = 0.5 + 0.5 * Math.sin(tt * 0.6 + o.phase)
-          const alpha = 0.10 + 0.10 * pulse
+          if (o.x < -300) o.x = canvas.width + 300
+          if (o.x > canvas.width + 300) o.x = -300
+          if (o.y < -300) o.y = canvas.height + 300
+          if (o.y > canvas.height + 300) o.y = -300
+          const pulse = 0.5 + 0.5 * Math.sin(tt * 0.4 + o.phase)
+          const alpha = 0.14 + 0.10 * pulse
           const g = ctx.createRadialGradient(o.x, o.y, 0, o.x, o.y, o.r)
           g.addColorStop(0, `rgba(${o.col[0]},${o.col[1]},${o.col[2]},${alpha})`)
+          g.addColorStop(0.5, `rgba(${o.col[0]},${o.col[1]},${o.col[2]},${alpha * 0.4})`)
           g.addColorStop(1, 'transparent')
           ctx.beginPath(); ctx.arc(o.x, o.y, o.r, 0, Math.PI * 2)
           ctx.fillStyle = g; ctx.globalAlpha = 1; ctx.fill()
         }
-        for (let i = 0; i < lightSparks.length; i++) {
-          const s = lightSparks[i]
+
+        // --- Dot grid ---
+        const cols = Math.ceil(canvas.width / dotGridSpacing) + 1
+        const rows = Math.ceil(canvas.height / dotGridSpacing) + 1
+        for (let r = 0; r < rows; r++) {
+          for (let c = 0; c < cols; c++) {
+            const dx = c * dotGridSpacing
+            const dy = r * dotGridSpacing
+            const wave = Math.sin(tt * 0.8 + dx * 0.012 + dy * 0.009) * 0.5 + 0.5
+            const a = 0.06 + 0.07 * wave
+            ctx.beginPath()
+            ctx.arc(dx, dy, 1.2, 0, Math.PI * 2)
+            ctx.fillStyle = `rgba(80,72,213,${a})`
+            ctx.globalAlpha = 1
+            ctx.fill()
+          }
+        }
+
+        // --- Floating particles ---
+        for (let i = 0; i < lightParticles.length; i++) {
+          const s = lightParticles[i]
           s.x += s.vx; s.y += s.vy
           if (s.x < 0) s.x = canvas.width; if (s.x > canvas.width) s.x = 0
           if (s.y < 0) s.y = canvas.height; if (s.y > canvas.height) s.y = 0
-          const a = (0.3 + 0.7 * Math.sin(tt * s.speed * 60 + s.phase)) * 0.6
+          const a = (0.35 + 0.45 * Math.sin(tt * s.speed * 60 + s.phase))
           ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2)
-          ctx.fillStyle = `rgba(${s.col[0]},${s.col[1]},${s.col[2]},${a})`
+          ctx.fillStyle = `rgba(${s.col[0]},${s.col[1]},${s.col[2]},${a * 0.55})`
           ctx.globalAlpha = 1; ctx.fill()
-          if (s.r > 1.4 && a > 0.25) {
-            const g = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, s.r * 3.5)
-            g.addColorStop(0, `rgba(${s.col[0]},${s.col[1]},${s.col[2]},${a * 0.35})`)
+          if (s.r > 1.8) {
+            const g = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, s.r * 4)
+            g.addColorStop(0, `rgba(${s.col[0]},${s.col[1]},${s.col[2]},${a * 0.2})`)
             g.addColorStop(1, 'transparent')
-            ctx.beginPath(); ctx.arc(s.x, s.y, s.r * 3.5, 0, Math.PI * 2)
+            ctx.beginPath(); ctx.arc(s.x, s.y, s.r * 4, 0, Math.PI * 2)
             ctx.fillStyle = g; ctx.globalAlpha = 1; ctx.fill()
           }
         }
       }
 
-      ctx.globalAlpha = 1
+      ctx.globalAlpha = masterAlpha
       animRef.current = requestAnimationFrame(frame)
     }
 
