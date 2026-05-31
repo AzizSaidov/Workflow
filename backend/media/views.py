@@ -13,8 +13,14 @@ from notifications.views import create_notification
 UPLOAD_DIR = Path(__file__).resolve().parent.parent / "uploads"
 UPLOAD_DIR.mkdir(exist_ok=True)
 
-ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".pdf", ".zip", ".docx"}
-MAX_SIZE = 10 * 1024 * 1024  # 10 MB
+ALLOWED_EXTENSIONS = {
+    ".jpg", ".jpeg", ".png", ".gif", ".webp",   # images
+    ".pdf", ".docx", ".doc", ".txt", ".md",      # documents
+    ".zip", ".rar", ".7z",                        # archives
+    ".fig", ".sketch", ".psd",                    # design
+    ".mp4",                                        # video
+}
+MAX_SIZE = 50 * 1024 * 1024  # 50 MB
 
 
 def _validate_and_save(file: UploadFile) -> tuple[str, str, str]:
