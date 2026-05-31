@@ -63,6 +63,18 @@ def accept_bid(bid_id: UUID, current_user: User, db: Session) -> Bid:
         Bid.id != bid_id,
         Bid.status == BidStatus.pending,
     ).update({"status": BidStatus.rejected})
+
+    from contracts.models import Contract
+    contract = Contract(
+        project_id=project.id,
+        client_id=current_user.id,
+        freelancer_id=bid.freelancer_id,
+        bid_id=bid.id,
+        amount=bid.price,
+        deadline=project.deadline,
+    )
+    db.add(contract)
+
     create_notification(
         user_id=bid.freelancer_id,
         type=NotificationType.bid_accepted,

@@ -82,8 +82,14 @@ def release(tx_id: UUID, client: User, db: Session) -> Transaction:
         freelancer_wallet = Wallet(user_id=tx.freelancer_id)
         db.add(freelancer_wallet)
 
+    import os
+    from decimal import Decimal
+    commission_rate = Decimal(os.getenv("PLATFORM_COMMISSION_RATE", "0.01"))
+    platform_fee = (tx.amount * commission_rate).quantize(Decimal("0.01"))
+    freelancer_payout = tx.amount - platform_fee
+
     client_wallet.frozen = client_wallet.frozen - tx.amount
-    freelancer_wallet.balance = freelancer_wallet.balance + tx.amount
+    freelancer_wallet.balance = freelancer_wallet.balance + freelancer_payout
     tx.status = EscrowStatus.released
     tx.released_at = get_dushanbe_time()
     project.status = ProjectStatus.completed
@@ -92,7 +98,7 @@ def release(tx_id: UUID, client: User, db: Session) -> Transaction:
         user_id=tx.freelancer_id,
         type=NotificationType.payment_received,
         title="Оплата получена",
-        message=f"Вам выплачено {tx.amount} за проект «{project.title}»",
+        message=f"Вам выплачено {freelancer_payout} за проект «{project.title}» (комиссия: {platform_fee})",
         db=db,
     )
     db.commit()

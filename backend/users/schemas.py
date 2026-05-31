@@ -18,6 +18,7 @@ class UserResponse(BaseModel):
     full_name: str
     avatar_url: str | None
     bio: str | None
+    is_banned: bool
     created_at: datetime
 
     model_config = {"from_attributes": True}

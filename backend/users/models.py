@@ -1,6 +1,6 @@
 import uuid
 import enum
-from sqlalchemy import Column, String, Text, Enum, DateTime, Float
+from sqlalchemy import Column, String, Text, Enum, DateTime, Float, Boolean
 from sqlalchemy.dialects.postgresql import UUID
 from database import Base
 from utils import get_dushanbe_time
@@ -9,6 +9,7 @@ from utils import get_dushanbe_time
 class UserRole(str, enum.Enum):
     client = "client"
     freelancer = "freelancer"
+    admin = "admin"
 
 
 class User(Base):
@@ -23,4 +24,5 @@ class User(Base):
     bio = Column(Text, nullable=True)
     latitude = Column(Float, nullable=True)
     longitude = Column(Float, nullable=True)
+    is_banned = Column(Boolean, nullable=False, default=False)
     created_at = Column(DateTime(timezone=True), default=get_dushanbe_time)

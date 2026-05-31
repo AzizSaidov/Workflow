@@ -17,10 +17,17 @@ from routers.search_routers import search_router
 from routers.report_routers import reports_router
 from routers.category_routers import categories_router
 from routers.language_routers import languages_router
+from routers.client_profile_routers import client_profiles_router
+from routers.certification_routers import certifications_router
+from routers.portfolio_routers import portfolio_router
+from routers.contract_routers import contracts_router
+from routers.favorite_routers import favorites_router
+from routers.dispute_routers import disputes_router
+from routers.admin_routers import admin_router
 
 Base.metadata.create_all(bind=engine)
 
-app = FastAPI(title="Workflow API", version="1.0.0")
+app = FastAPI(title="Workflow API", version="2.0.0")
 
 app.add_middleware(
     CORSMiddleware,
@@ -46,3 +53,10 @@ app.include_router(search_router)
 app.include_router(reports_router)
 app.include_router(categories_router)
 app.include_router(languages_router)
+app.include_router(client_profiles_router)
+app.include_router(certifications_router)
+app.include_router(portfolio_router)
+app.include_router(contracts_router)
+app.include_router(favorites_router)
+app.include_router(disputes_router)
+app.include_router(admin_router)

@@ -16,6 +16,15 @@ def register_user(data: UserCreate, db: Session) -> tuple[User, str, str]:
         full_name=data.full_name,
     )
     db.add(user)
+    db.flush()
+
+    if data.role == UserRole.freelancer:
+        from profiles.models import FreelancerProfile
+        db.add(FreelancerProfile(user_id=user.id))
+    elif data.role == UserRole.client:
+        from client_profiles.models import ClientProfile
+        db.add(ClientProfile(user_id=user.id))
+
     db.commit()
     db.refresh(user)
     return user, create_access_token(str(user.id)), create_refresh_token(str(user.id))
