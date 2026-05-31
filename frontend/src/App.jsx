@@ -1,18 +1,17 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import ProtectedRoute from './components/ProtectedRoute'
+import Home from './pages/Home'
 import RoleSelect from './pages/RoleSelect'
 import Register from './pages/Register'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
-
-// Заглушки — будут реализованы в следующих этапах
-const Home = () => <Navigate to="/role" replace />
 
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/freelancers" element={<Home />} />
         <Route path="/role" element={<RoleSelect />} />
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />

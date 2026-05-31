@@ -41,10 +41,11 @@ export default function Register() {
     }
     setLoading(true)
     try {
-      await authApi.register({ full_name: form.full_name, email: form.email, password: form.password, role: form.role })
-      const { data: tokens } = await authApi.login(form.email, form.password)
-      const { data: me } = await authApi.getMe(tokens.access_token)
-      login(me, tokens.access_token, tokens.refresh_token)
+      const { data } = await authApi.register({
+        full_name: form.full_name, email: form.email,
+        password: form.password, role: form.role,
+      })
+      login(data.user, data.access_token, data.refresh_token)
       navigate('/dashboard', { replace: true })
     } catch (err) {
       setError(err.response?.data?.detail || 'Ошибка регистрации')

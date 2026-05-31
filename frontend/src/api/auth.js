@@ -3,14 +3,9 @@ import client from './client'
 export const authApi = {
   register: (data) => client.post('/users/register', data),
 
-  login: (email, password) => {
-    const form = new URLSearchParams()
-    form.append('username', email)
-    form.append('password', password)
-    return client.post('/users/login', form, {
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    })
-  },
+  // Backend accepts JSON LoginRequest, returns { access_token, refresh_token, user }
+  login: (email, password) =>
+    client.post('/users/login', { email, password }),
 
   getMe: (token) => client.get('/users/me', token
     ? { headers: { Authorization: `Bearer ${token}` } }

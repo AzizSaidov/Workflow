@@ -127,6 +127,23 @@ body {
   background: var(--bg);
   color: var(--text-primary);
   min-height: 100vh;
+  text-align: left;
+}
+
+/* Browser autofill — override bright white */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-text-fill-color: var(--text-primary) !important;
+  -webkit-box-shadow: 0 0 0 1000px var(--bg-input) inset !important;
+  caret-color: var(--text-primary);
+  transition: background-color 9999s ease-in-out 0s;
+}
+[data-theme="light"] input:-webkit-autofill,
+[data-theme="light"] input:-webkit-autofill:hover,
+[data-theme="light"] input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px #F4F3FC inset !important;
 }
 
 h1, h2, h3, h4, h5, h6 {
