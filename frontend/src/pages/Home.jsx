@@ -205,7 +205,7 @@ export default function Home() {
               { value: stats?.total_freelancers || 0, suffix: '+', label: 'Фрилансеров', color: 'var(--accent)' },
               { value: stats?.completed_projects || 0, suffix: '+', label: 'Проектов завершено', color: 'var(--accent-green)' },
               { value: stats?.total_clients || 0, suffix: '+', label: 'Заказчиков', color: '#EF9F27' },
-              { value: Math.floor((stats?.total_paid || 0) / 1000), suffix: 'K TJS', label: 'Выплачено', color: 'var(--accent-teal)' },
+              { value: Math.floor((stats?.total_paid_out || 0) / 1000), suffix: 'K TJS', label: 'Выплачено', color: 'var(--accent-teal)' },
             ].map((s, i) => (
               <div key={i} style={{
                 padding: '32px 24px', textAlign: 'center',

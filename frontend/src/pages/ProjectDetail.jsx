@@ -53,7 +53,7 @@ export default function ProjectDetail() {
     if (!bidForm.price) { setBidError('Укажите стоимость'); return }
     setBidError(''); setBidLoading(true)
     try {
-      await bidsApi.create({ project_id: id, price: parseFloat(bidForm.price), cover_letter: bidForm.cover_letter })
+      await bidsApi.create(id, { price: parseFloat(bidForm.price), cover_letter: bidForm.cover_letter })
       setBidSent(true)
       load()
     } catch (err) {

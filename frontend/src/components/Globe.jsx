@@ -17,10 +17,10 @@ export default function Globe({ locations = [], width = 480, height = 480 }) {
   }, [loaded])
 
   const points = locations
-    .filter((l) => l.latitude != null && l.longitude != null)
+    .filter((l) => l.lat != null && l.lng != null)
     .map((l) => ({
-      lat: l.latitude,
-      lng: l.longitude,
+      lat: l.lat,
+      lng: l.lng,
       color: l.role === 'client' ? '#7F77DD' : '#1D9E75',
       size: 0.5,
     }))
