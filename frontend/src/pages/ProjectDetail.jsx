@@ -11,6 +11,7 @@ import Tag from '../components/Tag'
 import Button from '../components/Button'
 import Avatar from '../components/Avatar'
 import BidCard from '../components/BidCard'
+import ChatWidget from '../components/ChatWidget'
 import Input from '../components/Input'
 
 const TYPE_LABEL = { fixed: 'Фиксированная цена', hourly: 'Почасовая' }
@@ -174,6 +175,11 @@ export default function ProjectDetail() {
                     ))}
                   </div>
                 </div>
+              )}
+
+              {/* Chat — shown when project is in_progress */}
+              {['in_progress', 'delivered'].includes(project.status) && (
+                <ChatWidget projectId={id} />
               )}
 
               {isOwner && bids.length === 0 && project.status === 'open' && (

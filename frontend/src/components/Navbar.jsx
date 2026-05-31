@@ -4,6 +4,7 @@ import useAuthStore from '../store/authStore'
 import useThemeStore from '../store/themeStore'
 import ThemeToggle from './ThemeToggle'
 import Avatar from './Avatar'
+import NotificationBell from './NotificationBell'
 
 export default function Navbar() {
   const { user, logout, isAuthenticated } = useAuthStore()
@@ -74,6 +75,7 @@ export default function Navbar() {
 
         {isAuthenticated() ? (
           <>
+            <NotificationBell />
             <Link to="/dashboard" style={{ textDecoration: 'none' }}>
               <button className="btn btn-outline btn-sm">
                 <i className="ti ti-layout-dashboard" />

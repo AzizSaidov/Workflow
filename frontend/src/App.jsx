@@ -10,6 +10,7 @@ import ProjectDetail from './pages/ProjectDetail'
 import CreateProject from './pages/CreateProject'
 import Profile from './pages/Profile'
 import Wallet from './pages/Wallet'
+import AdminPanel from './pages/AdminPanel'
 
 export default function App() {
   return (
@@ -29,7 +30,7 @@ export default function App() {
         <Route path="/projects/:id" element={<ProtectedRoute><ProjectDetail /></ProtectedRoute>} />
         <Route path="/wallet" element={<ProtectedRoute><Wallet /></ProtectedRoute>} />
         <Route path="/profile/:id" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-        <Route path="/admin" element={<ProtectedRoute requireRole="admin"><Dashboard /></ProtectedRoute>} />
+        <Route path="/admin" element={<ProtectedRoute requireRole="admin"><AdminPanel /></ProtectedRoute>} />
 
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
