@@ -61,7 +61,6 @@ class ProjectResponse(BaseModel):
     delivery_github_url: str | None
     delivery_pr_url: str | None
     delivery_demo_url: str | None
-    delivery_demo_url: str | None
     delivery_file_url: str | None
     delivery_description: str | None
     delivery_submitted_at: datetime | None
