@@ -59,7 +59,7 @@ export default function FreelancerCard({ freelancer, isFavorited, onFavoriteTogg
             <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, color: 'var(--accent-green)' }}>
               {Number(hourly_rate).toLocaleString()}
             </span>
-            <span style={{ color: 'var(--text-muted)' }}>TJS/час</span>
+            <span style={{ color: 'var(--text-muted)' }}>/hr</span>
           </div>
         )}
       </Card>

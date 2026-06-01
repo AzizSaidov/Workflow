@@ -26,8 +26,8 @@ export default function Globe({ locations = [], width = 480, height = 480 }) {
     }))
 
   const earthTexture = isDark
-    ? 'https://unpkg.com/three-globe/example/img/earth-night.jpg'
-    : 'https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg'
+    ? '/earth-night.jpg'
+    : '/earth-blue-marble.jpg'
 
   return (
     <div style={{ position: 'relative', width, height }}>

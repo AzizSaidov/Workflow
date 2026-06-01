@@ -151,7 +151,7 @@ export default function ProjectsFeed() {
               />
 
               <div>
-                <div style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)', marginBottom: 8 }}>Бюджет (TJS)</div>
+                <div style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)', marginBottom: 8 }}>Бюджет ($)</div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
                   <Input placeholder="От" value={filters.budget_min} onChange={setFilter('budget_min')} inputStyle={{ padding: '10px 12px' }} />
                   <Input placeholder="До" value={filters.budget_max} onChange={setFilter('budget_max')} inputStyle={{ padding: '10px 12px' }} />

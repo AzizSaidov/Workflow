@@ -208,7 +208,7 @@ export default function FreelancersPage() {
                 <span style={{ color: 'var(--accent)' }}>идеального исполнителя</span>
               </h1>
               <p style={{ fontSize: 15, color: 'var(--text-secondary)', fontWeight: 300, lineHeight: 1.6 }}>
-                Проверенные специалисты из России, Центральной Азии и Европы. Рейтинг, отзывы, портфолио.
+                Проверенные специалисты со всего мира. Рейтинг, отзывы, портфолио.
               </p>
             </div>
           </div>

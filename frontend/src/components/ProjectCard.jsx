@@ -44,7 +44,7 @@ export default function ProjectCard({ project, isFavorited, onFavoriteToggle }) 
 
         <div style={{ marginTop: 'auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 15, color: 'var(--accent)' }}>
-            {Number(budget_min).toLocaleString()} – {Number(budget_max).toLocaleString()} TJS
+            ${Number(budget_min).toLocaleString()} – ${Number(budget_max).toLocaleString()}
           </span>
           {category && <Tag color="purple">{category}</Tag>}
         </div>

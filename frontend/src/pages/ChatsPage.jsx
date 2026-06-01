@@ -82,7 +82,7 @@ function ChatRoomCard({ project, user, lastMessages }) {
 
           <div style={{ marginTop: 6, fontSize: 12, color: 'var(--text-muted)' }}>
             <i className="ti ti-currency-dollar" style={{ fontSize: 11, marginRight: 4 }} />
-            {Number(project.budget_min).toLocaleString()} – {Number(project.budget_max).toLocaleString()} TJS
+            ${Number(project.budget_min).toLocaleString()} – ${Number(project.budget_max).toLocaleString()}
             <span style={{ margin: '0 8px', opacity: 0.3 }}>·</span>
             <i className="ti ti-calendar" style={{ fontSize: 11, marginRight: 4 }} />
             {new Date(project.created_at).toLocaleDateString('ru-RU')}

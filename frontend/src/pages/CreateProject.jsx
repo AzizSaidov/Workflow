@@ -128,8 +128,8 @@ export default function CreateProject() {
               {/* Budget */}
               <Section title="Бюджет">
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-                  <Input label="Минимум (TJS)" placeholder="50 000" value={form.budget_min} onChange={set('budget_min')} type="number" required />
-                  <Input label="Максимум (TJS)" placeholder="150 000" value={form.budget_max} onChange={set('budget_max')} type="number" required />
+                  <Input label="Минимум ($)" placeholder="500" value={form.budget_min} onChange={set('budget_min')} type="number" required />
+                  <Input label="Максимум ($)" placeholder="5000" value={form.budget_max} onChange={set('budget_max')} type="number" required />
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
                   <Select label="Тип оплаты" value={form.project_type} onChange={set('project_type')}

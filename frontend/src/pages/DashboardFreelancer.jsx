@@ -69,7 +69,7 @@ export default function DashboardFreelancer() {
               { icon: 'send', label: 'Всего заявок', value: stats?.total_bids ?? bids.length, color: 'var(--accent)', sub: 'подано' },
               { icon: 'loader-2', label: 'В работе', value: stats?.active_projects ?? activeProjects.length, color: '#EF9F27', sub: 'активных проектов' },
               { icon: 'circle-check', label: 'Завершено', value: stats?.completed_projects, color: 'var(--accent-green)', sub: 'проектов' },
-              { icon: 'coin', label: 'Заработано', value: stats?.total_earned ? Number(stats.total_earned).toLocaleString() + ' TJS' : '0 TJS', color: 'var(--accent-teal)', sub: 'за всё время' },
+              { icon: 'coin', label: 'Заработано', value: stats?.total_earned ? '$' + Number(stats.total_earned).toLocaleString() : '$0', color: 'var(--accent-teal)', sub: 'за всё время' },
             ].map(({ icon, label, value, color, sub }) => (
               <div key={label} style={{ background: 'var(--bg-card)', border: '0.5px solid var(--border)', borderRadius: 18, padding: '22px 24px', position: 'relative', overflow: 'hidden' }}>
                 <div style={{ position: 'absolute', top: -20, right: -20, width: 80, height: 80, borderRadius: '50%', background: `${color}18`, pointerEvents: 'none' }} />
@@ -172,7 +172,7 @@ export default function DashboardFreelancer() {
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <Tag color="amber">В работе</Tag>
                             <span style={{ fontFamily: 'Syne, sans-serif', fontSize: 13, fontWeight: 700, color: 'var(--accent-green)' }}>
-                              {Number(bid.price).toLocaleString()} TJS
+                              ${Number(bid.price).toLocaleString()}
                             </span>
                           </div>
                         </div>

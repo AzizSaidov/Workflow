@@ -154,7 +154,7 @@ export default function ProjectDetail() {
                   ) : (
                     <form onSubmit={submitBid} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
                       <Input
-                        label="Ваша стоимость (TJS)"
+                        label="Ваша стоимость ($)"
                         type="number"
                         placeholder={`${project.budget_min} – ${project.budget_max}`}
                         value={bidForm.price}
@@ -273,8 +273,7 @@ export default function ProjectDetail() {
               <div style={{ background: 'var(--bg-card)', border: '0.5px solid var(--border)', borderRadius: 16, padding: 22 }}>
                 <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 6, textTransform: 'uppercase', letterSpacing: 0.5 }}>Бюджет</div>
                 <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 26, color: 'var(--accent)', letterSpacing: '-0.5px' }}>
-                  {Number(project.budget_min).toLocaleString()} – {Number(project.budget_max).toLocaleString()}
-                  <span style={{ fontSize: 14, fontWeight: 400, color: 'var(--text-muted)', marginLeft: 4 }}>TJS</span>
+                  ${Number(project.budget_min).toLocaleString()} – ${Number(project.budget_max).toLocaleString()}
                 </div>
                 {project.deadline && (
                   <div style={{ marginTop: 12, display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: 'var(--text-secondary)' }}>

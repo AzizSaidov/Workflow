@@ -73,7 +73,7 @@ function StatsTab() {
     { icon: 'briefcase', label: 'Всего проектов', value: stats.total_projects, color: 'var(--accent-teal)' },
     { icon: 'circle-check', label: 'Завершено', value: stats.completed_projects, color: 'var(--accent-green)' },
     { icon: 'alert-triangle', label: 'Активных споров', value: stats.active_disputes, color: '#EF9F27' },
-    { icon: 'wallet', label: 'Выплачено (TJS)', value: Number(stats.total_released || 0).toLocaleString(), color: 'var(--accent-green)' },
+    { icon: 'wallet', label: 'Выплачено ($)', value: '$' + Number(stats.total_released || 0).toLocaleString(), color: 'var(--accent-green)' },
   ] : []
 
   return (
@@ -292,7 +292,7 @@ function DisputesTab() {
         <div key={tx.id} style={{ background: 'var(--bg-card)', border: '0.5px solid rgba(239,159,39,0.25)', borderRadius: 14, padding: '18px 22px', display: 'flex', alignItems: 'center', gap: 16 }}>
           <div style={{ flex: 1 }}>
             <div style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 4 }}>Транзакция · {tx.id.slice(0, 8)}...</div>
-            <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 20, fontWeight: 700, color: '#EF9F27' }}>{Number(tx.amount).toLocaleString()} TJS</div>
+            <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 20, fontWeight: 700, color: '#EF9F27' }}>${Number(tx.amount).toLocaleString()}</div>
             <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 4 }}>{new Date(tx.created_at).toLocaleDateString('ru-RU')}</div>
           </div>
           <div style={{ display: 'flex', gap: 8 }}>

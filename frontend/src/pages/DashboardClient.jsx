@@ -98,7 +98,7 @@ export default function DashboardClient() {
             <StatCard icon="briefcase" label="Всего проектов" value={stats?.total_projects} color="var(--accent)" />
             <StatCard icon="loader-2" label="В работе" value={stats?.active_projects} color="#EF9F27" sub="активных" />
             <StatCard icon="circle-check" label="Завершено" value={stats?.completed_projects} color="var(--accent-green)" />
-            <StatCard icon="wallet" label="Вложено (TJS)" value={stats?.total_spent ? Number(stats.total_spent).toLocaleString() : undefined} color="var(--accent-teal)" sub="выплачено исполнителям" />
+            <StatCard icon="wallet" label="Вложено ($)" value={stats?.total_spent ? '$' + Number(stats.total_spent).toLocaleString() : undefined} color="var(--accent-teal)" sub="выплачено исполнителям" />
           </div>
 
           {/* Quick actions */}

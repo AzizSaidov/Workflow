@@ -78,7 +78,7 @@ export default function Wallet() {
               </div>
               <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 40, fontWeight: 800, letterSpacing: '-2px', color: 'var(--text-primary)' }}>
                 {loading ? '—' : Number(wallet?.balance || 0).toLocaleString()}
-                <span style={{ fontSize: 18, fontWeight: 400, color: 'var(--text-muted)', marginLeft: 6 }}>TJS</span>
+                <span style={{ fontSize: 18, fontWeight: 400, color: 'var(--text-muted)', marginLeft: 2 }}>$</span>
               </div>
               <div style={{ marginTop: 20 }}>
                 <div style={{
@@ -104,7 +104,7 @@ export default function Wallet() {
               </div>
               <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 40, fontWeight: 800, letterSpacing: '-2px', color: '#EF9F27' }}>
                 {loading ? '—' : Number(wallet?.frozen || 0).toLocaleString()}
-                <span style={{ fontSize: 18, fontWeight: 400, color: 'var(--text-muted)', marginLeft: 6 }}>TJS</span>
+                <span style={{ fontSize: 18, fontWeight: 400, color: 'var(--text-muted)', marginLeft: 2 }}>$</span>
               </div>
               <p style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 20, lineHeight: 1.6 }}>
                 Средства заморожены до завершения проекта
@@ -155,7 +155,7 @@ export default function Wallet() {
                           </div>
                         </td>
                         <td style={{ padding: '14px 24px', fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 15, color: txColor(tx) }}>
-                          {txSign(tx)}{Number(tx.amount).toLocaleString()} TJS
+                          {txSign(tx)}${Number(tx.amount).toLocaleString()}
                         </td>
                         <td style={{ padding: '14px 24px' }}>
                           <Tag color={st.color}>{st.label}</Tag>

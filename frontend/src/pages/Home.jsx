@@ -129,7 +129,7 @@ export default function Home() {
               animationDelay: '0.1s',
             }}>
               <span className="blink" style={{ width: 7, height: 7, borderRadius: '50%', background: 'var(--accent-green)', display: 'inline-block' }} />
-              {locations.length > 0 ? `${locations.length} специалистов на платформе` : 'Платформа для фрилансеров Центральной Азии'}
+              {locations.length > 0 ? `${locations.length} специалистов на платформе` : 'Global Freelance Platform'}
             </div>
 
             <h1 className="animate-in" style={{
@@ -188,20 +188,6 @@ export default function Home() {
 
           {/* Globe + floating badges */}
           <div className="animate-fade" style={{ flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', animationDelay: '0.3s' }}>
-            {/* Floating badge — top left */}
-            <div style={{
-              position: 'absolute', top: 40, left: -20, zIndex: 10,
-              background: 'var(--bg-card)', border: '0.5px solid var(--border)',
-              borderRadius: 12, padding: '8px 14px',
-              display: 'flex', alignItems: 'center', gap: 8, fontSize: 12,
-              boxShadow: isDark ? '0 4px 20px rgba(0,0,0,0.4)' : '0 4px 20px rgba(80,72,213,0.1)',
-              animation: 'fadeInUp 0.5s ease both',
-              animationDelay: '0.9s',
-              whiteSpace: 'nowrap',
-            }}>
-              <i className="ti ti-star-filled" style={{ color: '#EF9F27', fontSize: 15 }} />
-              <span style={{ color: 'var(--text-primary)', fontWeight: 500 }}>Рейтинг 5.0</span>
-            </div>
             {/* Floating badge — bottom right */}
             <div style={{
               position: 'absolute', bottom: 60, right: -10, zIndex: 10,
@@ -240,7 +226,7 @@ export default function Home() {
               { value: stats?.total_freelancers || 0, suffix: '+', label: 'Фрилансеров', color: 'var(--accent)' },
               { value: stats?.completed_projects || 0, suffix: '+', label: 'Проектов завершено', color: 'var(--accent-green)' },
               { value: stats?.total_clients || 0, suffix: '+', label: 'Заказчиков', color: '#EF9F27' },
-              { value: Math.floor((stats?.total_paid_out || 0) / 1000), suffix: 'K TJS', label: 'Выплачено', color: 'var(--accent-teal)' },
+              { value: Math.floor((stats?.total_paid_out || 0) / 1000), suffix: 'K$', label: 'Выплачено', color: 'var(--accent-teal)' },
             ].map((s, i) => (
               <div key={i} style={{
                 padding: '32px 24px', textAlign: 'center',

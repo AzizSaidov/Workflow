@@ -256,7 +256,7 @@ export default function Profile() {
                     </div>
                     {isFreelancer && (
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
-                        <Input label="Ставка (TJS/час)" type="number" value={editForm.hourly_rate} onChange={e => setEditForm(f => ({ ...f, hourly_rate: e.target.value }))} />
+                        <Input label="Hourly rate ($/hr)" type="number" value={editForm.hourly_rate} onChange={e => setEditForm(f => ({ ...f, hourly_rate: e.target.value }))} />
                         <Input label="Опыт (лет)" type="number" value={editForm.experience_years} onChange={e => setEditForm(f => ({ ...f, experience_years: e.target.value }))} />
                       </div>
                     )}
@@ -476,7 +476,7 @@ export default function Profile() {
               {isFreelancer && profile && (
                 <div style={{ background: 'var(--bg-card)', border: '0.5px solid var(--border)', borderRadius: 16, padding: 22 }}>
                   {[
-                    { icon: 'currency-dollar', label: 'Ставка', value: profile.hourly_rate ? `${Number(profile.hourly_rate).toLocaleString()} TJS/час` : 'Не указана', color: 'var(--accent-green)' },
+                    { icon: 'currency-dollar', label: 'Ставка', value: profile.hourly_rate ? `$${Number(profile.hourly_rate).toLocaleString()}/hr` : 'Не указана', color: 'var(--accent-green)' },
                     { icon: 'briefcase', label: 'Выполнено работ', value: profile.total_jobs, color: 'var(--accent)' },
                     { icon: 'clock', label: 'Опыт', value: profile.experience_years ? `${profile.experience_years} лет` : '—', color: '#EF9F27' },
                     { icon: 'bolt', label: 'Отклик', value: profile.response_time || 'Быстро', color: 'var(--accent-teal)' },

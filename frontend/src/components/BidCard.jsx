@@ -44,7 +44,7 @@ export default function BidCard({ bid, isOwner = false, onAccepted }) {
         </Link>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6 }}>
           <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 16, color: 'var(--accent)' }}>
-            {Number(price).toLocaleString()} TJS
+            ${Number(price).toLocaleString()}
           </span>
           <Tag color={st.color}>{st.label}</Tag>
         </div>
