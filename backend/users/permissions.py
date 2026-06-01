@@ -1,3 +1,5 @@
+import os
+import redis as redis_lib
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
@@ -6,6 +8,8 @@ from users.models import User
 from users.auth import decode_token
 
 bearer = HTTPBearer()
+
+_redis = redis_lib.from_url(os.getenv("REDIS_URL", "redis://localhost:6379/0"), decode_responses=True)
 
 
 def get_current_user(
@@ -18,6 +22,10 @@ def get_current_user(
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found")
+    try:
+        _redis.setex(f"online:{user.id}", 300, 1)
+    except Exception:
+        pass
     return user
 
 

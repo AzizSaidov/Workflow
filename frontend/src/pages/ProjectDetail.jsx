@@ -12,7 +12,6 @@ import Tag from '../components/Tag'
 import Button from '../components/Button'
 import Avatar from '../components/Avatar'
 import BidCard from '../components/BidCard'
-import ChatWidget from '../components/ChatWidget'
 import Input from '../components/Input'
 import AITextarea from '../components/AITextarea'
 import { aiApi } from '../api/ai'
@@ -253,10 +252,6 @@ export default function ProjectDetail() {
                 </div>
               )}
 
-              {/* Chat — shown when project is in_progress */}
-              {['in_progress', 'delivered'].includes(project.status) && (
-                <ChatWidget projectId={id} />
-              )}
 
               {isOwner && bids.length === 0 && project.status === 'open' && (
                 <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--text-muted)' }}>

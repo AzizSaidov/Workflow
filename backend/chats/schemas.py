@@ -10,6 +10,11 @@ class MessageResponse(BaseModel):
     content: str
     file_url: str | None
     file_type: str | None
+    edited_at: datetime | None
     created_at: datetime
 
     model_config = {"from_attributes": True}
+
+
+class MessageEdit(BaseModel):
+    content: str

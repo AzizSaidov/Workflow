@@ -15,8 +15,14 @@ class ConnectionManager:
             room.remove(ws)
 
     async def broadcast(self, project_id: str, message: dict):
+        dead = []
         for ws in self.rooms.get(project_id, []):
-            await ws.send_json(message)
+            try:
+                await ws.send_json(message)
+            except Exception:
+                dead.append(ws)
+        for ws in dead:
+            self.disconnect(project_id, ws)
 
 
 manager = ConnectionManager()

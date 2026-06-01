@@ -1,5 +1,6 @@
 from uuid import UUID
 from fastapi import APIRouter, Depends, Query, Body, HTTPException, status
+from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from database import get_db
 from users.schemas import UserCreate, LoginRequest, TokenResponse, UserResponse, UserUpdate
@@ -9,6 +10,11 @@ from users.models import User, UserRole
 from users.auth import decode_token, create_access_token, create_refresh_token
 from stats.schemas import UserStats
 from stats.views import get_my_stats
+
+
+class LocationUpdate(BaseModel):
+    lat: float
+    lng: float
 
 users_router = APIRouter(prefix="/api/users", tags=["users"])
 
@@ -75,6 +81,13 @@ def list_users(
     _: User = Depends(get_current_user),
 ):
     return get_all_users(db, role)
+
+
+@users_router.post("/me/location", status_code=204)
+def update_location(data: LocationUpdate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    current_user.latitude = data.lat
+    current_user.longitude = data.lng
+    db.commit()
 
 
 @users_router.get("/{user_id}", response_model=UserResponse)

@@ -20,6 +20,8 @@ class UserResponse(BaseModel):
     bio: str | None
     is_banned: bool
     created_at: datetime
+    latitude: float | None = None
+    longitude: float | None = None
 
     model_config = {"from_attributes": True}
 

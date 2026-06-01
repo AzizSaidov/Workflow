@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import useThemeStore from '../store/themeStore'
+import useAuthStore from '../store/authStore'
 import { statsApi } from '../api/stats'
 import { categoriesApi } from '../api/categories'
 import StarBackground from '../components/StarBackground'
@@ -93,19 +94,33 @@ function CategoryCard({ cat, isDark }) {
 
 export default function Home() {
   const { isDark } = useThemeStore()
+  const { user } = useAuthStore()
   const [stats, setStats] = useState(null)
   const [locations, setLocations] = useState([])
+  const [onlineCount, setOnlineCount] = useState(0)
   const [categories, setCategories] = useState([])
   const [projects, setProjects] = useState([])
   const [freelancers, setFreelancers] = useState([])
 
   useEffect(() => {
     statsApi.getGlobal().then(r => setStats(r.data)).catch(() => {})
-    statsApi.getUserLocations().then(r => setLocations(r.data)).catch(() => {})
     statsApi.getRecentProjects().then(r => setProjects(r.data?.slice(0, 6) || [])).catch(() => {})
     statsApi.getTopFreelancers().then(r => setFreelancers(r.data?.slice(0, 4) || [])).catch(() => {})
     categoriesApi.getAll().then(r => setCategories(r.data || [])).catch(() => {})
-  }, [])
+    Promise.all([
+      statsApi.getUserLocations().catch(() => ({ data: [] })),
+      statsApi.getOnlineCount().catch(() => ({ data: { count: 0 } })),
+    ]).then(([locRes, onlineRes]) => {
+      const pts = locRes.data || []
+      setOnlineCount(onlineRes.data?.count || 0)
+      if (user?.latitude && user?.longitude) {
+        const withMe = pts.filter(p => !(Math.abs(p.lat - user.latitude) < 0.0001 && Math.abs(p.lng - user.longitude) < 0.0001))
+        setLocations([...withMe, { lat: user.latitude, lng: user.longitude, role: 'me' }])
+      } else {
+        setLocations(pts)
+      }
+    })
+  }, [user?.id])
 
   return (
     <div className="page-wrapper" style={{ background: 'var(--bg)' }}>
@@ -129,7 +144,7 @@ export default function Home() {
               animationDelay: '0.1s',
             }}>
               <span className="blink" style={{ width: 7, height: 7, borderRadius: '50%', background: 'var(--accent-green)', display: 'inline-block' }} />
-              {locations.length > 0 ? `${locations.length} специалистов на платформе` : 'Global Freelance Platform'}
+              {onlineCount > 0 ? `${onlineCount} онлайн сейчас` : 'Global Freelance Platform'}
             </div>
 
             <h1 className="animate-in" style={{

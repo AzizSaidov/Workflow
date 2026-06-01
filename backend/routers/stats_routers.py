@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from database import get_db
 from stats.schemas import GlobalStats, UserLocation, TopFreelancerResponse, CategoryStats
-from stats.views import get_global_stats, get_user_locations, get_top_freelancers, get_recent_projects, get_category_stats
+from stats.views import get_global_stats, get_user_locations, get_top_freelancers, get_recent_projects, get_category_stats, get_online_count
 from projects.schemas import ProjectResponse
 
 stats_router = APIRouter(prefix="/api/stats", tags=["stats"])
@@ -31,3 +31,8 @@ def recent_projects(db: Session = Depends(get_db)):
 @stats_router.get("/categories", response_model=list[CategoryStats])
 def category_stats(db: Session = Depends(get_db)):
     return get_category_stats(db)
+
+
+@stats_router.get("/online-count")
+def online_count():
+    return {"count": get_online_count()}

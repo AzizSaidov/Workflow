@@ -14,11 +14,12 @@ UPLOAD_DIR = Path(__file__).resolve().parent.parent / "uploads"
 UPLOAD_DIR.mkdir(exist_ok=True)
 
 ALLOWED_EXTENSIONS = {
-    ".jpg", ".jpeg", ".png", ".gif", ".webp",   # images
-    ".pdf", ".docx", ".doc", ".txt", ".md",      # documents
-    ".zip", ".rar", ".7z",                        # archives
-    ".fig", ".sketch", ".psd",                    # design
-    ".mp4",                                        # video
+    ".jpg", ".jpeg", ".png", ".gif", ".webp",
+    ".pdf", ".docx", ".doc", ".txt", ".md",
+    ".zip", ".rar", ".7z",
+    ".fig", ".sketch", ".psd",
+    ".mp4",
+    ".mp3", ".ogg", ".webm", ".wav", ".m4a",
 }
 MAX_SIZE = 50 * 1024 * 1024  # 50 MB
 

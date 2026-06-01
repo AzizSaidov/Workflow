@@ -21,8 +21,8 @@ export default function Globe({ locations = [], width = 480, height = 480 }) {
     .map((l) => ({
       lat: l.lat,
       lng: l.lng,
-      color: l.role === 'client' ? '#7F77DD' : '#1D9E75',
-      size: 0.5,
+      color: l.role === 'me' ? '#FF4444' : l.role === 'client' ? '#7F77DD' : '#1D9E75',
+      size: l.role === 'me' ? 0.9 : 0.5,
     }))
 
   const earthTexture = isDark
@@ -80,6 +80,12 @@ export default function Globe({ locations = [], width = 480, height = 480 }) {
             <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#1D9E75', flexShrink: 0 }} />
             Фрилансеры
           </span>
+          {locations.some(l => l.role === 'me') && (
+            <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+              <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#FF4444', flexShrink: 0 }} />
+              Вы
+            </span>
+          )}
         </div>
       )}
     </div>

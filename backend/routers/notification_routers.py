@@ -65,20 +65,28 @@ async def notification_ws(user_id: UUID, ws: WebSocket, token: str = Query(...))
         last_check = get_dushanbe_time()
         try:
             while True:
-                await asyncio.sleep(5)
+                try:
+                    await asyncio.sleep(5)
+                except asyncio.CancelledError:
+                    break
                 db.expire_all()
                 new = db.query(Notification).filter(
                     Notification.user_id == user_id,
                     Notification.created_at > last_check,
                 ).all()
                 for n in new:
-                    await ws.send_json({
-                        "id": str(n.id), "type": n.type, "title": n.title,
-                        "message": n.message, "is_read": n.is_read,
-                        "created_at": n.created_at.isoformat(),
-                    })
+                    try:
+                        await ws.send_json({
+                            "id": str(n.id), "type": n.type, "title": n.title,
+                            "message": n.message, "is_read": n.is_read,
+                            "created_at": n.created_at.isoformat(),
+                        })
+                    except Exception:
+                        break
                 last_check = get_dushanbe_time()
         except WebSocketDisconnect:
+            pass
+        finally:
             notif_manager.disconnect(str(user_id), ws)
     finally:
         db.close()

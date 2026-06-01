@@ -3,6 +3,20 @@ import { Link, useNavigate, useLocation } from 'react-router-dom'
 import useThemeStore from '../store/themeStore'
 import useAuthStore from '../store/authStore'
 import { authApi } from '../api/auth'
+
+function requestGeolocation(onSaved) {
+  if (!navigator.geolocation) return
+  if (localStorage.getItem('geo-asked')) return
+  localStorage.setItem('geo-asked', '1')
+  navigator.geolocation.getCurrentPosition(
+    ({ coords }) => {
+      authApi.updateLocation(coords.latitude, coords.longitude)
+        .then(() => onSaved(coords.latitude, coords.longitude))
+        .catch(() => {})
+    },
+    () => {}
+  )
+}
 import StarBackground from '../components/StarBackground'
 import ThemeToggle from '../components/ThemeToggle'
 import Input from '../components/Input'
@@ -10,7 +24,7 @@ import Button from '../components/Button'
 
 export default function Login() {
   const { isDark } = useThemeStore()
-  const { login } = useAuthStore()
+  const { login, setUser, user: authUser } = useAuthStore()
   const navigate = useNavigate()
   const location = useLocation()
   const from = location.state?.from?.pathname || '/dashboard'
@@ -29,6 +43,9 @@ export default function Login() {
     try {
       const { data } = await authApi.login(form.email, form.password)
       login(data.user, data.access_token, data.refresh_token)
+      requestGeolocation((lat, lng) => {
+        setUser({ ...data.user, latitude: lat, longitude: lng })
+      })
       navigate(from, { replace: true })
     } catch (err) {
       setError(err.response?.data?.detail || 'Неверный email или пароль')

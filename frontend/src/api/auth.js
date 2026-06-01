@@ -3,7 +3,6 @@ import client from './client'
 export const authApi = {
   register: (data) => client.post('/users/register', data),
 
-  // Backend accepts JSON LoginRequest, returns { access_token, refresh_token, user }
   login: (email, password) =>
     client.post('/users/login', { email, password }),
 
@@ -14,4 +13,7 @@ export const authApi = {
 
   refresh: (refreshToken) =>
     client.post('/users/refresh', { refresh_token: refreshToken }),
+
+  updateLocation: (lat, lng) =>
+    client.post('/users/me/location', { lat, lng }),
 }

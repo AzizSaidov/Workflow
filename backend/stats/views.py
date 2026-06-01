@@ -1,3 +1,5 @@
+import os
+import redis as redis_lib
 from decimal import Decimal
 from sqlalchemy.orm import Session
 from sqlalchemy import func
@@ -7,6 +9,15 @@ from escrow.models import Transaction, EscrowStatus
 from bids.models import Bid
 from profiles.models import FreelancerProfile
 from stats.schemas import GlobalStats, UserLocation, UserStats, TopFreelancerResponse, CategoryStats
+
+_redis = redis_lib.from_url(os.getenv("REDIS_URL", "redis://localhost:6379/0"), decode_responses=True)
+
+
+def get_online_count() -> int:
+    try:
+        return len(_redis.keys("online:*"))
+    except Exception:
+        return 0
 
 
 def get_global_stats(db: Session) -> GlobalStats:
