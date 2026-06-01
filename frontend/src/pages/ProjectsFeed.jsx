@@ -143,7 +143,15 @@ export default function ProjectsFeed() {
               {loading ? (
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 18 }}>
                   {Array.from({ length: 6 }).map((_, i) => (
-                    <div key={i} style={{ height: 180, borderRadius: 16, background: 'var(--bg-card)', border: '0.5px solid var(--border)', opacity: 0.6 }} />
+                    <div key={i} style={{ borderRadius: 16, border: '0.5px solid var(--border)', padding: 22, overflow: 'hidden' }}>
+                      <div className="skeleton" style={{ height: 14, width: '40%', marginBottom: 14 }} />
+                      <div className="skeleton" style={{ height: 20, width: '80%', marginBottom: 10 }} />
+                      <div className="skeleton" style={{ height: 14, width: '65%', marginBottom: 20 }} />
+                      <div style={{ display: 'flex', gap: 8 }}>
+                        <div className="skeleton" style={{ height: 22, width: 70, borderRadius: 20 }} />
+                        <div className="skeleton" style={{ height: 22, width: 55, borderRadius: 20 }} />
+                      </div>
+                    </div>
                   ))}
                 </div>
               ) : projects.length === 0 ? (
@@ -153,7 +161,7 @@ export default function ProjectsFeed() {
                   <div style={{ fontSize: 13 }}>Попробуй изменить фильтры</div>
                 </div>
               ) : (
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 18 }}>
+                <div className="stagger" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 18 }}>
                   {projects.map(p => <ProjectCard key={p.id} project={p} />)}
                 </div>
               )}

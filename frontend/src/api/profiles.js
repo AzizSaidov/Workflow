@@ -2,9 +2,15 @@ import client from './client'
 
 export const profilesApi = {
   get: (userId) => client.get(`/profiles/${userId}`),
+  getTop: (category) => client.get('/profiles/top', { params: category ? { category } : {} }),
   updateMe: (data) => client.put('/profiles/me', data),
   addSkill: (skillId) => client.post('/profiles/me/skills', { skill_id: skillId }),
   removeSkill: (skillId) => client.delete(`/profiles/me/skills/${skillId}`),
   addLanguage: (languageId, level) => client.post('/profiles/me/languages', { language_id: languageId, level }),
   removeLanguage: (languageId) => client.delete(`/profiles/me/languages/${languageId}`),
+}
+
+export const usersApi = {
+  list: (role) => client.get('/users/', { params: role ? { role } : {} }),
+  getById: (id) => client.get(`/users/${id}`),
 }

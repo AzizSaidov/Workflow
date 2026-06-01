@@ -69,8 +69,15 @@ def create_project(data: ProjectCreate, client: User, db: Session) -> Project:
     return project
 
 
-def get_my_projects(client: User, db: Session) -> list[Project]:
-    return db.query(Project).filter(Project.client_id == client.id).order_by(Project.created_at.desc()).all()
+def get_my_projects(user: User, db: Session) -> list[Project]:
+    return (
+        db.query(Project)
+        .filter(
+            or_(Project.client_id == user.id, Project.assigned_freelancer_id == user.id)
+        )
+        .order_by(Project.created_at.desc())
+        .all()
+    )
 
 
 def get_project(project_id: UUID, db: Session) -> Project:
@@ -86,6 +93,49 @@ def update_project(project_id: UUID, data: ProjectUpdate, current_user: User, db
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not your project")
     for field, value in data.model_dump(exclude_unset=True).items():
         setattr(project, field, value)
+    db.commit()
+    db.refresh(project)
+    return project
+
+
+def accept_delivery(project_id: UUID, client: User, db: Session) -> Project:
+    import os
+    from decimal import Decimal as Dec
+    from escrow.models import Transaction, EscrowStatus
+    from wallet.models import Wallet
+
+    project = get_project(project_id, db)
+    if project.client_id != client.id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not your project")
+    if project.status != ProjectStatus.delivered:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Project is not delivered")
+
+    tx = db.query(Transaction).filter(
+        Transaction.project_id == project_id,
+        Transaction.status == EscrowStatus.frozen,
+    ).first()
+    if tx:
+        rate = Dec(os.getenv("PLATFORM_COMMISSION_RATE", "0.01"))
+        fee = (tx.amount * rate).quantize(Dec("0.01"))
+        payout = tx.amount - fee
+        client_w = db.query(Wallet).filter(Wallet.user_id == client.id).first()
+        free_w   = db.query(Wallet).filter(Wallet.user_id == project.assigned_freelancer_id).first()
+        if client_w:
+            client_w.frozen = max(Dec("0"), client_w.frozen - tx.amount)
+        if free_w:
+            free_w.balance += payout
+        tx.status = EscrowStatus.released
+        tx.released_at = get_dushanbe_time()
+
+    project.status = ProjectStatus.completed
+    if project.assigned_freelancer_id:
+        create_notification(
+            user_id=project.assigned_freelancer_id,
+            type=NotificationType.payment_received,
+            title="Работа принята",
+            message=f"Заказчик принял работу по проекту «{project.title}». Средства зачислены.",
+            db=db,
+        )
     db.commit()
     db.refresh(project)
     return project

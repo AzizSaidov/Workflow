@@ -53,28 +53,24 @@ function StatCard({ value, suffix = '', label, color = 'var(--accent)' }) {
 }
 
 // --- Category card ---
-const ICON_MAP = {
-  'ti-code': 'code', 'ti-palette': 'palette', 'ti-chart-bar': 'chart-bar',
-  'ti-writing': 'writing', 'ti-brain': 'brain', 'ti-calculator': 'calculator',
-  'ti-headset': 'headset',
-}
-
+// cat.icon from DB is already a full class like "ti-code"
 function CategoryCard({ cat, isDark }) {
-  const iconName = ICON_MAP[cat.icon] || 'briefcase'
+  // Support both "ti-code" and just "code"
+  const iconClass = cat.icon?.startsWith('ti-') ? cat.icon : `ti-${cat.icon || 'briefcase'}`
   return (
-    <Link to={`/projects?category=${cat.slug}`} style={{ textDecoration: 'none' }}>
+    <Link to={`/projects?category_id=${cat.id}`} style={{ textDecoration: 'none' }}>
       <div style={{
         background: 'var(--bg-card)',
         border: '0.5px solid var(--border)',
-        borderRadius: 16, padding: '22px 20px',
+        borderRadius: 16, padding: '22px 16px',
         display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12,
         cursor: 'pointer', textAlign: 'center',
         transition: 'border-color 0.2s, transform 0.2s, box-shadow 0.2s',
       }}
         onMouseEnter={e => {
           e.currentTarget.style.borderColor = 'var(--border-hover)'
-          e.currentTarget.style.transform = 'translateY(-4px)'
-          e.currentTarget.style.boxShadow = 'var(--shadow-card)'
+          e.currentTarget.style.transform = 'translateY(-5px)'
+          e.currentTarget.style.boxShadow = isDark ? '0 12px 40px rgba(127,119,221,0.15)' : '0 8px 32px rgba(80,72,213,0.12)'
         }}
         onMouseLeave={e => {
           e.currentTarget.style.borderColor = 'var(--border)'
@@ -87,9 +83,9 @@ function CategoryCard({ cat, isDark }) {
           background: isDark ? 'rgba(127,119,221,0.12)' : 'rgba(80,72,213,0.09)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
         }}>
-          <i className={`ti ti-${iconName}`} style={{ fontSize: 24, color: 'var(--accent)' }} />
+          <i className={`ti ${iconClass}`} style={{ fontSize: 24, color: 'var(--accent)' }} />
         </div>
-        <span style={{ fontSize: 14, fontWeight: 500, color: 'var(--text-primary)' }}>{cat.name}</span>
+        <span style={{ fontSize: 12.5, fontWeight: 500, color: 'var(--text-primary)', lineHeight: 1.3 }}>{cat.name}</span>
       </div>
     </Link>
   )
@@ -124,36 +120,48 @@ export default function Home() {
         <div className="container" style={{ display: 'flex', alignItems: 'center', gap: 40, minHeight: 480 }}>
           {/* Left */}
           <div style={{ flex: 1, maxWidth: 580 }}>
-            <div style={{
+            <div className="animate-in" style={{
               display: 'inline-flex', alignItems: 'center', gap: 8,
               padding: '6px 16px', borderRadius: 20, marginBottom: 24,
               background: isDark ? 'rgba(127,119,221,0.08)' : 'rgba(80,72,213,0.08)',
               border: `0.5px solid ${isDark ? 'rgba(127,119,221,0.22)' : 'rgba(80,72,213,0.22)'}`,
               fontSize: 13, fontWeight: 500, color: 'var(--accent)',
+              animationDelay: '0.1s',
             }}>
               <span className="blink" style={{ width: 7, height: 7, borderRadius: '50%', background: 'var(--accent-green)', display: 'inline-block' }} />
-              {locations.length > 0 ? `${locations.length} пользователей онлайн` : 'Платформа для фрилансеров'}
+              {locations.length > 0 ? `${locations.length} специалистов на платформе` : 'Платформа для фрилансеров Центральной Азии'}
             </div>
 
-            <h1 style={{
+            <h1 className="animate-in" style={{
               fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 58,
               letterSpacing: '-2.5px', lineHeight: 1.04, marginBottom: 20,
               color: 'var(--text-primary)',
+              animationDelay: '0.2s',
             }}>
               Найди лучших<br />
-              <span style={{ color: 'var(--accent)' }}>специалистов</span><br />
+              <span style={{
+                background: isDark
+                  ? 'linear-gradient(135deg, #7F77DD 0%, #5DCAA5 100%)'
+                  : 'linear-gradient(135deg, #5048D5 0%, #0D9268 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+              }}>специалистов</span><br />
               для проекта
             </h1>
 
-            <p style={{ fontSize: 17, color: 'var(--text-secondary)', lineHeight: 1.7, marginBottom: 36, maxWidth: 460, fontWeight: 300 }}>
+            <p className="animate-in" style={{
+              fontSize: 17, color: 'var(--text-secondary)', lineHeight: 1.7, marginBottom: 36, maxWidth: 460, fontWeight: 300,
+              animationDelay: '0.35s',
+            }}>
               Эскроу-оплата, AI-ассистент и 3D-карта фрилансеров со всего мира. Начни за 5 минут.
             </p>
 
-            <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-              <Link to="/projects/new">
+            <div className="animate-in" style={{ display: 'flex', gap: 12, flexWrap: 'wrap', animationDelay: '0.45s' }}>
+              <Link to="/role">
                 <button className="btn btn-primary btn-lg" style={{ gap: 8 }}>
-                  <i className="ti ti-plus" />
-                  Разместить проект
+                  <i className="ti ti-rocket" />
+                  Начать бесплатно
                 </button>
               </Link>
               <Link to="/projects">
@@ -164,7 +172,7 @@ export default function Home() {
               </Link>
             </div>
 
-            <div style={{ display: 'flex', gap: 28, marginTop: 36 }}>
+            <div className="animate-in" style={{ display: 'flex', gap: 28, marginTop: 36, animationDelay: '0.55s' }}>
               {[
                 { icon: 'shield-check', label: 'Эскроу-защита', color: 'var(--accent-green)' },
                 { icon: 'robot', label: 'AI-ассистент', color: 'var(--accent)' },
@@ -178,19 +186,46 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Globe */}
-          <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <div style={{ position: 'relative' }}>
-              <div style={{
-                position: 'absolute', inset: '-20px',
-                borderRadius: '50%',
-                background: isDark
-                  ? 'radial-gradient(circle, rgba(127,119,221,0.12) 0%, transparent 70%)'
-                  : 'radial-gradient(circle, rgba(80,72,213,0.1) 0%, transparent 70%)',
-                pointerEvents: 'none',
-              }} />
-              <Globe locations={locations} width={480} height={480} />
+          {/* Globe + floating badges */}
+          <div className="animate-fade" style={{ flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', animationDelay: '0.3s' }}>
+            {/* Floating badge — top left */}
+            <div style={{
+              position: 'absolute', top: 40, left: -20, zIndex: 10,
+              background: 'var(--bg-card)', border: '0.5px solid var(--border)',
+              borderRadius: 12, padding: '8px 14px',
+              display: 'flex', alignItems: 'center', gap: 8, fontSize: 12,
+              boxShadow: isDark ? '0 4px 20px rgba(0,0,0,0.4)' : '0 4px 20px rgba(80,72,213,0.1)',
+              animation: 'fadeInUp 0.5s ease both',
+              animationDelay: '0.9s',
+              whiteSpace: 'nowrap',
+            }}>
+              <i className="ti ti-star-filled" style={{ color: '#EF9F27', fontSize: 15 }} />
+              <span style={{ color: 'var(--text-primary)', fontWeight: 500 }}>Рейтинг 5.0</span>
             </div>
+            {/* Floating badge — bottom right */}
+            <div style={{
+              position: 'absolute', bottom: 60, right: -10, zIndex: 10,
+              background: 'var(--bg-card)', border: '0.5px solid var(--border)',
+              borderRadius: 12, padding: '8px 14px',
+              display: 'flex', alignItems: 'center', gap: 8, fontSize: 12,
+              boxShadow: isDark ? '0 4px 20px rgba(0,0,0,0.4)' : '0 4px 20px rgba(80,72,213,0.1)',
+              animation: 'fadeInUp 0.5s ease both',
+              animationDelay: '1.1s',
+              whiteSpace: 'nowrap',
+            }}>
+              <i className="ti ti-shield-check" style={{ color: 'var(--accent-green)', fontSize: 15 }} />
+              <span style={{ color: 'var(--text-primary)', fontWeight: 500 }}>Эскроу-защита</span>
+            </div>
+            {/* Glow ring */}
+            <div style={{
+              position: 'absolute', inset: '-20px',
+              borderRadius: '50%',
+              background: isDark
+                ? 'radial-gradient(circle, rgba(127,119,221,0.12) 0%, transparent 70%)'
+                : 'radial-gradient(circle, rgba(80,72,213,0.1) 0%, transparent 70%)',
+              pointerEvents: 'none',
+            }} />
+            <Globe locations={locations} width={460} height={460} />
           </div>
         </div>
       </section>
@@ -229,15 +264,15 @@ export default function Home() {
               Найди нужного специалиста
             </h2>
             <p style={{ fontSize: 15, color: 'var(--text-secondary)', fontWeight: 300 }}>
-              7 категорий · Сотни навыков
+              {categories.length || 10} категорий · Сотни навыков
             </p>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 14 }}>
+          <div className="stagger" style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 14 }}>
             {categories.length > 0
               ? categories.map(cat => <CategoryCard key={cat.id} cat={cat} isDark={isDark} />)
-              : Array.from({ length: 7 }).map((_, i) => (
-                <div key={i} style={{ height: 120, borderRadius: 16, background: 'var(--bg-card)', border: '0.5px solid var(--border)', animation: 'pulse 1.5s ease-in-out infinite' }} />
+              : Array.from({ length: 10 }).map((_, i) => (
+                <div key={i} style={{ height: 110, borderRadius: 16 }} className="skeleton" />
               ))
             }
           </div>
@@ -262,7 +297,7 @@ export default function Home() {
               </Link>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20 }}>
+            <div className="stagger" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20 }}>
               {projects.map(p => <ProjectCard key={p.id} project={p} />)}
             </div>
           </div>
@@ -287,7 +322,7 @@ export default function Home() {
               </Link>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 20 }}>
+            <div className="stagger" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 20 }}>
               {freelancers.map(f => <FreelancerCard key={f.user_id} freelancer={f} />)}
             </div>
           </div>

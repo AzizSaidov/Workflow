@@ -13,10 +13,10 @@ import Rating from '../components/Rating'
 import Button from '../components/Button'
 
 const BID_TABS = [
-  { key: '', label: 'Все' },
-  { key: 'pending', label: 'На рассмотрении' },
-  { key: 'accepted', label: 'Принятые' },
-  { key: 'rejected', label: 'Отклонённые' },
+  { key: '', label: 'Все', icon: 'list' },
+  { key: 'pending', label: 'Ожидают', icon: 'clock' },
+  { key: 'accepted', label: 'Принятые', icon: 'circle-check' },
+  { key: 'rejected', label: 'Отклонённые', icon: 'circle-x' },
 ]
 
 export default function DashboardFreelancer() {
@@ -42,7 +42,7 @@ export default function DashboardFreelancer() {
       <Navbar />
 
       <div style={{ paddingTop: 80, position: 'relative', zIndex: 2 }}>
-        <div className="container" style={{ paddingTop: 36, paddingBottom: 80 }}>
+        <div className="container page-enter" style={{ paddingTop: 36, paddingBottom: 80 }}>
 
           {/* Header */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 36 }}>
@@ -64,23 +64,25 @@ export default function DashboardFreelancer() {
           </div>
 
           {/* Stats */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 36 }}>
+          <div className="stagger" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 36 }}>
             {[
-              { icon: 'send', label: 'Всего заявок', value: stats?.total_bids ?? bids.length, color: 'var(--accent)' },
-              { icon: 'loader-2', label: 'Активных', value: stats?.active_projects ?? activeProjects.length, color: '#EF9F27' },
-              { icon: 'circle-check', label: 'Завершено', value: stats?.completed_projects ?? '—', color: 'var(--accent-green)' },
-              { icon: 'wallet', label: 'Заработано (TJS)', value: stats?.total_earned ? Number(stats.total_earned).toLocaleString() : '0', color: 'var(--accent-teal)' },
-            ].map(({ icon, label, value, color }) => (
-              <div key={label} style={{ background: 'var(--bg-card)', border: '0.5px solid var(--border)', borderRadius: 16, padding: '20px 22px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
-                  <div style={{ width: 36, height: 36, borderRadius: 10, background: `${color}18`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              { icon: 'send', label: 'Всего заявок', value: stats?.total_bids ?? bids.length, color: 'var(--accent)', sub: 'подано' },
+              { icon: 'loader-2', label: 'В работе', value: stats?.active_projects ?? activeProjects.length, color: '#EF9F27', sub: 'активных проектов' },
+              { icon: 'circle-check', label: 'Завершено', value: stats?.completed_projects, color: 'var(--accent-green)', sub: 'проектов' },
+              { icon: 'coin', label: 'Заработано', value: stats?.total_earned ? Number(stats.total_earned).toLocaleString() + ' TJS' : '0 TJS', color: 'var(--accent-teal)', sub: 'за всё время' },
+            ].map(({ icon, label, value, color, sub }) => (
+              <div key={label} style={{ background: 'var(--bg-card)', border: '0.5px solid var(--border)', borderRadius: 18, padding: '22px 24px', position: 'relative', overflow: 'hidden' }}>
+                <div style={{ position: 'absolute', top: -20, right: -20, width: 80, height: 80, borderRadius: '50%', background: `${color}18`, pointerEvents: 'none' }} />
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+                  <div style={{ width: 38, height: 38, borderRadius: 12, background: `${color}18`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <i className={`ti ti-${icon}`} style={{ fontSize: 18, color }} />
                   </div>
                   <span style={{ fontSize: 13, color: 'var(--text-muted)' }}>{label}</span>
                 </div>
                 <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 28, fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-1px' }}>
-                  {value}
+                  {value ?? <span style={{ opacity: 0.3 }}>—</span>}
                 </div>
+                {sub && <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 5 }}>{sub}</div>}
               </div>
             ))}
           </div>
@@ -88,24 +90,45 @@ export default function DashboardFreelancer() {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: 28, alignItems: 'start' }}>
             {/* Bids list */}
             <div>
-              <div style={{ display: 'flex', gap: 4, marginBottom: 20, background: 'var(--bg-card)', border: '0.5px solid var(--border)', borderRadius: 12, padding: 4, width: 'fit-content' }}>
-                {BID_TABS.map(tab => (
-                  <button key={tab.key} onClick={() => setActiveTab(tab.key)} style={{
-                    padding: '7px 14px', borderRadius: 9, fontSize: 12, fontWeight: 500,
-                    border: 'none', cursor: 'pointer',
-                    background: activeTab === tab.key ? 'var(--accent)' : 'transparent',
-                    color: activeTab === tab.key ? '#fff' : 'var(--text-muted)',
-                    transition: 'all 0.2s',
-                  }}>
-                    {tab.label}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+                <div style={{ display: 'flex', gap: 4, background: 'var(--bg-card)', border: '0.5px solid var(--border)', borderRadius: 12, padding: 4 }}>
+                  {BID_TABS.map(tab => {
+                    const count = tab.key ? bids.filter(b => b.status === tab.key).length : bids.length
+                    return (
+                      <button key={tab.key} onClick={() => setActiveTab(tab.key)} style={{
+                        display: 'flex', alignItems: 'center', gap: 5,
+                        padding: '7px 14px', borderRadius: 9, fontSize: 12.5, fontWeight: 500,
+                        border: 'none', cursor: 'pointer',
+                        background: activeTab === tab.key ? 'var(--accent)' : 'transparent',
+                        color: activeTab === tab.key ? '#fff' : 'var(--text-muted)',
+                        transition: 'all 0.2s',
+                      }}>
+                        <i className={`ti ti-${tab.icon}`} style={{ fontSize: 12 }} />
+                        {tab.label}
+                        {count > 0 && (
+                          <span style={{ background: activeTab === tab.key ? 'rgba(255,255,255,0.25)' : 'var(--border)', fontSize: 10, borderRadius: 7, padding: '1px 5px', fontWeight: 700 }}>
+                            {count}
+                          </span>
+                        )}
+                      </button>
+                    )
+                  })}
+                </div>
+                <Link to="/projects">
+                  <button style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 14px', borderRadius: 9, fontSize: 12.5, background: 'rgba(127,119,221,0.1)', border: '0.5px solid rgba(127,119,221,0.2)', color: 'var(--accent)', cursor: 'pointer', fontWeight: 500 }}>
+                    <i className="ti ti-plus" style={{ fontSize: 13 }} />
+                    Подать заявку
                   </button>
-                ))}
+                </Link>
               </div>
 
               {loading ? (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                   {Array.from({ length: 4 }).map((_, i) => (
-                    <div key={i} style={{ height: 100, borderRadius: 14, background: 'var(--bg-card)', border: '0.5px solid var(--border)', opacity: 0.5 }} />
+                    <div key={i} style={{ borderRadius: 14, border: '0.5px solid var(--border)', padding: '16px 20px' }}>
+                      <div className="skeleton" style={{ height: 16, width: '60%', marginBottom: 8 }} />
+                      <div className="skeleton" style={{ height: 12, width: '80%' }} />
+                    </div>
                   ))}
                 </div>
               ) : filtered.length === 0 ? (
@@ -117,7 +140,7 @@ export default function DashboardFreelancer() {
                   <Link to="/projects"><Button variant="outline" icon="search">Найти проекты</Button></Link>
                 </div>
               ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                <div className="stagger" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                   {filtered.map(bid => <MyBidRow key={bid.id} bid={bid} />)}
                 </div>
               )}

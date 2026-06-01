@@ -24,6 +24,10 @@ class UserResponse(BaseModel):
     model_config = {"from_attributes": True}
 
 
+class AdminUserResponse(UserResponse):
+    is_verified: bool = False
+
+
 class UserUpdate(BaseModel):
     full_name: str | None = None
     bio: str | None = None

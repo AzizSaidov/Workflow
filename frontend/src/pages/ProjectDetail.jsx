@@ -56,6 +56,7 @@ export default function ProjectDetail() {
     try {
       await bidsApi.create(id, { price: parseFloat(bidForm.price), cover_letter: bidForm.cover_letter })
       setBidSent(true)
+      setBidForm({ price: '', cover_letter: '' })
       load()
     } catch (err) {
       setBidError(err.response?.data?.detail || 'Ошибка подачи заявки')

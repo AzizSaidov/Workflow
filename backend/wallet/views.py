@@ -27,6 +27,14 @@ def deposit(amount: Decimal, user: User, db: Session) -> Wallet:
     return wallet
 
 
+def admin_topup(user_id, amount: Decimal, db: Session) -> Wallet:
+    from uuid import UUID
+    target = db.query(User).filter(User.id == user_id).first()
+    if not target:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    return deposit(amount, target, db)
+
+
 def get_transactions(user: User, db: Session) -> list[Transaction]:
     return (
         db.query(Transaction)

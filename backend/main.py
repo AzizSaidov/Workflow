@@ -24,6 +24,7 @@ from routers.contract_routers import contracts_router
 from routers.favorite_routers import favorites_router
 from routers.dispute_routers import disputes_router
 from routers.admin_routers import admin_router
+from routers.achievement_routers import achievements_router
 
 Base.metadata.create_all(bind=engine)
 
@@ -60,3 +61,4 @@ app.include_router(contracts_router)
 app.include_router(favorites_router)
 app.include_router(disputes_router)
 app.include_router(admin_router)
+app.include_router(achievements_router)

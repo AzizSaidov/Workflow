@@ -6,7 +6,7 @@ from projects.schemas import ProjectCreate, ProjectUpdate, ProjectResponse, Deli
 from projects.views import (
     get_projects, create_project, get_my_projects, get_project,
     update_project, delete_project, deliver_project, request_revision,
-    get_featured_projects, get_projects_by_category,
+    accept_delivery, get_featured_projects, get_projects_by_category,
 )
 from media.views import get_project_files
 from users.permissions import get_current_user
@@ -87,6 +87,11 @@ def deliver(project_id: UUID, data: DeliverySubmit, db: Session = Depends(get_db
 @projects_router.put("/{project_id}/revision", response_model=ProjectResponse)
 def revision(project_id: UUID, data: ClientFeedback, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     return request_revision(project_id, data, current_user, db)
+
+
+@projects_router.put("/{project_id}/accept-delivery", response_model=ProjectResponse)
+def accept(project_id: UUID, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    return accept_delivery(project_id, current_user, db)
 
 
 @projects_router.get("/{project_id}/files", response_model=list[ProjectFileResponse])

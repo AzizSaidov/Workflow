@@ -10,7 +10,7 @@ from admin.views import (
 )
 from reports.schemas import ReportResponse
 from escrow.schemas import TransactionResponse
-from users.schemas import UserResponse
+from users.schemas import UserResponse, AdminUserResponse
 from wallet.schemas import WalletResponse
 from users.permissions import check_admin
 from users.models import User
@@ -43,7 +43,7 @@ def refund_dispute(tx_id: UUID, db: Session = Depends(get_db), _: User = Depends
     return admin_refund(tx_id, db)
 
 
-@admin_router.get("/users", response_model=list[UserResponse])
+@admin_router.get("/users", response_model=list[AdminUserResponse])
 def list_users(db: Session = Depends(get_db), _: User = Depends(check_admin)):
     return get_all_users(db)
 

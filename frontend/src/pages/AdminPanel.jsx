@@ -8,7 +8,7 @@ import Avatar from '../components/Avatar'
 import Tag from '../components/Tag'
 import Button from '../components/Button'
 
-const TABS = ['Статистика', 'Пользователи', 'Споры', 'Жалобы']
+const TABS = ['Статистика', 'Пользователи', 'Кошельки', 'Споры', 'Жалобы']
 
 export default function AdminPanel() {
   const { isDark } = useThemeStore()
@@ -52,8 +52,9 @@ export default function AdminPanel() {
 
           {tab === 0 && <StatsTab />}
           {tab === 1 && <UsersTab />}
-          {tab === 2 && <DisputesTab />}
-          {tab === 3 && <ReportsTab />}
+          {tab === 2 && <WalletTab />}
+          {tab === 3 && <DisputesTab />}
+          {tab === 4 && <ReportsTab />}
         </div>
       </div>
 
@@ -99,8 +100,8 @@ function UsersTab() {
   const load = () => { setLoading(true); adminApi.getUsers().then(r => setUsers(r.data || [])).catch(() => {}).finally(() => setLoading(false)) }
   useEffect(load, [])
 
-  const action = async (fn, id) => {
-    setActioning(id)
+  const action = async (fn, id, key) => {
+    setActioning(id + key)
     try { await fn(id); load() } finally { setActioning(null) }
   }
 
@@ -109,43 +110,53 @@ function UsersTab() {
       <table style={{ width: '100%', borderCollapse: 'collapse' }}>
         <thead>
           <tr style={{ borderBottom: '0.5px solid var(--border)' }}>
-            {['Пользователь', 'Роль', 'Email', 'Статус', 'Действия'].map(h => (
-              <th key={h} style={{ padding: '12px 20px', textAlign: 'left', fontSize: 11, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.5 }}>{h}</th>
+            {['Пользователь', 'Роль', 'Email', 'Статус', 'Верификация', 'Действия'].map(h => (
+              <th key={h} style={{ padding: '12px 16px', textAlign: 'left', fontSize: 11, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.5 }}>{h}</th>
             ))}
           </tr>
         </thead>
         <tbody>
           {users.map((u, i) => (
             <tr key={u.id} style={{ borderBottom: i < users.length - 1 ? '0.5px solid var(--border)' : 'none' }}>
-              <td style={{ padding: '12px 20px' }}>
+              <td style={{ padding: '10px 16px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <Avatar src={u.avatar_url} name={u.full_name} size={34} />
-                  <span style={{ fontSize: 14, color: 'var(--text-primary)', fontWeight: 500 }}>{u.full_name}</span>
+                  <Avatar src={u.avatar_url} name={u.full_name} size={32} />
+                  <span style={{ fontSize: 13, color: 'var(--text-primary)', fontWeight: 500 }}>{u.full_name}</span>
                 </div>
               </td>
-              <td style={{ padding: '12px 20px' }}>
+              <td style={{ padding: '10px 16px' }}>
                 <Tag color={u.role === 'admin' ? 'red' : u.role === 'client' ? 'purple' : 'green'}>
                   {u.role === 'admin' ? 'Админ' : u.role === 'client' ? 'Заказчик' : 'Фрилансер'}
                 </Tag>
               </td>
-              <td style={{ padding: '12px 20px', fontSize: 13, color: 'var(--text-muted)' }}>{u.email}</td>
-              <td style={{ padding: '12px 20px' }}>
+              <td style={{ padding: '10px 16px', fontSize: 12, color: 'var(--text-muted)' }}>{u.email}</td>
+              <td style={{ padding: '10px 16px' }}>
                 <Tag color={u.is_banned ? 'red' : 'green'}>{u.is_banned ? 'Заблокирован' : 'Активен'}</Tag>
               </td>
-              <td style={{ padding: '12px 20px' }}>
+              <td style={{ padding: '10px 16px' }}>
+                {u.is_verified
+                  ? <span style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 12, color: 'var(--accent-green)' }}>
+                      <i className="ti ti-rosette-discount-check" style={{ fontSize: 15 }} /> Верифицирован
+                    </span>
+                  : <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>—</span>
+                }
+              </td>
+              <td style={{ padding: '10px 16px' }}>
                 <div style={{ display: 'flex', gap: 6 }}>
                   {u.role !== 'admin' && (
                     <>
                       <Button size="sm" variant={u.is_banned ? 'green' : 'danger'}
                         loading={actioning === u.id + 'ban'}
-                        onClick={() => action(u.is_banned ? adminApi.unbanUser : adminApi.banUser, u.id)}>
-                        {u.is_banned ? 'Разблокировать' : 'Заблокировать'}
+                        onClick={() => action(u.is_banned ? adminApi.unbanUser : adminApi.banUser, u.id, 'ban')}>
+                        {u.is_banned ? 'Разбл.' : 'Блок.'}
                       </Button>
-                      <Button size="sm" variant="outline" icon="rosette-discount-check"
-                        loading={actioning === u.id + 'verify'}
-                        onClick={() => action(adminApi.verifyUser, u.id)}>
-                        Верифицировать
-                      </Button>
+                      {!u.is_verified && (
+                        <Button size="sm" variant="outline" icon="rosette-discount-check"
+                          loading={actioning === u.id + 'verify'}
+                          onClick={() => action(adminApi.verifyUser, u.id, 'verify')}>
+                          Верифицировать
+                        </Button>
+                      )}
                     </>
                   )}
                 </div>
@@ -155,6 +166,66 @@ function UsersTab() {
         </tbody>
       </table>
       {loading && <div style={{ padding: '30px', textAlign: 'center' }}><i className="ti ti-loader-2" style={{ fontSize: 24, color: 'var(--accent)', animation: 'spin 0.8s linear infinite' }} /></div>}
+    </div>
+  )
+}
+
+function WalletTab() {
+  const [users, setUsers] = useState([])
+  const [selected, setSelected] = useState('')
+  const [amount, setAmount] = useState('')
+  const [reason, setReason] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [result, setResult] = useState(null)
+
+  useEffect(() => { adminApi.getUsers().then(r => setUsers(r.data || [])).catch(() => {}) }, [])
+
+  const handleTopup = async () => {
+    if (!selected || !amount || !reason) return
+    setLoading(true)
+    setResult(null)
+    try {
+      const { data } = await adminApi.topupWallet(selected, parseFloat(amount), reason)
+      setResult({ ok: true, balance: data.balance })
+      setAmount(''); setReason('')
+    } catch (e) {
+      setResult({ ok: false, msg: e?.response?.data?.detail || 'Ошибка' })
+    } finally { setLoading(false) }
+  }
+
+  return (
+    <div style={{ maxWidth: 540 }}>
+      <div style={{ background: 'var(--bg-card)', border: '0.5px solid var(--border)', borderRadius: 16, padding: 28 }}>
+        <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 20 }}>
+          <i className="ti ti-wallet" style={{ marginRight: 8, color: 'var(--accent-green)' }} />
+          Пополнение кошелька пользователя
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <div>
+            <label style={{ fontSize: 13, color: 'var(--text-secondary)', display: 'block', marginBottom: 6 }}>Пользователь</label>
+            <select value={selected} onChange={e => setSelected(e.target.value)} className="input" style={{ width: '100%' }}>
+              <option value="">— Выберите пользователя —</option>
+              {users.filter(u => u.role !== 'admin').map(u => (
+                <option key={u.id} value={u.id}>{u.full_name} ({u.email})</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label style={{ fontSize: 13, color: 'var(--text-secondary)', display: 'block', marginBottom: 6 }}>Сумма (TJS)</label>
+            <input type="number" value={amount} onChange={e => setAmount(e.target.value)} className="input" placeholder="1000" style={{ width: '100%' }} />
+          </div>
+          <div>
+            <label style={{ fontSize: 13, color: 'var(--text-secondary)', display: 'block', marginBottom: 6 }}>Причина</label>
+            <input type="text" value={reason} onChange={e => setReason(e.target.value)} className="input" placeholder="Тестовое пополнение" style={{ width: '100%' }} />
+          </div>
+          <Button variant="green" icon="plus" loading={loading} onClick={handleTopup}>Пополнить</Button>
+          {result && (
+            <div style={{ padding: '12px 16px', borderRadius: 10, background: result.ok ? 'rgba(29,158,117,0.1)' : 'rgba(239,68,68,0.1)', border: `0.5px solid ${result.ok ? 'rgba(29,158,117,0.3)' : 'rgba(239,68,68,0.3)'}`, fontSize: 13, color: result.ok ? 'var(--accent-green)' : '#F87171' }}>
+              {result.ok ? `Успешно! Новый баланс: ${Number(result.balance).toLocaleString()} TJS` : result.msg}
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   )
 }

@@ -85,8 +85,19 @@ def admin_refund(tx_id: UUID, db: Session) -> Transaction:
     return tx
 
 
-def get_all_users(db: Session) -> list[User]:
-    return db.query(User).order_by(User.created_at.desc()).all()
+def get_all_users(db: Session) -> list[dict]:
+    from profiles.models import FreelancerProfile
+    from client_profiles.models import ClientProfile
+    users = db.query(User).order_by(User.created_at.desc()).all()
+    result = []
+    for u in users:
+        fp = db.query(FreelancerProfile).filter(FreelancerProfile.user_id == u.id).first()
+        cp = db.query(ClientProfile).filter(ClientProfile.user_id == u.id).first()
+        is_verified = bool((fp and fp.is_verified) or (cp and cp.is_verified))
+        d = {c.key: getattr(u, c.key) for c in u.__table__.columns}
+        d["is_verified"] = is_verified
+        result.append(d)
+    return result
 
 
 def ban_user(user_id: UUID, db: Session) -> User:

@@ -1,11 +1,12 @@
 from uuid import UUID
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, Body, HTTPException, status
 from sqlalchemy.orm import Session
 from database import get_db
 from users.schemas import UserCreate, LoginRequest, TokenResponse, UserResponse, UserUpdate
 from users.views import register_user, login_user, get_all_users, get_user_by_id, update_user, delete_user
 from users.permissions import get_current_user
 from users.models import User, UserRole
+from users.auth import decode_token, create_access_token, create_refresh_token
 from stats.schemas import UserStats
 from stats.views import get_my_stats
 
@@ -28,6 +29,21 @@ def login(data: LoginRequest, db: Session = Depends(get_db)):
     return TokenResponse(
         access_token=access_token,
         refresh_token=refresh_token,
+        user=UserResponse.model_validate(user),
+    )
+
+
+@users_router.post("/refresh", response_model=TokenResponse)
+def refresh_token(refresh_token: str = Body(..., embed=True), db: Session = Depends(get_db)):
+    user_id = decode_token(refresh_token)
+    if not user_id:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid refresh token")
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user or user.is_banned:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found or banned")
+    return TokenResponse(
+        access_token=create_access_token(str(user.id)),
+        refresh_token=create_refresh_token(str(user.id)),
         user=UserResponse.model_validate(user),
     )
 
