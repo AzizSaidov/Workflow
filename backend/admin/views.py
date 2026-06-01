@@ -120,6 +120,19 @@ def unban_user(user_id: UUID, db: Session) -> User:
     return user
 
 
+def change_user_role(user_id: UUID, new_role: str, db: Session) -> User:
+    from users.models import UserRole
+    if new_role not in [r.value for r in UserRole]:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Invalid role: {new_role}")
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    user.role = UserRole(new_role)
+    db.commit()
+    db.refresh(user)
+    return user
+
+
 def verify_user(user_id: UUID, db: Session) -> User:
     from profiles.models import FreelancerProfile
     from client_profiles.models import ClientProfile

@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react'
 import useThemeStore from '../store/themeStore'
 import useAuthStore from '../store/authStore'
 import { walletApi } from '../api/wallet'
-import useToastStore from '../store/toastStore'
 import StarBackground from '../components/StarBackground'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
@@ -23,9 +22,6 @@ export default function Wallet() {
   const [wallet, setWallet] = useState(null)
   const [transactions, setTransactions] = useState([])
   const [loading, setLoading] = useState(true)
-  const [depositAmount, setDepositAmount] = useState('')
-  const [depositing, setDepositing] = useState(false)
-  const [showDeposit, setShowDeposit] = useState(false)
 
   const load = () => {
     setLoading(true)
@@ -39,18 +35,6 @@ export default function Wallet() {
   }
 
   useEffect(() => { load() }, [])
-
-  const handleDeposit = async () => {
-    if (!depositAmount || isNaN(depositAmount)) return
-    setDepositing(true)
-    try {
-      await walletApi.deposit(parseFloat(depositAmount))
-      setDepositAmount('')
-      setShowDeposit(false)
-      toast(`Баланс пополнен на $${depositAmount}`, 'success')
-      load()
-    } finally { setDepositing(false) }
-  }
 
   const isClient = (tx) => tx.client_id === user?.id
   const txType = (tx) => isClient(tx) ? 'Оплата проекта' : 'Получение оплаты'
@@ -97,25 +81,16 @@ export default function Wallet() {
                 <span style={{ fontSize: 18, fontWeight: 400, color: 'var(--text-muted)', marginLeft: 6 }}>TJS</span>
               </div>
               <div style={{ marginTop: 20 }}>
-                {showDeposit ? (
-                  <div style={{ display: 'flex', gap: 8 }}>
-                    <input
-                      type="number"
-                      placeholder="Сумма"
-                      value={depositAmount}
-                      onChange={e => setDepositAmount(e.target.value)}
-                      className="input"
-                      style={{ flex: 1 }}
-                      autoComplete="off"
-                    />
-                    <Button variant="green" size="sm" loading={depositing} onClick={handleDeposit}>OK</Button>
-                    <Button variant="outline" size="sm" onClick={() => setShowDeposit(false)}>×</Button>
-                  </div>
-                ) : (
-                  <Button variant="primary" size="sm" icon="plus" onClick={() => setShowDeposit(true)}>
-                    Пополнить
-                  </Button>
-                )}
+                <div style={{
+                  display: 'flex', alignItems: 'center', gap: 8,
+                  padding: '10px 14px', borderRadius: 10,
+                  background: 'rgba(127,119,221,0.06)',
+                  border: '0.5px solid rgba(127,119,221,0.15)',
+                  fontSize: 12, color: 'var(--text-muted)',
+                }}>
+                  <i className="ti ti-info-circle" style={{ fontSize: 14, color: 'var(--accent)', flexShrink: 0 }} />
+                  Для пополнения баланса обратитесь к администратору
+                </div>
               </div>
             </div>
 

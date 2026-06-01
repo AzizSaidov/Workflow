@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import useThemeStore from '../store/themeStore'
 import { adminApi } from '../api/admin'
+import useToastStore from '../store/toastStore'
 import StarBackground from '../components/StarBackground'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
@@ -92,17 +93,46 @@ function StatsTab() {
   )
 }
 
+const ROLE_LABELS = { client: 'Заказчик', freelancer: 'Фрилансер', admin: 'Администратор' }
+
 function UsersTab() {
   const [users, setUsers] = useState([])
   const [loading, setLoading] = useState(true)
   const [actioning, setActioning] = useState(null)
+  const toast = useToastStore(s => s.show)
 
-  const load = () => { setLoading(true); adminApi.getUsers().then(r => setUsers(r.data || [])).catch(() => {}).finally(() => setLoading(false)) }
+  const load = () => {
+    setLoading(true)
+    adminApi.getUsers().then(r => setUsers(r.data || [])).catch(() => {}).finally(() => setLoading(false))
+  }
   useEffect(load, [])
 
-  const action = async (fn, id, key) => {
+  const action = async (fn, id, key, successMsg) => {
     setActioning(id + key)
-    try { await fn(id); load() } finally { setActioning(null) }
+    try {
+      await fn(id)
+      toast(successMsg || 'Выполнено', 'success')
+      load()
+    } catch (e) {
+      toast(e?.response?.data?.detail || 'Ошибка', 'error')
+    } finally {
+      setActioning(null)
+    }
+  }
+
+  const handleRoleChange = async (u, newRole) => {
+    if (newRole === u.role) return
+    if (!window.confirm(`Сменить роль пользователя "${u.full_name}" на "${ROLE_LABELS[newRole]}"?`)) return
+    setActioning(u.id + 'role')
+    try {
+      await adminApi.changeRole(u.id, newRole)
+      toast(`Роль изменена на "${ROLE_LABELS[newRole]}"`, 'success')
+      load()
+    } catch (e) {
+      toast(e?.response?.data?.detail || 'Ошибка смены роли', 'error')
+    } finally {
+      setActioning(null)
+    }
   }
 
   return (
@@ -125,9 +155,21 @@ function UsersTab() {
                 </div>
               </td>
               <td style={{ padding: '10px 16px' }}>
-                <Tag color={u.role === 'admin' ? 'red' : u.role === 'client' ? 'purple' : 'green'}>
-                  {u.role === 'admin' ? 'Админ' : u.role === 'client' ? 'Заказчик' : 'Фрилансер'}
-                </Tag>
+                <select
+                  value={u.role}
+                  disabled={actioning === u.id + 'role'}
+                  onChange={e => handleRoleChange(u, e.target.value)}
+                  style={{
+                    background: 'var(--bg)', border: '0.5px solid var(--border)',
+                    borderRadius: 8, padding: '4px 8px', fontSize: 12,
+                    color: u.role === 'admin' ? '#F87171' : u.role === 'client' ? 'var(--accent)' : 'var(--accent-green)',
+                    cursor: 'pointer', outline: 'none',
+                  }}
+                >
+                  <option value="client">Заказчик</option>
+                  <option value="freelancer">Фрилансер</option>
+                  <option value="admin">Администратор</option>
+                </select>
               </td>
               <td style={{ padding: '10px 16px', fontSize: 12, color: 'var(--text-muted)' }}>{u.email}</td>
               <td style={{ padding: '10px 16px' }}>
@@ -147,13 +189,17 @@ function UsersTab() {
                     <>
                       <Button size="sm" variant={u.is_banned ? 'green' : 'danger'}
                         loading={actioning === u.id + 'ban'}
-                        onClick={() => action(u.is_banned ? adminApi.unbanUser : adminApi.banUser, u.id, 'ban')}>
-                        {u.is_banned ? 'Разбл.' : 'Блок.'}
+                        onClick={() => action(
+                          u.is_banned ? adminApi.unbanUser : adminApi.banUser,
+                          u.id, 'ban',
+                          u.is_banned ? 'Пользователь разблокирован' : 'Пользователь заблокирован'
+                        )}>
+                        {u.is_banned ? 'Разблок.' : 'Блок.'}
                       </Button>
                       {!u.is_verified && (
                         <Button size="sm" variant="outline" icon="rosette-discount-check"
                           loading={actioning === u.id + 'verify'}
-                          onClick={() => action(adminApi.verifyUser, u.id, 'verify')}>
+                          onClick={() => action(adminApi.verifyUser, u.id, 'verify', 'Пользователь верифицирован')}>
                           Верифицировать
                         </Button>
                       )}
@@ -176,20 +222,19 @@ function WalletTab() {
   const [amount, setAmount] = useState('')
   const [reason, setReason] = useState('')
   const [loading, setLoading] = useState(false)
-  const [result, setResult] = useState(null)
+  const toast = useToastStore(s => s.show)
 
   useEffect(() => { adminApi.getUsers().then(r => setUsers(r.data || [])).catch(() => {}) }, [])
 
   const handleTopup = async () => {
     if (!selected || !amount || !reason) return
     setLoading(true)
-    setResult(null)
     try {
       const { data } = await adminApi.topupWallet(selected, parseFloat(amount), reason)
-      setResult({ ok: true, balance: data.balance })
-      setAmount(''); setReason('')
+      toast(`Баланс пополнен. Новый баланс: $${Number(data.balance).toLocaleString()}`, 'success')
+      setAmount(''); setReason(''); setSelected('')
     } catch (e) {
-      setResult({ ok: false, msg: e?.response?.data?.detail || 'Ошибка' })
+      toast(e?.response?.data?.detail || 'Ошибка пополнения', 'error')
     } finally { setLoading(false) }
   }
 
@@ -211,19 +256,14 @@ function WalletTab() {
             </select>
           </div>
           <div>
-            <label style={{ fontSize: 13, color: 'var(--text-secondary)', display: 'block', marginBottom: 6 }}>Сумма (TJS)</label>
-            <input type="number" value={amount} onChange={e => setAmount(e.target.value)} className="input" placeholder="1000" style={{ width: '100%' }} />
+            <label style={{ fontSize: 13, color: 'var(--text-secondary)', display: 'block', marginBottom: 6 }}>Сумма ($)</label>
+            <input type="number" value={amount} onChange={e => setAmount(e.target.value)} className="input" placeholder="500" style={{ width: '100%' }} />
           </div>
           <div>
             <label style={{ fontSize: 13, color: 'var(--text-secondary)', display: 'block', marginBottom: 6 }}>Причина</label>
             <input type="text" value={reason} onChange={e => setReason(e.target.value)} className="input" placeholder="Тестовое пополнение" style={{ width: '100%' }} />
           </div>
           <Button variant="green" icon="plus" loading={loading} onClick={handleTopup}>Пополнить</Button>
-          {result && (
-            <div style={{ padding: '12px 16px', borderRadius: 10, background: result.ok ? 'rgba(29,158,117,0.1)' : 'rgba(239,68,68,0.1)', border: `0.5px solid ${result.ok ? 'rgba(29,158,117,0.3)' : 'rgba(239,68,68,0.3)'}`, fontSize: 13, color: result.ok ? 'var(--accent-green)' : '#F87171' }}>
-              {result.ok ? `Успешно! Новый баланс: ${Number(result.balance).toLocaleString()} TJS` : result.msg}
-            </div>
-          )}
         </div>
       </div>
     </div>
@@ -234,11 +274,15 @@ function DisputesTab() {
   const [disputes, setDisputes] = useState([])
   const [loading, setLoading] = useState(true)
   const [actioning, setActioning] = useState(null)
+  const toast = useToastStore(s => s.show)
 
   const load = () => { setLoading(true); adminApi.getDisputes().then(r => setDisputes(r.data || [])).catch(() => {}).finally(() => setLoading(false)) }
   useEffect(load, [])
 
-  const action = async (fn, id) => { setActioning(id); try { await fn(id); load() } finally { setActioning(null) } }
+  const action = async (fn, id, msg) => {
+    setActioning(id)
+    try { await fn(id); toast(msg, 'success'); load() } catch (e) { toast(e?.response?.data?.detail || 'Ошибка', 'error') } finally { setActioning(null) }
+  }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -252,10 +296,10 @@ function DisputesTab() {
             <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 4 }}>{new Date(tx.created_at).toLocaleDateString('ru-RU')}</div>
           </div>
           <div style={{ display: 'flex', gap: 8 }}>
-            <Button variant="green" size="sm" icon="arrow-right" loading={actioning === tx.id + 'rel'} onClick={() => action(adminApi.releaseDispute, tx.id)}>
+            <Button variant="green" size="sm" icon="arrow-right" loading={actioning === tx.id + 'rel'} onClick={() => action(adminApi.releaseDispute, tx.id, 'Выплата выполнена')}>
               Выплатить фрилансеру
             </Button>
-            <Button variant="danger" size="sm" icon="arrow-back-up" loading={actioning === tx.id + 'ref'} onClick={() => action(adminApi.refundDispute, tx.id)}>
+            <Button variant="danger" size="sm" icon="arrow-back-up" loading={actioning === tx.id + 'ref'} onClick={() => action(adminApi.refundDispute, tx.id, 'Возврат выполнен')}>
               Вернуть заказчику
             </Button>
           </div>
@@ -269,11 +313,17 @@ function ReportsTab() {
   const [reports, setReports] = useState([])
   const [loading, setLoading] = useState(true)
   const [actioning, setActioning] = useState(null)
+  const toast = useToastStore(s => s.show)
 
   const load = () => { setLoading(true); adminApi.getReports().then(r => setReports(r.data || [])).catch(() => {}).finally(() => setLoading(false)) }
   useEffect(load, [])
 
-  const resolve = async (id) => { setActioning(id); try { await adminApi.resolveReport(id); load() } finally { setActioning(null) } }
+  const resolve = async (id) => {
+    setActioning(id)
+    try { await adminApi.resolveReport(id); toast('Жалоба отмечена решённой', 'success'); load() }
+    catch (e) { toast(e?.response?.data?.detail || 'Ошибка', 'error') }
+    finally { setActioning(null) }
+  }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
