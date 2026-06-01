@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import useThemeStore from '../store/themeStore'
+import useAuthStore from '../store/authStore'
 import { projectsApi } from '../api/projects'
 import { categoriesApi } from '../api/categories'
+import { favoritesApi } from '../api/favorites'
 import StarBackground from '../components/StarBackground'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
@@ -10,14 +12,18 @@ import ProjectCard from '../components/ProjectCard'
 import Input from '../components/Input'
 import Select from '../components/Select'
 import Button from '../components/Button'
+import useToastStore from '../store/toastStore'
 
 export default function ProjectsFeed() {
   const { isDark } = useThemeStore()
+  const { user } = useAuthStore()
+  const toast = useToastStore(s => s.show)
   const [searchParams, setSearchParams] = useSearchParams()
 
   const [projects, setProjects] = useState([])
   const [categories, setCategories] = useState([])
   const [loading, setLoading] = useState(true)
+  const [favIds, setFavIds] = useState(new Set())
 
   const [filters, setFilters] = useState({
     search: searchParams.get('search') || '',
@@ -33,6 +39,25 @@ export default function ProjectsFeed() {
   useEffect(() => {
     categoriesApi.getAll().then(r => setCategories(r.data || [])).catch(() => {})
   }, [])
+
+  useEffect(() => {
+    if (!user) return
+    favoritesApi.getAll()
+      .then(r => setFavIds(new Set((r.data || []).filter(f => f.project_id).map(f => f.project_id))))
+      .catch(() => {})
+  }, [user?.id])
+
+  const toggleFav = async (projectId) => {
+    if (favIds.has(projectId)) {
+      await favoritesApi.removeProject(projectId).catch(() => {})
+      setFavIds(prev => { const s = new Set(prev); s.delete(projectId); return s })
+      toast('Удалено из избранного', 'info')
+    } else {
+      await favoritesApi.addProject(projectId).catch(() => {})
+      setFavIds(prev => new Set([...prev, projectId]))
+      toast('Добавлено в избранное!', 'success')
+    }
+  }
 
   useEffect(() => {
     setLoading(true)
@@ -162,7 +187,14 @@ export default function ProjectsFeed() {
                 </div>
               ) : (
                 <div className="stagger" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 18 }}>
-                  {projects.map(p => <ProjectCard key={p.id} project={p} />)}
+                  {projects.map(p => (
+                    <ProjectCard
+                      key={p.id}
+                      project={p}
+                      isFavorited={favIds.has(p.id)}
+                      onFavoriteToggle={user?.role === 'freelancer' ? () => toggleFav(p.id) : undefined}
+                    />
+                  ))}
                 </div>
               )}
             </div>

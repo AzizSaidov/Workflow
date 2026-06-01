@@ -16,6 +16,7 @@ function getNavLinks(user) {
   }
   if (user.role === 'client') {
     return [
+      { to: '/', label: 'Главная', icon: 'home' },
       { to: '/dashboard', label: 'Мои проекты', icon: 'layout-dashboard' },
       { to: '/freelancers', label: 'Найти таланты', icon: 'users' },
       { to: '/chats', label: 'Чаты', icon: 'messages' },
@@ -23,6 +24,7 @@ function getNavLinks(user) {
   }
   if (user.role === 'freelancer') {
     return [
+      { to: '/', label: 'Главная', icon: 'home' },
       { to: '/projects', label: 'Найти работу', icon: 'search' },
       { to: '/dashboard', label: 'Мои заявки', icon: 'layout-dashboard' },
       { to: '/chats', label: 'Чаты', icon: 'messages' },
@@ -30,6 +32,7 @@ function getNavLinks(user) {
   }
   if (user.role === 'admin') {
     return [
+      { to: '/', label: 'Главная', icon: 'home' },
       { to: '/admin', label: 'Панель', icon: 'shield-lock' },
       { to: '/projects', label: 'Проекты', icon: 'briefcase' },
       { to: '/freelancers', label: 'Пользователи', icon: 'users' },
@@ -69,7 +72,9 @@ export default function Navbar() {
   }, [searchOpen])
 
   const handleLogout = () => { logout(); navigate('/login') }
-  const isActive = (path) => location.pathname === path || location.pathname.startsWith(path + '/')
+  const isActive = (path) => path === '/'
+    ? location.pathname === '/'
+    : location.pathname === path || location.pathname.startsWith(path + '/')
 
   const handleSearch = (e) => {
     e.preventDefault()
@@ -219,6 +224,8 @@ export default function Navbar() {
                     user?.role !== 'admin' && { to: `/profile/${user?.id}`, icon: 'user', label: 'Профиль' },
                     { to: '/dashboard', icon: 'layout-dashboard', label: 'Дашборд' },
                     { to: '/wallet', icon: 'wallet', label: 'Кошелёк' },
+                    { to: '/favorites', icon: 'heart', label: 'Избранное' },
+                    user?.role === 'freelancer' && { to: '/ai', icon: 'robot', label: 'AI-ассистент' },
                     user?.role === 'admin' && { to: '/admin', icon: 'shield-lock', label: 'Панель админа' },
                   ].filter(Boolean).map(({ to, icon, label }) => (
                     <Link key={to} to={to} onClick={() => setMenuOpen(false)} style={{

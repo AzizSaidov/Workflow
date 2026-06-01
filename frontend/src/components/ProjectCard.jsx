@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import Card from './Card'
 import Tag from './Tag'
 
-export default function ProjectCard({ project }) {
+export default function ProjectCard({ project, isFavorited, onFavoriteToggle }) {
   const { id, title, description, budget_min, budget_max, status, category, created_at } = project
 
   return (
@@ -12,7 +12,25 @@ export default function ProjectCard({ project }) {
           <h3 style={{ fontSize: 15, fontWeight: 600, color: 'var(--text-primary)', lineHeight: 1.4, flex: 1 }}>
             {title}
           </h3>
-          <Tag status={status || 'open'} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+            {onFavoriteToggle && (
+              <button
+                onClick={e => { e.preventDefault(); e.stopPropagation(); onFavoriteToggle() }}
+                title={isFavorited ? 'Убрать из избранного' : 'В избранное'}
+                style={{
+                  background: 'none', border: 'none', cursor: 'pointer', padding: 2,
+                  color: isFavorited ? '#F87171' : 'var(--text-muted)',
+                  display: 'flex', alignItems: 'center',
+                  transition: 'color 0.15s',
+                }}
+                onMouseEnter={e => e.currentTarget.style.color = '#F87171'}
+                onMouseLeave={e => e.currentTarget.style.color = isFavorited ? '#F87171' : 'var(--text-muted)'}
+              >
+                <i className={`ti ti-heart${isFavorited ? '-filled' : ''}`} style={{ fontSize: 16 }} />
+              </button>
+            )}
+            <Tag status={status || 'open'} />
+          </div>
         </div>
 
         {description && (

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import useThemeStore from '../store/themeStore'
 import useAuthStore from '../store/authStore'
 import { walletApi } from '../api/wallet'
+import useToastStore from '../store/toastStore'
 import StarBackground from '../components/StarBackground'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
@@ -18,6 +19,7 @@ const STATUS_INFO = {
 export default function Wallet() {
   const { isDark } = useThemeStore()
   const { user } = useAuthStore()
+  const toast = useToastStore(s => s.show)
   const [wallet, setWallet] = useState(null)
   const [transactions, setTransactions] = useState([])
   const [loading, setLoading] = useState(true)
@@ -45,6 +47,7 @@ export default function Wallet() {
       await walletApi.deposit(parseFloat(depositAmount))
       setDepositAmount('')
       setShowDeposit(false)
+      toast(`Баланс пополнен на $${depositAmount}`, 'success')
       load()
     } finally { setDepositing(false) }
   }

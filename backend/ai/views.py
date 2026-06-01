@@ -5,67 +5,68 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-ANTHROPIC_KEY = os.getenv("ANTHROPIC_API_KEY")
-ANTHROPIC_URL = "https://api.anthropic.com/v1/messages"
-MODEL = "claude-sonnet-4-6"
+GROQ_KEY = os.getenv("GROQ_API_KEY")
+GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
+MODEL = "llama-3.3-70b-versatile"
 
 
 async def _ask(system: str, user_msg: str) -> str:
-    if not ANTHROPIC_KEY:
-        raise HTTPException(status_code=503, detail="AI service not configured — set ANTHROPIC_API_KEY")
+    if not GROQ_KEY:
+        raise HTTPException(status_code=503, detail="AI service not configured — set GROQ_API_KEY")
     async with httpx.AsyncClient(timeout=30.0) as client:
         resp = await client.post(
-            ANTHROPIC_URL,
+            GROQ_URL,
             headers={
-                "x-api-key": ANTHROPIC_KEY,
-                "anthropic-version": "2023-06-01",
-                "content-type": "application/json",
+                "Authorization": f"Bearer {GROQ_KEY}",
+                "Content-Type": "application/json",
             },
             json={
                 "model": MODEL,
                 "max_tokens": 1024,
-                "system": system,
-                "messages": [{"role": "user", "content": user_msg}],
+                "messages": [
+                    {"role": "system", "content": system},
+                    {"role": "user", "content": user_msg},
+                ],
             },
         )
         resp.raise_for_status()
-        return resp.json()["content"][0]["text"]
+        return resp.json()["choices"][0]["message"]["content"]
 
 
 async def help_project(title: str, rough_description: str, category: str, budget: str) -> str:
     system = (
-        "Ты помощник фриланс-платформы Workflow. "
-        "Помоги заказчику написать чёткое, профессиональное описание проекта на русском языке. "
-        "Верни только готовый текст описания, без лишних комментариев."
+        "You are an assistant for the Workflow freelance platform. "
+        "Help the client write a clear, professional project description. "
+        "Return only the finished description text, no extra commentary."
     )
     user_msg = (
-        f"Название: {title}\n"
-        f"Категория: {category}\n"
-        f"Бюджет: {budget}\n"
-        f"Черновое описание: {rough_description}"
+        f"Title: {title}\n"
+        f"Category: {category}\n"
+        f"Budget: {budget}\n"
+        f"Draft description: {rough_description}"
     )
     return await _ask(system, user_msg)
 
 
 async def help_bid(project_title: str, project_description: str, skills: list[str]) -> str:
     system = (
-        "Ты помощник фриланс-платформы Workflow. "
-        "Помоги фрилансеру написать убедительное сопроводительное письмо для заявки на проект. "
-        "Верни только готовый текст письма на русском языке, без лишних комментариев."
+        "You are an assistant for the Workflow freelance platform. "
+        "Help the freelancer write a compelling cover letter for their bid. "
+        "Return only the finished cover letter text, no extra commentary."
     )
     user_msg = (
-        f"Проект: {project_title}\n"
-        f"Описание проекта: {project_description}\n"
-        f"Навыки фрилансера: {', '.join(skills)}"
+        f"Project: {project_title}\n"
+        f"Project description: {project_description}\n"
+        f"Freelancer skills: {', '.join(skills) if skills else 'Not specified'}"
     )
     return await _ask(system, user_msg)
 
 
 async def ai_chat(message: str, context: str | None) -> str:
     system = (
-        "Ты AI-ассистент фриланс-платформы Workflow. "
-        "Помогай пользователям с вопросами о платформе, фрилансе и поиске работы. "
-        "Отвечай на русском языке."
+        "You are an AI assistant for the Workflow freelance platform. "
+        "Help users with questions about freelancing, projects, and the platform. "
+        "Be concise and helpful."
     )
     user_msg = f"{context}\n\n{message}" if context else message
     return await _ask(system, user_msg)

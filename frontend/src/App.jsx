@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import ProtectedRoute from './components/ProtectedRoute'
+import Toast from './components/Toast'
 import Home from './pages/Home'
 import RoleSelect from './pages/RoleSelect'
 import Register from './pages/Register'
@@ -14,10 +15,12 @@ import Wallet from './pages/Wallet'
 import AdminPanel from './pages/AdminPanel'
 import Freelancers from './pages/Freelancers'
 import ChatsPage from './pages/ChatsPage'
+import Favorites from './pages/Favorites'
 
 export default function App() {
   return (
     <BrowserRouter>
+      <Toast />
       <Routes>
         {/* Public */}
         <Route path="/" element={<Home />} />
@@ -35,6 +38,7 @@ export default function App() {
         <Route path="/wallet" element={<ProtectedRoute><Wallet /></ProtectedRoute>} />
         <Route path="/profile/:id" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
         <Route path="/chats" element={<ProtectedRoute><ChatsPage /></ProtectedRoute>} />
+        <Route path="/favorites" element={<ProtectedRoute><Favorites /></ProtectedRoute>} />
         <Route path="/admin" element={<ProtectedRoute requireRole="admin"><AdminPanel /></ProtectedRoute>} />
 
         <Route path="*" element={<Navigate to="/" replace />} />

@@ -1,8 +1,11 @@
 import { useEffect, useState, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import useThemeStore from '../store/themeStore'
+import useAuthStore from '../store/authStore'
 import { profilesApi, usersApi } from '../api/profiles'
 import { categoriesApi } from '../api/categories'
+import { favoritesApi } from '../api/favorites'
+import useToastStore from '../store/toastStore'
 import StarBackground from '../components/StarBackground'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
@@ -12,7 +15,7 @@ import Rating from '../components/Rating'
 
 const LEVEL_LABELS = { basic: 'Базовый', conversational: 'Разговорный', fluent: 'Свободно', native: 'Родной' }
 
-function FreelancerBigCard({ user, profile }) {
+function FreelancerBigCard({ user, profile, isFavorited, onFavoriteToggle }) {
   const skills = profile?.skills?.slice(0, 4) || []
   const langs = profile?.languages?.slice(0, 3) || []
 
@@ -52,15 +55,33 @@ function FreelancerBigCard({ user, profile }) {
                 <div style={{ fontSize: 13, color: 'var(--accent)', fontWeight: 500 }}>{profile.title}</div>
               )}
             </div>
-            <div style={{ textAlign: 'right', flexShrink: 0 }}>
-              {profile?.hourly_rate && (
-                <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 18, color: 'var(--accent-green)' }}>
-                  {Number(profile.hourly_rate).toLocaleString()}
-                  <span style={{ fontSize: 12, fontWeight: 400, color: 'var(--text-muted)', marginLeft: 3 }}>TJS/ч</span>
-                </div>
-              )}
-              {profile?.rating > 0 && (
-                <Rating value={profile.rating} size={11} style={{ marginTop: 4, justifyContent: 'flex-end' }} />
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, flexShrink: 0 }}>
+              <div style={{ textAlign: 'right' }}>
+                {profile?.hourly_rate && (
+                  <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 18, color: 'var(--accent-green)' }}>
+                    {Number(profile.hourly_rate).toLocaleString()}
+                    <span style={{ fontSize: 12, fontWeight: 400, color: 'var(--text-muted)', marginLeft: 3 }}>$/ч</span>
+                  </div>
+                )}
+                {profile?.rating > 0 && (
+                  <Rating value={profile.rating} size={11} style={{ marginTop: 4, justifyContent: 'flex-end' }} />
+                )}
+              </div>
+              {onFavoriteToggle && (
+                <button
+                  onClick={e => { e.preventDefault(); e.stopPropagation(); onFavoriteToggle() }}
+                  title={isFavorited ? 'Убрать из избранного' : 'В избранное'}
+                  style={{
+                    background: 'none', border: 'none', cursor: 'pointer', padding: 4,
+                    color: isFavorited ? '#F87171' : 'var(--text-muted)',
+                    display: 'flex', alignItems: 'center',
+                    transition: 'color 0.15s',
+                  }}
+                  onMouseEnter={e => e.currentTarget.style.color = '#F87171'}
+                  onMouseLeave={e => e.currentTarget.style.color = isFavorited ? '#F87171' : 'var(--text-muted)'}
+                >
+                  <i className={`ti ti-heart${isFavorited ? '-filled' : ''}`} style={{ fontSize: 18 }} />
+                </button>
               )}
             </div>
           </div>
@@ -100,12 +121,15 @@ function FreelancerBigCard({ user, profile }) {
 
 export default function FreelancersPage() {
   const { isDark } = useThemeStore()
+  const { user } = useAuthStore()
+  const toast = useToastStore(s => s.show)
   const [users, setUsers] = useState([])
   const [profiles, setProfiles] = useState({}) // keyed by user_id
   const [categories, setCategories] = useState([])
   const [catFilter, setCatFilter] = useState('')
   const [search, setSearch] = useState('')
   const [loading, setLoading] = useState(true)
+  const [favIds, setFavIds] = useState(new Set())
 
   const load = useCallback(() => {
     setLoading(true)
@@ -123,6 +147,25 @@ export default function FreelancersPage() {
   useEffect(() => {
     categoriesApi.getAll().then(r => setCategories(r.data || [])).catch(() => {})
   }, [])
+
+  useEffect(() => {
+    if (!user) return
+    favoritesApi.getAll()
+      .then(r => setFavIds(new Set((r.data || []).filter(f => f.freelancer_id).map(f => f.freelancer_id))))
+      .catch(() => {})
+  }, [user?.id])
+
+  const toggleFav = async (userId) => {
+    if (favIds.has(userId)) {
+      await favoritesApi.removeFreelancer(userId).catch(() => {})
+      setFavIds(prev => { const s = new Set(prev); s.delete(userId); return s })
+      toast('Удалено из избранного', 'info')
+    } else {
+      await favoritesApi.addFreelancer(userId).catch(() => {})
+      setFavIds(prev => new Set([...prev, userId]))
+      toast('Добавлено в избранное!', 'success')
+    }
+  }
 
   useEffect(() => { load() }, [load])
 
@@ -261,7 +304,13 @@ export default function FreelancersPage() {
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                   {filtered.map(u => (
-                    <FreelancerBigCard key={u.id} user={u} profile={profiles[u.id]} />
+                    <FreelancerBigCard
+                      key={u.id}
+                      user={u}
+                      profile={profiles[u.id]}
+                      isFavorited={favIds.has(u.id)}
+                      onFavoriteToggle={user?.role === 'client' ? () => toggleFav(u.id) : undefined}
+                    />
                   ))}
                 </div>
               )}

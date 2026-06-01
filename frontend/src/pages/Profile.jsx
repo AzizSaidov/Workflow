@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, Link } from 'react-router-dom'
 import useThemeStore from '../store/themeStore'
 import useAuthStore from '../store/authStore'
 import { profilesApi } from '../api/profiles'
@@ -19,6 +19,7 @@ import LanguageSelector from '../components/LanguageSelector'
 import AchievementBadge from '../components/AchievementBadge'
 import { certificationsApi } from '../api/certifications'
 import { favoritesApi } from '../api/favorites'
+import useToastStore from '../store/toastStore'
 
 const LEVEL_LABEL = { basic: 'Базовый', conversational: 'Разговорный', fluent: 'Свободный', native: 'Родной' }
 
@@ -39,6 +40,7 @@ export default function Profile() {
   const [loadError, setLoadError] = useState(false)
   const [isFavorited, setIsFavorited] = useState(false)
   const [favLoading, setFavLoading] = useState(false)
+  const toast = useToastStore(s => s.show)
   const [editMode, setEditMode] = useState(false)
   const [editForm, setEditForm] = useState({ full_name: '', bio: '', title: '', hourly_rate: '', experience_years: '' })
   const [saving, setSaving] = useState(false)
@@ -101,6 +103,7 @@ export default function Profile() {
         })
       }
       setEditMode(false)
+      toast('Профиль сохранён', 'success')
       load()
     } finally { setSaving(false) }
   }
@@ -114,6 +117,7 @@ export default function Profile() {
       form.append('file', file)
       const { data } = await client.post('/media/avatar', form, { headers: { 'Content-Type': 'multipart/form-data' } })
       if (data?.url && me) setUser({ ...me, avatar_url: data.url })
+      toast('Аватарка обновлена!', 'success')
       load()
     } catch {} finally { setAvatarUploading(false) }
   }
@@ -166,6 +170,19 @@ export default function Profile() {
 
       <div style={{ paddingTop: 80, position: 'relative', zIndex: 2 }}>
         <div className="container" style={{ paddingTop: 36, paddingBottom: 80 }}>
+
+          {/* Breadcrumb */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: 'var(--text-muted)', marginBottom: 20 }}>
+            <Link to="/freelancers" style={{ color: 'var(--text-muted)', textDecoration: 'none' }}
+              onMouseEnter={e => e.currentTarget.style.color = 'var(--text-secondary)'}
+              onMouseLeave={e => e.currentTarget.style.color = 'var(--text-muted)'}
+            >Фрилансеры</Link>
+            <i className="ti ti-chevron-right" style={{ fontSize: 12, opacity: 0.5 }} />
+            <span style={{ color: 'var(--text-secondary)' }}>
+              {userData?.full_name || 'Профиль'}
+            </span>
+          </div>
+
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: 28, alignItems: 'start' }}>
 
             {/* Main */}
@@ -491,9 +508,11 @@ export default function Profile() {
                       if (isFavorited) {
                         await favoritesApi.removeFreelancer(id)
                         setIsFavorited(false)
+                        toast('Удалено из избранного', 'info')
                       } else {
                         await favoritesApi.addFreelancer(id)
                         setIsFavorited(true)
+                        toast('Добавлено в избранное!', 'success')
                       }
                     } catch {} finally { setFavLoading(false) }
                   }}

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
+import useToastStore from '../store/toastStore'
 import useThemeStore from '../store/themeStore'
 import useAuthStore from '../store/authStore'
 import { projectsApi } from '../api/projects'
@@ -13,6 +14,8 @@ import Avatar from '../components/Avatar'
 import BidCard from '../components/BidCard'
 import ChatWidget from '../components/ChatWidget'
 import Input from '../components/Input'
+import AITextarea from '../components/AITextarea'
+import { aiApi } from '../api/ai'
 
 const TYPE_LABEL = { fixed: 'Фиксированная цена', hourly: 'Почасовая' }
 const LEVEL_LABEL = { entry: 'Начинающий', intermediate: 'Средний', expert: 'Эксперт' }
@@ -30,6 +33,9 @@ export default function ProjectDetail() {
   const [bidLoading, setBidLoading] = useState(false)
   const [bidError, setBidError] = useState('')
   const [bidSent, setBidSent] = useState(false)
+  const [aiRank, setAiRank] = useState(null)
+  const [aiRankLoading, setAiRankLoading] = useState(false)
+  const toast = useToastStore(s => s.show)
 
   const load = () => {
     setLoading(true)
@@ -57,6 +63,7 @@ export default function ProjectDetail() {
       await bidsApi.create(id, { price: parseFloat(bidForm.price), cover_letter: bidForm.cover_letter })
       setBidSent(true)
       setBidForm({ price: '', cover_letter: '' })
+      toast('Заявка успешно отправлена!', 'success')
       load()
     } catch (err) {
       setBidError(err.response?.data?.detail || 'Ошибка подачи заявки')
@@ -91,6 +98,19 @@ export default function ProjectDetail() {
 
       <div style={{ paddingTop: 80, position: 'relative', zIndex: 2 }}>
         <div className="container" style={{ paddingTop: 36, paddingBottom: 80 }}>
+
+          {/* Breadcrumb */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: 'var(--text-muted)', marginBottom: 20 }}>
+            <Link to="/projects" style={{ color: 'var(--text-muted)', textDecoration: 'none' }}
+              onMouseEnter={e => e.currentTarget.style.color = 'var(--text-secondary)'}
+              onMouseLeave={e => e.currentTarget.style.color = 'var(--text-muted)'}
+            >Проекты</Link>
+            <i className="ti ti-chevron-right" style={{ fontSize: 12, opacity: 0.5 }} />
+            <span style={{ color: 'var(--text-secondary)', maxWidth: 300, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {project.title}
+            </span>
+          </div>
+
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: 28, alignItems: 'start' }}>
 
             {/* Main content */}
@@ -142,19 +162,19 @@ export default function ProjectDetail() {
                         icon="currency-dollar"
                         required
                       />
-                      <div>
-                        <label style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)', display: 'block', marginBottom: 6 }}>
-                          Сопроводительное письмо
-                        </label>
-                        <textarea
-                          value={bidForm.cover_letter}
-                          onChange={e => setBidForm(f => ({ ...f, cover_letter: e.target.value }))}
-                          placeholder="Расскажи почему ты подходишь для этого проекта..."
-                          rows={4}
-                          className="input"
-                          style={{ resize: 'vertical', lineHeight: 1.6 }}
-                        />
-                      </div>
+                      <AITextarea
+                        label="Cover letter"
+                        value={bidForm.cover_letter}
+                        onChange={e => setBidForm(f => ({ ...f, cover_letter: e.target.value }))}
+                        placeholder="Tell the client why you're the best fit for this project..."
+                        rows={4}
+                        aiContext={{
+                          mode: 'bid',
+                          projectTitle: project?.title,
+                          projectDescription: project?.description,
+                          skills: [],
+                        }}
+                      />
                       {bidError && <span style={{ fontSize: 13, color: '#F87171' }}>{bidError}</span>}
                       <Button type="submit" variant="primary" loading={bidLoading} icon="send">
                         Отправить заявку
@@ -167,9 +187,64 @@ export default function ProjectDetail() {
               {/* Bids list for owner */}
               {isOwner && bids.length > 0 && (
                 <div>
-                  <h3 style={{ fontFamily: 'Syne, sans-serif', fontSize: 18, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 16 }}>
-                    Заявки <span style={{ color: 'var(--accent)' }}>({bids.length})</span>
-                  </h3>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+                    <h3 style={{ fontFamily: 'Syne, sans-serif', fontSize: 18, fontWeight: 700, color: 'var(--text-primary)' }}>
+                      Bids <span style={{ color: 'var(--accent)' }}>({bids.length})</span>
+                    </h3>
+                    {bids.length >= 2 && (
+                      <button
+                        onClick={async () => {
+                          setAiRankLoading(true)
+                          setAiRank(null)
+                          try {
+                            const bidsSummary = bids.map((b, i) =>
+                              `${i + 1}. ${b.freelancer_name} — $${b.price} — Rating: ${b.rating || 'N/A'}\nLetter: ${b.cover_letter || 'No letter'}`
+                            ).join('\n\n')
+                            const context = `Project: ${project.title}\nDescription: ${project.description}`
+                            const { data } = await aiApi.chat(
+                              `Rank these ${bids.length} freelancer bids for this project from best to worst. For each, give a 1-sentence reason. Be concise.\n\nBids:\n${bidsSummary}`,
+                              context
+                            )
+                            setAiRank(data.text)
+                          } catch {} finally { setAiRankLoading(false) }
+                        }}
+                        style={{
+                          display: 'flex', alignItems: 'center', gap: 6,
+                          padding: '6px 14px', borderRadius: 9, fontSize: 12.5, fontWeight: 500,
+                          border: '0.5px solid rgba(127,119,221,0.35)',
+                          background: 'rgba(127,119,221,0.08)',
+                          color: 'var(--accent)', cursor: aiRankLoading ? 'not-allowed' : 'pointer',
+                        }}
+                        disabled={aiRankLoading}
+                      >
+                        {aiRankLoading
+                          ? <i className="ti ti-loader-2" style={{ fontSize: 13, animation: 'spin 0.8s linear infinite' }} />
+                          : <i className="ti ti-sparkles" style={{ fontSize: 13 }} />}
+                        {aiRankLoading ? 'Analysing...' : '✨ AI Rank Bids'}
+                      </button>
+                    )}
+                  </div>
+
+                  {/* AI ranking result */}
+                  {aiRank && (
+                    <div style={{
+                      marginBottom: 16, padding: '14px 16px', borderRadius: 12,
+                      background: 'rgba(127,119,221,0.06)',
+                      border: '0.5px solid rgba(127,119,221,0.25)',
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 10, fontSize: 12, fontWeight: 600, color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                        <i className="ti ti-sparkles" style={{ fontSize: 13 }} />
+                        AI Analysis
+                      </div>
+                      <div style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.7, whiteSpace: 'pre-wrap' }}>
+                        {aiRank}
+                      </div>
+                      <button onClick={() => setAiRank(null)} style={{ marginTop: 8, fontSize: 11, color: 'var(--text-muted)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+                        Dismiss
+                      </button>
+                    </div>
+                  )}
+
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                     {bids.map(bid => (
                       <BidCard key={bid.id} bid={bid} isOwner={isOwner} onAccepted={load} />

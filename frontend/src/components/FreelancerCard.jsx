@@ -4,7 +4,7 @@ import Avatar from './Avatar'
 import Rating from './Rating'
 import Tag from './Tag'
 
-export default function FreelancerCard({ freelancer }) {
+export default function FreelancerCard({ freelancer, isFavorited, onFavoriteToggle }) {
   const { user_id, full_name, avatar_url, title, rating, reviews_count, skills, hourly_rate } = freelancer
 
   return (
@@ -22,6 +22,22 @@ export default function FreelancerCard({ freelancer }) {
               </div>
             )}
           </div>
+          {onFavoriteToggle && (
+            <button
+              onClick={e => { e.preventDefault(); e.stopPropagation(); onFavoriteToggle() }}
+              title={isFavorited ? 'Убрать из избранного' : 'В избранное'}
+              style={{
+                background: 'none', border: 'none', cursor: 'pointer', padding: 4, flexShrink: 0,
+                color: isFavorited ? '#F87171' : 'var(--text-muted)',
+                display: 'flex', alignItems: 'center',
+                transition: 'color 0.15s',
+              }}
+              onMouseEnter={e => e.currentTarget.style.color = '#F87171'}
+              onMouseLeave={e => e.currentTarget.style.color = isFavorited ? '#F87171' : 'var(--text-muted)'}
+            >
+              <i className={`ti ti-heart${isFavorited ? '-filled' : ''}`} style={{ fontSize: 17 }} />
+            </button>
+          )}
         </div>
 
         {rating > 0 && <Rating value={rating} count={reviews_count} />}

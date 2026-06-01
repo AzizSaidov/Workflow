@@ -314,6 +314,7 @@ img { max-width: 100%; }
 .blink { animation: blink 2s infinite; }
 
 @keyframes spin { to { transform: rotate(360deg); } }
+@keyframes bounce { 0%,100%{transform:translateY(0);opacity:0.4} 50%{transform:translateY(-4px);opacity:1} }
 
 /* ========= ANIMATIONS ========= */
 @keyframes fadeInUp {

@@ -11,6 +11,7 @@ import Input from '../components/Input'
 import Select from '../components/Select'
 import Button from '../components/Button'
 import SkillSelector from '../components/SkillSelector'
+import AITextarea from '../components/AITextarea'
 
 export default function CreateProject() {
   const { isDark } = useThemeStore()
@@ -90,17 +91,19 @@ export default function CreateProject() {
               {/* Basic info */}
               <Section title="Основное">
                 <Input label="Название проекта" placeholder="Разработка сайта для интернет-магазина" value={form.title} onChange={set('title')} required />
-                <div>
-                  <label style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)', display: 'block', marginBottom: 6 }}>Описание</label>
-                  <textarea
-                    value={form.description}
-                    onChange={set('description')}
-                    placeholder="Опиши требования, стек технологий, пожелания..."
-                    rows={5}
-                    className="input"
-                    style={{ resize: 'vertical', lineHeight: 1.6 }}
-                  />
-                </div>
+                <AITextarea
+                  label="Description"
+                  value={form.description}
+                  onChange={set('description')}
+                  placeholder="Describe requirements, tech stack, expectations... or let AI generate it."
+                  rows={5}
+                  aiContext={{
+                    mode: 'project',
+                    projectTitle: form.title,
+                    category: categories.find(c => c.id === form.category_id)?.name || '',
+                    budget: form.budget_min && form.budget_max ? `$${form.budget_min}–$${form.budget_max}` : '',
+                  }}
+                />
               </Section>
 
               {/* Category & Skills */}

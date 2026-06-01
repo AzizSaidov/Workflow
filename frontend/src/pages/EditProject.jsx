@@ -11,6 +11,7 @@ import Input from '../components/Input'
 import Select from '../components/Select'
 import Button from '../components/Button'
 import SkillSelector from '../components/SkillSelector'
+import AITextarea from '../components/AITextarea'
 
 export default function EditProject() {
   const { id } = useParams()
@@ -151,17 +152,19 @@ export default function EditProject() {
                   onChange={set('title')}
                   required
                 />
-                <div>
-                  <label style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)', display: 'block', marginBottom: 6 }}>Description</label>
-                  <textarea
-                    value={form.description}
-                    onChange={set('description')}
-                    placeholder="Describe requirements, tech stack, expectations..."
-                    rows={5}
-                    className="input"
-                    style={{ resize: 'vertical', lineHeight: 1.6 }}
-                  />
-                </div>
+                <AITextarea
+                  label="Description"
+                  value={form.description}
+                  onChange={set('description')}
+                  placeholder="Describe requirements, tech stack, expectations..."
+                  rows={5}
+                  aiContext={{
+                    mode: 'project',
+                    projectTitle: form.title,
+                    category: categories.find(c => c.id === form.category_id)?.name || '',
+                    budget: form.budget_min && form.budget_max ? `$${form.budget_min}–$${form.budget_max}` : '',
+                  }}
+                />
               </Section>
 
               <Section title="Category & Skills">
