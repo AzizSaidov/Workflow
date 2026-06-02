@@ -121,13 +121,37 @@ button, a, .card, .btn, input, .rs-card {
     transform 0.2s ease;
 }
 
+/* ========= DIGIT FONT (Syne for all numbers everywhere) ========= */
+@font-face {
+  font-family: 'SyneDigits';
+  src: url('https://fonts.gstatic.com/s/syne/v24/8vIS7w4qzmVxsWxjBZRjr0FKM_04uT6k.ttf') format('truetype');
+  unicode-range: U+0024-0025, U+002B-002F, U+0030-0039, U+003A;
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'SyneDigits';
+  src: url('https://fonts.gstatic.com/s/syne/v24/8vIS7w4qzmVxsWxjBZRjr0FKM_3fvj6k.ttf') format('truetype');
+  unicode-range: U+0024-0025, U+002B-002F, U+0030-0039, U+003A;
+  font-weight: 700;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'SyneDigits';
+  src: url('https://fonts.gstatic.com/s/syne/v24/8vIS7w4qzmVxsWxjBZRjr0FKM_24vj6k.ttf') format('truetype');
+  unicode-range: U+0024-0025, U+002B-002F, U+0030-0039, U+003A;
+  font-weight: 800;
+  font-display: swap;
+}
+
 /* ========= BASE ========= */
 body {
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'SyneDigits', 'DM Sans', sans-serif;
   background: var(--bg);
   color: var(--text-primary);
   min-height: 100vh;
   text-align: left;
+  font-variant-numeric: tabular-nums;
 }
 
 /* Browser autofill — override bright white */
@@ -151,7 +175,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 a { color: inherit; text-decoration: none; }
-button { cursor: pointer; font-family: 'DM Sans', sans-serif; }
+button { cursor: pointer; font-family: 'SyneDigits', 'DM Sans', sans-serif; }
 img { max-width: 100%; }
 
 /* ========= SCROLLBAR ========= */
