@@ -73,7 +73,7 @@ export default function AuthLeft({ isDark }) {
       {/* Globe — no legend */}
       <div style={{ position: 'relative', zIndex: 2 }}>
         <div style={{ position: 'absolute', inset: -24, borderRadius: '50%', background: 'radial-gradient(circle, rgba(127,119,221,0.12) 0%, transparent 65%)', pointerEvents: 'none' }} />
-        <Globe locations={locations} width={380} height={380} showLegend={false} />
+        <Globe locations={locations} width={380} height={380} showLegend={false} showLabels={false} />
       </div>
 
       {/* Badge 1 — Escrow 99% */}
