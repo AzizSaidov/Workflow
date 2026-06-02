@@ -126,22 +126,24 @@ function SkillSelector({ selected = [], onAdd, onRemove }) {
           }}>✕</button>
         </div>
       )}
-      {open && query.length > 0 && (
+      {open && (
         <div style={{
           display: 'flex', flexWrap: 'wrap', gap: 6,
           padding: 12, borderRadius: 10, background: 'var(--bg)',
-          border: '0.5px solid var(--border)', maxHeight: 120, overflowY: 'auto',
+          border: '0.5px solid var(--border)', maxHeight: 130, overflowY: 'auto',
         }}>
-          {available.length === 0 && <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>Ничего не найдено</span>}
-          {available.map(s => (
-            <button key={s.id} onClick={() => { onAdd(s.id); setQuery(''); setOpen(false) }} style={{
-              padding: '4px 12px', borderRadius: 20, fontSize: 12,
-              background: 'rgba(127,119,221,0.08)', border: '0.5px solid rgba(127,119,221,0.2)',
-              color: 'var(--accent)', cursor: 'pointer',
-            }}>
-              {s.name}
-            </button>
-          ))}
+          {available.length === 0
+            ? <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>{query ? 'Ничего не найдено' : 'Все навыки уже добавлены'}</span>
+            : available.slice(0, 20).map(s => (
+              <button key={s.id} onClick={() => { onAdd(s.id); setQuery('') }} style={{
+                padding: '4px 12px', borderRadius: 20, fontSize: 12,
+                background: 'rgba(127,119,221,0.08)', border: '0.5px solid rgba(127,119,221,0.2)',
+                color: 'var(--accent)', cursor: 'pointer',
+              }}>
+                {s.name}
+              </button>
+            ))
+          }
         </div>
       )}
     </div>
@@ -356,7 +358,6 @@ export default function Profile() {
     { icon: 'currency-dollar', label: 'Ставка', value: profile.hourly_rate ? `$${Number(profile.hourly_rate).toLocaleString()}/hr` : '—', color: 'var(--accent-green)' },
     { icon: 'briefcase', label: 'Выполнено', value: profile.total_jobs || 0, color: 'var(--accent)' },
     { icon: 'clock', label: 'Опыт', value: profile.experience_years ? `${profile.experience_years} лет` : '—', color: '#EF9F27' },
-    { icon: 'bolt', label: 'Отклик', value: profile.response_time || 'Быстро', color: 'var(--accent-teal)' },
   ] : []
 
   return (

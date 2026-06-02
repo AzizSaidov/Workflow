@@ -266,7 +266,7 @@ export default function Home() {
           {/* Globe */}
           <div className="animate-fade" style={{ flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', animationDelay: '0.3s' }}>
             <div style={{
-              position: 'absolute', bottom: -28, right: 40, zIndex: 10,
+              position: 'absolute', bottom: -44, left: 30, zIndex: 10,
               background: 'var(--bg-card)', border: '0.5px solid var(--border)',
               borderRadius: 12, padding: '9px 16px',
               display: 'flex', alignItems: 'center', gap: 9, fontSize: 12.5,
