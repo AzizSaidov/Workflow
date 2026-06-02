@@ -2,27 +2,12 @@ import { useEffect, useRef, useState, useMemo, useCallback } from 'react'
 import GlobeGL from 'react-globe.gl'
 import useThemeStore from '../store/themeStore'
 
-const CITY_DB = [
-  { flag: '🇹🇯', name: 'Душанбе',   lat: 38.56, lng: 68.77 },
-  { flag: '🇺🇿', name: 'Ташкент',   lat: 41.30, lng: 69.24 },
-  { flag: '🇰🇿', name: 'Алматы',    lat: 43.22, lng: 76.85 },
-  { flag: '🇷🇺', name: 'Москва',    lat: 55.75, lng: 37.62 },
-  { flag: '🇩🇪', name: 'Берлин',    lat: 52.52, lng: 13.40 },
-  { flag: '🇮🇹', name: 'Рим',       lat: 41.90, lng: 12.50 },
-  { flag: '🇬🇧', name: 'Лондон',    lat: 51.51, lng: -0.13 },
-  { flag: '🇦🇪', name: 'Дубай',     lat: 25.20, lng: 55.27 },
-  { flag: '🇫🇷', name: 'Париж',     lat: 48.86, lng:  2.35 },
-  { flag: '🇮🇳', name: 'Дели',      lat: 28.61, lng: 77.21 },
-  { flag: '🇨🇳', name: 'Шанхай',    lat: 31.22, lng: 121.47 },
-  { flag: '🇹🇷', name: 'Стамбул',   lat: 41.01, lng: 28.97 },
-]
 
 export default function Globe({
   locations = [],
   width = 480,
   height = 480,
   showLegend = true,
-  showLabels = true,
 }) {
   const globeRef = useRef()
   const { isDark } = useThemeStore()
@@ -74,17 +59,6 @@ export default function Globe({
     return result
   }, [locations])
 
-  // City labels shown as React elements (not htmlElementsData — avoids gl crash)
-  const cityLabels = useMemo(() => {
-    if (!showLabels || width < 420) return []
-    return CITY_DB.filter(city =>
-      locations.some(l => l.lat != null &&
-        Math.abs(l.lat - city.lat) < 3 &&
-        Math.abs(l.lng - city.lng) < 3
-      )
-    )
-  }, [locations, showLabels, width])
-
   const handlePointClick = useCallback(() => {
     if (!globeRef.current) return
     const c = globeRef.current.controls()
@@ -109,10 +83,6 @@ export default function Globe({
         @keyframes orbitSpin3 {
           from { transform: translate(-50%,-50%) rotateX(82deg) rotateZ(220deg); }
           to   { transform: translate(-50%,-50%) rotateX(82deg) rotateZ(580deg); }
-        }
-        @keyframes globeCityIn {
-          from { opacity:0; transform:translateY(4px); }
-          to   { opacity:1; transform:translateY(0); }
         }
       `}</style>
 
@@ -237,10 +207,6 @@ export default function Globe({
         }} />
       )}
 
-      {/* City badges — React overlay (not htmlElementsData) */}
-      {loaded && cityLabels.map(city => (
-        <CityBadge key={city.name} city={city} isDark={isDark} />
-      ))}
 
       {/* Legend */}
       {loaded && showLegend && (
@@ -274,45 +240,6 @@ export default function Globe({
           )}
         </div>
       )}
-    </div>
-  )
-}
-
-// Static decorative city badges around the globe
-const BADGE_POSITIONS = [
-  { top: '14%', right: '4%' },
-  { top: '28%', left: '2%' },
-  { bottom: '32%', right: '3%' },
-  { bottom: '18%', left: '4%' },
-  { top: '50%', right: '1%' },
-  { top: '8%',  left: '12%' },
-]
-
-function CityBadge({ city, isDark }) {
-  // Pick a stable position based on city name hash
-  const posIdx = city.name.charCodeAt(0) % BADGE_POSITIONS.length
-  const pos = BADGE_POSITIONS[posIdx]
-
-  return (
-    <div style={{
-      position: 'absolute', ...pos, zIndex: 3,
-      pointerEvents: 'none',
-      animation: 'globeCityIn 0.5s ease both',
-    }}>
-      <div style={{
-        display: 'flex', alignItems: 'center', gap: 5,
-        background: isDark ? 'rgba(7,7,14,0.88)' : 'rgba(255,255,255,0.88)',
-        border: `0.5px solid ${isDark ? 'rgba(127,119,221,0.3)' : 'rgba(80,72,213,0.2)'}`,
-        borderRadius: 20, padding: '3px 9px 3px 5px',
-        fontSize: 11,
-        color: isDark ? 'rgba(255,255,255,0.88)' : 'rgba(13,11,30,0.88)',
-        whiteSpace: 'nowrap',
-        boxShadow: isDark ? '0 2px 12px rgba(0,0,0,0.5)' : '0 2px 12px rgba(80,72,213,0.1)',
-        backdropFilter: 'blur(8px)',
-      }}>
-        <span style={{ fontSize: 13, lineHeight: 1 }}>{city.flag}</span>
-        <span>{city.name}</span>
-      </div>
     </div>
   )
 }
