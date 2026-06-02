@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import GlobeGL from 'react-globe.gl'
 import useThemeStore from '../store/themeStore'
 
-export default function Globe({ locations = [], width = 480, height = 480 }) {
+export default function Globe({ locations = [], width = 480, height = 480, showLegend = true }) {
   const globeRef = useRef()
   const { isDark } = useThemeStore()
   const [loaded, setLoaded] = useState(false)
@@ -61,7 +61,7 @@ export default function Globe({ locations = [], width = 480, height = 480 }) {
       </div>
 
       {/* Legend */}
-      {loaded && (
+      {loaded && showLegend && (
         <div style={{
           position: 'absolute', bottom: 28, left: '50%', transform: 'translateX(-50%)',
           display: 'flex', gap: 16, zIndex: 2,
