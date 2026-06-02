@@ -17,6 +17,7 @@ import Freelancers from './pages/Freelancers'
 import ChatsPage from './pages/ChatsPage'
 import Favorites from './pages/Favorites'
 import AIAssistant from './pages/AIAssistant'
+import MyWork from './pages/MyWork'
 
 export default function App() {
   return (
@@ -42,6 +43,7 @@ export default function App() {
         <Route path="/chats" element={<ProtectedRoute><ChatsPage /></ProtectedRoute>} />
         <Route path="/favorites" element={<ProtectedRoute><Favorites /></ProtectedRoute>} />
         <Route path="/ai" element={<ProtectedRoute><AIAssistant /></ProtectedRoute>} />
+        <Route path="/my-work" element={<ProtectedRoute requireRole="freelancer"><MyWork /></ProtectedRoute>} />
         <Route path="/admin" element={<ProtectedRoute requireRole="admin"><AdminPanel /></ProtectedRoute>} />
 
         <Route path="*" element={<Navigate to="/" replace />} />

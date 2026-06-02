@@ -26,6 +26,7 @@ function getNavLinks(user) {
     return [
       { to: '/', label: 'Главная', icon: 'home' },
       { to: '/projects', label: 'Найти работу', icon: 'search' },
+      { to: '/my-work', label: 'Мои работы', icon: 'briefcase' },
       { to: '/dashboard', label: 'Мои заявки', icon: 'layout-dashboard' },
       { to: '/chats', label: 'Чаты', icon: 'messages' },
     ]
