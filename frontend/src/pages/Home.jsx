@@ -32,18 +32,15 @@ function useCountUp(target, duration = 1800, started = false) {
   return value
 }
 
-// --- Stats block ---
 function StatCard({ value, suffix = '', label, color = 'var(--accent)' }) {
   const ref = useRef(null)
   const [visible, setVisible] = useState(false)
   const display = useCountUp(value, 1600, visible)
-
   useEffect(() => {
     const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) setVisible(true) }, { threshold: 0.3 })
     if (ref.current) obs.observe(ref.current)
     return () => obs.disconnect()
   }, [])
-
   return (
     <div ref={ref} style={{ textAlign: 'center' }}>
       <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 40, fontWeight: 800, letterSpacing: '-2px', color: 'var(--text-primary)', lineHeight: 1 }}>
@@ -54,16 +51,12 @@ function StatCard({ value, suffix = '', label, color = 'var(--accent)' }) {
   )
 }
 
-// --- Category card ---
-// cat.icon from DB is already a full class like "ti-code"
 function CategoryCard({ cat, isDark }) {
-  // Support both "ti-code" and just "code"
   const iconClass = cat.icon?.startsWith('ti-') ? cat.icon : `ti-${cat.icon || 'briefcase'}`
   return (
     <Link to={`/projects?category_id=${cat.id}`} style={{ textDecoration: 'none' }}>
       <div style={{
-        background: 'var(--bg-card)',
-        border: '0.5px solid var(--border)',
+        background: 'var(--bg-card)', border: '0.5px solid var(--border)',
         borderRadius: 16, padding: '22px 16px',
         display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12,
         cursor: 'pointer', textAlign: 'center',
@@ -80,16 +73,40 @@ function CategoryCard({ cat, isDark }) {
           e.currentTarget.style.boxShadow = 'none'
         }}
       >
-        <div style={{
-          width: 52, height: 52, borderRadius: 14,
-          background: isDark ? 'rgba(127,119,221,0.12)' : 'rgba(80,72,213,0.09)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-        }}>
+        <div style={{ width: 52, height: 52, borderRadius: 14, background: isDark ? 'rgba(127,119,221,0.12)' : 'rgba(80,72,213,0.09)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <i className={`ti ${iconClass}`} style={{ fontSize: 24, color: 'var(--accent)' }} />
         </div>
         <span style={{ fontSize: 12.5, fontWeight: 500, color: 'var(--text-primary)', lineHeight: 1.3 }}>{cat.name}</span>
       </div>
     </Link>
+  )
+}
+
+const SKILLS = ['React', 'Python', 'Figma', 'Node.js', 'Flutter', 'FastAPI', 'TypeScript', 'PostgreSQL', 'Vue.js', 'Docker', 'Swift', 'Go', 'Rust', 'Next.js', 'TailwindCSS', 'MongoDB', 'GraphQL', 'AWS', 'Kotlin', 'Unity']
+
+function SkillMarquee({ isDark }) {
+  const doubled = [...SKILLS, ...SKILLS]
+  return (
+    <div style={{ overflow: 'hidden', padding: '20px 0', position: 'relative', zIndex: 2 }}>
+      <div style={{
+        display: 'flex', gap: 10,
+        animation: 'marquee 28s linear infinite',
+        width: 'max-content',
+      }}>
+        {doubled.map((s, i) => (
+          <div key={i} style={{
+            padding: '6px 16px', borderRadius: 20,
+            background: isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)',
+            border: '0.5px solid var(--border)',
+            fontSize: 12.5, fontWeight: 500, color: 'var(--text-secondary)',
+            whiteSpace: 'nowrap', flexShrink: 0,
+          }}>
+            {s}
+          </div>
+        ))}
+      </div>
+      <style>{`@keyframes marquee { from { transform: translateX(0) } to { transform: translateX(-50%) } }`}</style>
+    </div>
   )
 }
 
@@ -114,7 +131,6 @@ export default function Home() {
     ]).then(([locRes, onlineRes]) => {
       setOnlineCount(onlineRes.data?.count || 0)
       const locs = locRes.data || []
-      // Read fresh user from store (not stale closure)
       const u = useAuthStore.getState().user
       if (u?.latitude && u?.longitude) {
         const withoutDupe = locs.filter(p =>
@@ -127,7 +143,6 @@ export default function Home() {
     })
   }, [user?.id])
 
-  // Fallback: if logged in but no coords yet, request geolocation here too
   useEffect(() => {
     if (!user?.id || user?.latitude || !navigator.geolocation) return
     const key = `geo-asked-${user.id}`
@@ -142,7 +157,6 @@ export default function Home() {
     )
   }, [user?.id])
 
-  // Separate effect: adds/updates red "me" dot when geolocation arrives
   useEffect(() => {
     if (!user?.latitude || !user?.longitude) return
     setLocations(prev => {
@@ -154,12 +168,49 @@ export default function Home() {
     })
   }, [user?.latitude, user?.longitude])
 
+  // Hero CTA by role
+  const heroCTA = () => {
+    if (!user) return (
+      <>
+        <Link to="/role"><button className="btn btn-primary btn-lg" style={{ gap: 8 }}><i className="ti ti-rocket" />Начать бесплатно</button></Link>
+        <Link to="/projects"><button className="btn btn-outline btn-lg" style={{ gap: 8 }}><i className="ti ti-search" />Найти работу</button></Link>
+      </>
+    )
+    if (user.role === 'client') return (
+      <>
+        <Link to="/projects/new"><button className="btn btn-primary btn-lg" style={{ gap: 8 }}><i className="ti ti-plus" />Создать проект</button></Link>
+        <Link to="/freelancers"><button className="btn btn-outline btn-lg" style={{ gap: 8 }}><i className="ti ti-users" />Найти таланты</button></Link>
+      </>
+    )
+    if (user.role === 'freelancer') return (
+      <>
+        <Link to="/projects"><button className="btn btn-primary btn-lg" style={{ gap: 8 }}><i className="ti ti-search" />Найти работу</button></Link>
+        <Link to="/my-work"><button className="btn btn-outline btn-lg" style={{ gap: 8 }}><i className="ti ti-briefcase" />Мои работы</button></Link>
+      </>
+    )
+    return null
+  }
+
+  const heroTitle = () => {
+    if (user?.role === 'client') return <><span style={gradientStyle}>Найди лучших</span><br />специалистов<br />для проекта</>
+    if (user?.role === 'freelancer') return <>Найди лучшие<br /><span style={gradientStyle}>проекты</span><br />для роста</>
+    return <>Найди лучших<br /><span style={gradientStyle}>специалистов</span><br />для проекта</>
+  }
+
+  const gradientStyle = {
+    background: isDark
+      ? 'linear-gradient(135deg, #7F77DD 0%, #5DCAA5 100%)'
+      : 'linear-gradient(135deg, #5048D5 0%, #0D9268 100%)',
+    WebkitBackgroundClip: 'text',
+    WebkitTextFillColor: 'transparent',
+    backgroundClip: 'text',
+  }
+
   return (
     <div className="page-wrapper" style={{ background: 'var(--bg)' }}>
       <StarBackground isDark={isDark} intensity="full" />
       <div className="glow-blob glow-1" />
       <div className="glow-blob glow-2" />
-
       <Navbar />
 
       {/* ===== HERO ===== */}
@@ -179,22 +230,20 @@ export default function Home() {
               {onlineCount > 0 ? `${onlineCount} онлайн сейчас` : 'Global Freelance Platform'}
             </div>
 
+            {user && (
+              <div className="animate-in" style={{ marginBottom: 12, animationDelay: '0.15s' }}>
+                <span style={{ fontSize: 15, color: 'var(--text-secondary)' }}>
+                  С возвращением, <span style={{ color: 'var(--text-primary)', fontWeight: 600 }}>{user.full_name?.split(' ')[0]}</span> 👋
+                </span>
+              </div>
+            )}
+
             <h1 className="animate-in" style={{
               fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 58,
               letterSpacing: '-2.5px', lineHeight: 1.04, marginBottom: 20,
-              color: 'var(--text-primary)',
-              animationDelay: '0.2s',
+              color: 'var(--text-primary)', animationDelay: '0.2s',
             }}>
-              Найди лучших<br />
-              <span style={{
-                background: isDark
-                  ? 'linear-gradient(135deg, #7F77DD 0%, #5DCAA5 100%)'
-                  : 'linear-gradient(135deg, #5048D5 0%, #0D9268 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-              }}>специалистов</span><br />
-              для проекта
+              {heroTitle()}
             </h1>
 
             <p className="animate-in" style={{
@@ -205,18 +254,7 @@ export default function Home() {
             </p>
 
             <div className="animate-in" style={{ display: 'flex', gap: 12, flexWrap: 'wrap', animationDelay: '0.45s' }}>
-              <Link to="/role">
-                <button className="btn btn-primary btn-lg" style={{ gap: 8 }}>
-                  <i className="ti ti-rocket" />
-                  Начать бесплатно
-                </button>
-              </Link>
-              <Link to="/projects">
-                <button className="btn btn-outline btn-lg" style={{ gap: 8 }}>
-                  <i className="ti ti-search" />
-                  Найти работу
-                </button>
-              </Link>
+              {heroCTA()}
             </div>
 
             <div className="animate-in" style={{ display: 'flex', gap: 28, marginTop: 36, animationDelay: '0.55s' }}>
@@ -233,35 +271,40 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Globe + floating badges */}
+          {/* Globe */}
           <div className="animate-fade" style={{ flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', animationDelay: '0.3s' }}>
-            {/* Floating badge — bottom right */}
             <div style={{
               position: 'absolute', bottom: 60, right: -10, zIndex: 10,
               background: 'var(--bg-card)', border: '0.5px solid var(--border)',
               borderRadius: 12, padding: '8px 14px',
               display: 'flex', alignItems: 'center', gap: 8, fontSize: 12,
               boxShadow: isDark ? '0 4px 20px rgba(0,0,0,0.4)' : '0 4px 20px rgba(80,72,213,0.1)',
-              animation: 'fadeInUp 0.5s ease both',
-              animationDelay: '1.1s',
+              animation: 'fadeInUp 0.5s ease both', animationDelay: '1.1s',
               whiteSpace: 'nowrap',
             }}>
               <i className="ti ti-shield-check" style={{ color: 'var(--accent-green)', fontSize: 15 }} />
               <span style={{ color: 'var(--text-primary)', fontWeight: 500 }}>Эскроу-защита</span>
             </div>
-            {/* Glow ring */}
             <div style={{
-              position: 'absolute', inset: '-20px',
-              borderRadius: '50%',
-              background: isDark
-                ? 'radial-gradient(circle, rgba(127,119,221,0.12) 0%, transparent 70%)'
-                : 'radial-gradient(circle, rgba(80,72,213,0.1) 0%, transparent 70%)',
-              pointerEvents: 'none',
-            }} />
+              position: 'absolute', top: 30, left: -20, zIndex: 10,
+              background: 'var(--bg-card)', border: '0.5px solid var(--border)',
+              borderRadius: 12, padding: '8px 14px',
+              display: 'flex', alignItems: 'center', gap: 8, fontSize: 12,
+              boxShadow: isDark ? '0 4px 20px rgba(0,0,0,0.4)' : '0 4px 20px rgba(80,72,213,0.1)',
+              animation: 'fadeInUp 0.5s ease both', animationDelay: '1.3s',
+              whiteSpace: 'nowrap',
+            }}>
+              <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#FF4444', display: 'inline-block' }} />
+              <span style={{ color: 'var(--text-primary)', fontWeight: 500 }}>Ваш город</span>
+            </div>
+            <div style={{ position: 'absolute', inset: '-20px', borderRadius: '50%', background: isDark ? 'radial-gradient(circle, rgba(127,119,221,0.12) 0%, transparent 70%)' : 'radial-gradient(circle, rgba(80,72,213,0.1) 0%, transparent 70%)', pointerEvents: 'none' }} />
             <Globe locations={locations} width={460} height={460} />
           </div>
         </div>
       </section>
+
+      {/* ===== MARQUEE ===== */}
+      <SkillMarquee isDark={isDark} />
 
       <div className="gradient-divider" style={{ position: 'relative', zIndex: 2 }} />
 
@@ -275,10 +318,7 @@ export default function Home() {
               { value: stats?.total_clients || 0, suffix: '+', label: 'Заказчиков', color: '#EF9F27' },
               { value: Math.floor((stats?.total_paid_out || 0) / 1000), suffix: 'K$', label: 'Выплачено', color: 'var(--accent-teal)' },
             ].map((s, i) => (
-              <div key={i} style={{
-                padding: '32px 24px', textAlign: 'center',
-                borderRight: i < 3 ? '0.5px solid var(--border)' : 'none',
-              }}>
+              <div key={i} style={{ padding: '32px 24px', textAlign: 'center', borderRight: i < 3 ? '0.5px solid var(--border)' : 'none' }}>
                 <StatCard {...s} />
               </div>
             ))}
@@ -300,13 +340,10 @@ export default function Home() {
               {categories.length || 10} категорий · Сотни навыков
             </p>
           </div>
-
           <div className="stagger" style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 14 }}>
             {categories.length > 0
               ? categories.map(cat => <CategoryCard key={cat.id} cat={cat} isDark={isDark} />)
-              : Array.from({ length: 10 }).map((_, i) => (
-                <div key={i} style={{ height: 110, borderRadius: 16 }} className="skeleton" />
-              ))
+              : Array.from({ length: 10 }).map((_, i) => <div key={i} style={{ height: 110, borderRadius: 16 }} className="skeleton" />)
             }
           </div>
         </div>
@@ -329,7 +366,6 @@ export default function Home() {
                 </button>
               </Link>
             </div>
-
             <div className="stagger" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20 }}>
               {projects.map(p => <ProjectCard key={p.id} project={p} />)}
             </div>
@@ -354,7 +390,6 @@ export default function Home() {
                 </button>
               </Link>
             </div>
-
             <div className="stagger" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 20 }}>
               {freelancers.map(f => <FreelancerCard key={f.user_id} freelancer={f} />)}
             </div>
@@ -374,21 +409,14 @@ export default function Home() {
               Деньги защищены на каждом этапе. Фрилансер получает оплату только после приёмки работы.
             </p>
           </div>
-
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24, maxWidth: 900, margin: '0 auto' }}>
             {[
               { step: '01', icon: 'lock', title: 'Заморозка средств', desc: 'Заказчик размещает проект и замораживает оплату на эскроу-счёте. Фрилансер видит, что деньги есть.', color: 'var(--accent)' },
               { step: '02', icon: 'code', title: 'Работа выполнена', desc: 'Фрилансер выполняет задание и сдаёт работу через платформу. Заказчик проверяет результат.', color: 'var(--accent-teal)' },
               { step: '03', icon: 'check', title: 'Выплата', desc: 'После подтверждения заказчик отпускает средства. Платформа удерживает 1% комиссии.', color: 'var(--accent-green)' },
             ].map(({ step, icon, title, desc, color }) => (
-              <div key={step} style={{
-                background: 'var(--bg-card)', border: '0.5px solid var(--border)',
-                borderRadius: 20, padding: '32px 28px',
-                position: 'relative', overflow: 'hidden',
-              }}>
-                <div style={{ position: 'absolute', top: 20, right: 24, fontFamily: 'Syne, sans-serif', fontSize: 48, fontWeight: 800, color, opacity: 0.06, lineHeight: 1 }}>
-                  {step}
-                </div>
+              <div key={step} style={{ background: 'var(--bg-card)', border: '0.5px solid var(--border)', borderRadius: 20, padding: '32px 28px', position: 'relative', overflow: 'hidden' }}>
+                <div style={{ position: 'absolute', top: 20, right: 24, fontFamily: 'Syne, sans-serif', fontSize: 48, fontWeight: 800, color, opacity: 0.06, lineHeight: 1 }}>{step}</div>
                 <div style={{ width: 52, height: 52, borderRadius: 14, background: `${color}18`, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20 }}>
                   <i className={`ti ti-${icon}`} style={{ fontSize: 24, color }} />
                 </div>
@@ -397,13 +425,71 @@ export default function Home() {
               </div>
             ))}
           </div>
+        </div>
+      </section>
 
-          <div style={{ textAlign: 'center', marginTop: 48 }}>
-            <Link to="/role">
-              <button className="btn btn-primary btn-lg" style={{ gap: 8 }}>
-                Начать бесплатно <i className="ti ti-arrow-right" />
-              </button>
-            </Link>
+      {/* ===== BOTTOM CTA ===== */}
+      <section style={{ position: 'relative', zIndex: 2, padding: '72px 0 80px' }}>
+        <div className="container">
+          <div style={{
+            display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20,
+            maxWidth: 860, margin: '0 auto',
+          }}>
+            {/* For clients */}
+            <div style={{
+              background: isDark
+                ? 'linear-gradient(135deg, rgba(127,119,221,0.13) 0%, rgba(13,13,24,0.95) 100%)'
+                : 'linear-gradient(135deg, rgba(80,72,213,0.07) 0%, var(--bg-card) 100%)',
+              border: '0.5px solid var(--border-hover)',
+              borderRadius: 22, padding: '36px 32px',
+              display: 'flex', flexDirection: 'column', gap: 16,
+            }}>
+              <div style={{ width: 48, height: 48, borderRadius: 14, background: 'rgba(127,119,221,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <i className="ti ti-building" style={{ fontSize: 22, color: 'var(--accent)' }} />
+              </div>
+              <div>
+                <h3 style={{ fontFamily: 'Syne, sans-serif', fontSize: 22, fontWeight: 800, color: 'var(--text-primary)', marginBottom: 8, letterSpacing: '-0.5px' }}>
+                  Ты заказчик?
+                </h3>
+                <p style={{ fontSize: 13.5, color: 'var(--text-secondary)', lineHeight: 1.6, fontWeight: 300 }}>
+                  Разместите проект и получите заявки от лучших специалистов уже сегодня.
+                </p>
+              </div>
+              <Link to={user?.role === 'client' ? '/projects/new' : '/role'} style={{ marginTop: 'auto' }}>
+                <button className="btn btn-primary" style={{ width: '100%', justifyContent: 'center' }}>
+                  <i className="ti ti-plus" style={{ fontSize: 14 }} />
+                  {user?.role === 'client' ? 'Создать проект' : 'Стать заказчиком'}
+                </button>
+              </Link>
+            </div>
+
+            {/* For freelancers */}
+            <div style={{
+              background: isDark
+                ? 'linear-gradient(135deg, rgba(29,158,117,0.1) 0%, rgba(13,13,24,0.95) 100%)'
+                : 'linear-gradient(135deg, rgba(29,158,117,0.07) 0%, var(--bg-card) 100%)',
+              border: '0.5px solid rgba(29,158,117,0.25)',
+              borderRadius: 22, padding: '36px 32px',
+              display: 'flex', flexDirection: 'column', gap: 16,
+            }}>
+              <div style={{ width: 48, height: 48, borderRadius: 14, background: 'rgba(29,158,117,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <i className="ti ti-code" style={{ fontSize: 22, color: 'var(--accent-green)' }} />
+              </div>
+              <div>
+                <h3 style={{ fontFamily: 'Syne, sans-serif', fontSize: 22, fontWeight: 800, color: 'var(--text-primary)', marginBottom: 8, letterSpacing: '-0.5px' }}>
+                  Ты фрилансер?
+                </h3>
+                <p style={{ fontSize: 13.5, color: 'var(--text-secondary)', lineHeight: 1.6, fontWeight: 300 }}>
+                  Найди проекты по своим навыкам и начни зарабатывать с эскроу-защитой.
+                </p>
+              </div>
+              <Link to={user?.role === 'freelancer' ? '/projects' : '/role'} style={{ marginTop: 'auto' }}>
+                <button className="btn btn-outline" style={{ width: '100%', justifyContent: 'center', borderColor: 'rgba(29,158,117,0.4)', color: 'var(--accent-green)' }}>
+                  <i className="ti ti-search" style={{ fontSize: 14 }} />
+                  {user?.role === 'freelancer' ? 'Найти проекты' : 'Стать фрилансером'}
+                </button>
+              </Link>
+            </div>
           </div>
         </div>
       </section>
