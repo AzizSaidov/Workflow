@@ -266,28 +266,18 @@ export default function Home() {
           {/* Globe */}
           <div className="animate-fade" style={{ flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', animationDelay: '0.3s' }}>
             <div style={{
-              position: 'absolute', bottom: 60, right: -10, zIndex: 10,
+              position: 'absolute', bottom: -28, right: 40, zIndex: 10,
               background: 'var(--bg-card)', border: '0.5px solid var(--border)',
-              borderRadius: 12, padding: '8px 14px',
-              display: 'flex', alignItems: 'center', gap: 8, fontSize: 12,
-              boxShadow: isDark ? '0 4px 20px rgba(0,0,0,0.4)' : '0 4px 20px rgba(80,72,213,0.1)',
+              borderRadius: 12, padding: '9px 16px',
+              display: 'flex', alignItems: 'center', gap: 9, fontSize: 12.5,
+              boxShadow: isDark ? '0 4px 24px rgba(0,0,0,0.45)' : '0 4px 20px rgba(80,72,213,0.12)',
               animation: 'fadeInUp 0.5s ease both', animationDelay: '1.1s',
               whiteSpace: 'nowrap',
             }}>
-              <i className="ti ti-shield-check" style={{ color: 'var(--accent-green)', fontSize: 15 }} />
+              <div style={{ width: 28, height: 28, borderRadius: 8, background: 'rgba(29,158,117,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <i className="ti ti-shield-check" style={{ color: 'var(--accent-green)', fontSize: 15 }} />
+              </div>
               <span style={{ color: 'var(--text-primary)', fontWeight: 500 }}>Эскроу-защита</span>
-            </div>
-            <div style={{
-              position: 'absolute', top: 30, left: -20, zIndex: 10,
-              background: 'var(--bg-card)', border: '0.5px solid var(--border)',
-              borderRadius: 12, padding: '8px 14px',
-              display: 'flex', alignItems: 'center', gap: 8, fontSize: 12,
-              boxShadow: isDark ? '0 4px 20px rgba(0,0,0,0.4)' : '0 4px 20px rgba(80,72,213,0.1)',
-              animation: 'fadeInUp 0.5s ease both', animationDelay: '1.3s',
-              whiteSpace: 'nowrap',
-            }}>
-              <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#FF4444', display: 'inline-block' }} />
-              <span style={{ color: 'var(--text-primary)', fontWeight: 500 }}>Ваш город</span>
             </div>
             <div style={{ position: 'absolute', inset: '-20px', borderRadius: '50%', background: isDark ? 'radial-gradient(circle, rgba(127,119,221,0.12) 0%, transparent 70%)' : 'radial-gradient(circle, rgba(80,72,213,0.1) 0%, transparent 70%)', pointerEvents: 'none' }} />
             <Globe locations={locations} width={460} height={460} />
