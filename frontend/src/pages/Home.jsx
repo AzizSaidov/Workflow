@@ -192,20 +192,11 @@ export default function Home() {
   }
 
   const heroTitle = () => {
-    if (user?.role === 'client') return <><span style={gradientStyle}>Найди лучших</span><br />специалистов<br />для проекта</>
-    if (user?.role === 'freelancer') return <>Найди лучшие<br /><span style={gradientStyle}>проекты</span><br />для роста</>
-    return <>Найди лучших<br /><span style={gradientStyle}>специалистов</span><br />для проекта</>
+    if (user?.role === 'client') return <><span className="text-gradient">Найди лучших</span><br />специалистов<br />для проекта</>
+    if (user?.role === 'freelancer') return <>Найди лучшие<br /><span className="text-gradient">проекты</span><br />для роста</>
+    return <>Найди лучших<br /><span className="text-gradient">специалистов</span><br />для проекта</>
   }
 
-  const gradientStyle = {
-    background: isDark
-      ? 'linear-gradient(135deg, #7F77DD 0%, #5DCAA5 100%)'
-      : 'linear-gradient(135deg, #4F46E5 0%, #059669 100%)',
-    WebkitBackgroundClip: 'text',
-    WebkitTextFillColor: 'transparent',
-    backgroundClip: 'text',
-    color: 'transparent', // prevents color-transition flash on theme switch
-  }
 
   return (
     <div className="page-wrapper" style={{ background: 'var(--bg)' }}>
