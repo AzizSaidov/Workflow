@@ -1,35 +1,38 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
+import useThemeStore from '../store/themeStore'
 import ThemeToggle from '../components/ThemeToggle'
 
 export default function RoleSelect() {
   const navigate = useNavigate()
+  const { isDark } = useThemeStore()
   const [hovered, setHovered] = useState(null)
 
   const choose = (role) => navigate('/register', { state: { role } })
 
+  const textColor = isDark ? 'rgba(255,255,255,0.6)' : 'rgba(255,255,255,0.75)'
+  const textHover = '#fff'
+
   return (
     <div style={{ display: 'flex', height: '100vh', overflow: 'hidden', position: 'relative' }}>
 
-      {/* Theme toggle */}
-      <div style={{ position: 'fixed', top: 24, right: 24, zIndex: 20 }}>
-        <ThemeToggle />
-      </div>
-
-      {/* Logo + login link — centered top */}
-      <div style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 10, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '24px 40px' }}>
+      {/* Logo + ThemeToggle + login — top bar */}
+      <div style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 10, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px 40px' }}>
         <Link to="/" style={{ textDecoration: 'none' }}>
           <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 22, letterSpacing: '-0.5px', color: '#fff', textShadow: '0 2px 12px rgba(0,0,0,0.4)' }}>
             work<span style={{ color: '#7F77DD' }}>flow</span>
           </span>
         </Link>
-        <Link to="/login" style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 5, transition: 'color 0.2s' }}
-          onMouseEnter={e => e.currentTarget.style.color = '#fff'}
-          onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.6)'}
-        >
-          Уже есть аккаунт
-          <i className="ti ti-arrow-right" style={{ fontSize: 13 }} />
-        </Link>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+          <ThemeToggle />
+          <Link to="/login" style={{ fontSize: 13, color: textColor, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 5, transition: 'color 0.2s' }}
+            onMouseEnter={e => e.currentTarget.style.color = textHover}
+            onMouseLeave={e => e.currentTarget.style.color = textColor}
+          >
+            Уже есть аккаунт
+            <i className="ti ti-arrow-right" style={{ fontSize: 13 }} />
+          </Link>
+        </div>
       </div>
 
       {/* Divider line */}
@@ -65,7 +68,9 @@ export default function RoleSelect() {
         hovered={hovered}
         onHover={setHovered}
         onClick={() => choose('client')}
-        bg="linear-gradient(160deg, #0D0B1E 0%, #110F2A 40%, #0A0A18 100%)"
+        bg={isDark
+          ? 'linear-gradient(160deg, #0D0B1E 0%, #110F2A 40%, #0A0A18 100%)'
+          : 'linear-gradient(160deg, #2D2880 0%, #3D37A0 40%, #252070 100%)'}
         accent="#7F77DD"
         accentRgb="127,119,221"
         icon="building"
@@ -87,7 +92,9 @@ export default function RoleSelect() {
         hovered={hovered}
         onHover={setHovered}
         onClick={() => choose('freelancer')}
-        bg="linear-gradient(160deg, #071812 0%, #0A1F16 40%, #061210 100%)"
+        bg={isDark
+          ? 'linear-gradient(160deg, #071812 0%, #0A1F16 40%, #061210 100%)'
+          : 'linear-gradient(160deg, #0D6B4E 0%, #0F8060 40%, #0A5540 100%)'}
         accent="#1D9E75"
         accentRgb="29,158,117"
         icon="code"
