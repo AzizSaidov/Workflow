@@ -31,7 +31,7 @@ function FreelancerBigCard({ user, profile, isFavorited, onFavoriteToggle }) {
       >
         {/* Avatar + verified */}
         <div style={{ position: 'relative', flexShrink: 0 }}>
-          <Avatar src={user.avatar_url} name={user.full_name} size={64} online />
+          <Avatar src={user.avatar_url} name={user.full_name} size={64} online={profile?.is_online ?? false} />
           {profile?.is_verified && (
             <div style={{
               position: 'absolute', bottom: -2, right: -2,

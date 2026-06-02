@@ -24,6 +24,7 @@ class TopFreelancerResponse(BaseModel):
     avatar_url: str | None
     rating: Decimal
     total_jobs: int
+    is_online: bool = False
 
     model_config = {"from_attributes": True}
 

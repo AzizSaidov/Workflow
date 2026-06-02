@@ -98,6 +98,7 @@ def get_top_freelancers(db: Session) -> list[TopFreelancerResponse]:
             avatar_url=user.avatar_url,
             rating=Decimal(str(profile.rating)),
             total_jobs=profile.total_jobs,
+            is_online=bool(_redis.exists(f"online:{profile.user_id}")),
         )
         for profile, user in rows
     ]

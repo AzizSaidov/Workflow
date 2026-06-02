@@ -1,4 +1,6 @@
 from uuid import UUID
+import os
+import redis as redis_lib
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
 from profiles.models import FreelancerProfile, SkillToProfile, ProfileLanguage
@@ -6,6 +8,8 @@ from profiles.schemas import ProfileUpdate, SkillAddRequest, LanguageAddRequest,
 from users.models import User, UserRole
 from skills.models import Skill
 from languages.models import Language
+
+_redis = redis_lib.from_url(os.getenv("REDIS_URL", "redis://localhost:6379/0"), decode_responses=True)
 
 
 def _build_profile_response(profile: FreelancerProfile, db: Session) -> dict:
@@ -45,6 +49,7 @@ def _build_profile_response(profile: FreelancerProfile, db: Session) -> dict:
         "github_url": profile.github_url,
         "skills": skills,
         "languages": languages,
+        "is_online": bool(_redis.exists(f"online:{profile.user_id}")),
     }
 
 
