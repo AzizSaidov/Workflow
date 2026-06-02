@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, WebSocket, WebSocketDisconnect, Query
 from sqlalchemy.orm import Session
 from database import get_db, SessionLocal
 from chats.schemas import MessageResponse, MessageEdit
-from chats.views import get_history, save_message, edit_message, delete_message, hide_chat, get_hidden_project_ids
+from chats.views import get_history, save_message, edit_message, delete_message, hide_chat, get_hidden_project_ids, delete_chat
 from chats.manager import manager
 from projects.models import Project
 from users.models import User
@@ -57,6 +57,11 @@ async def remove_message(
     })
 
 
+@chats_router.delete("/api/chats/{project_id}", status_code=204)
+def delete_chat_route(project_id: UUID, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    delete_chat(project_id, current_user.id, db)
+
+
 @chats_router.get("/api/chats/{project_id}", response_model=list[MessageResponse])
 def chat_history(project_id: UUID, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     return get_history(project_id, db)
@@ -64,13 +69,14 @@ def chat_history(project_id: UUID, db: Session = Depends(get_db), current_user: 
 
 @chats_router.websocket("/ws/chat/{project_id}")
 async def websocket_chat(project_id: UUID, ws: WebSocket, token: str = Query(...)):
-    db: Session = SessionLocal()
-    try:
-        user_id = decode_token(token)
-        if not user_id:
-            await ws.close(code=4001)
-            return
+    # Validate with a short-lived session, then release the connection back to the pool
+    user_id = decode_token(token)
+    if not user_id:
+        await ws.close(code=4001)
+        return
 
+    db = SessionLocal()
+    try:
         user = db.query(User).filter(User.id == user_id).first()
         if not user:
             await ws.close(code=4001)
@@ -86,22 +92,29 @@ async def websocket_chat(project_id: UUID, ws: WebSocket, token: str = Query(...
             await ws.close(code=4003)
             return
 
-        room_key = str(project_id)
-        await manager.connect(room_key, ws)
-        try:
-            while True:
-                data = await ws.receive_text()
-                try:
-                    payload = json.loads(data)
-                except (json.JSONDecodeError, ValueError):
-                    payload = {"content": data}
-                content = payload.get("content", "")
-                file_url = payload.get("file_url")
-                file_type = payload.get("file_type")
-                if not content.strip() and not file_url:
-                    continue
-                msg = save_message(project_id, user.id, content, db, file_url, file_type)
-                await manager.broadcast(room_key, {
+        stored_user_id = user.id
+    finally:
+        db.close()
+
+    room_key = str(project_id)
+    await manager.connect(room_key, ws)
+    try:
+        while True:
+            data = await ws.receive_text()
+            try:
+                payload = json.loads(data)
+            except (json.JSONDecodeError, ValueError):
+                payload = {"content": data}
+            content = payload.get("content", "")
+            file_url = payload.get("file_url")
+            file_type = payload.get("file_type")
+            if not content.strip() and not file_url:
+                continue
+            # Open a short-lived session only for the DB write
+            msg_db = SessionLocal()
+            try:
+                msg = save_message(project_id, stored_user_id, content, msg_db, file_url, file_type)
+                msg_data = {
                     "type": "message",
                     "id": str(msg.id),
                     "sender_id": str(msg.sender_id),
@@ -110,8 +123,9 @@ async def websocket_chat(project_id: UUID, ws: WebSocket, token: str = Query(...
                     "file_type": msg.file_type,
                     "edited_at": None,
                     "created_at": msg.created_at.isoformat(),
-                })
-        except WebSocketDisconnect:
-            manager.disconnect(room_key, ws)
-    finally:
-        db.close()
+                }
+            finally:
+                msg_db.close()
+            await manager.broadcast(room_key, msg_data)
+    except WebSocketDisconnect:
+        manager.disconnect(room_key, ws)

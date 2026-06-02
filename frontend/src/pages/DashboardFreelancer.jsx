@@ -157,26 +157,33 @@ export default function DashboardFreelancer() {
                 ) : (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                     {activeProjects.map(bid => (
-                      <Link key={bid.id} to={`/projects/${bid.project_id}`} style={{ textDecoration: 'none' }}>
-                        <div style={{
-                          padding: '12px 14px', borderRadius: 12,
-                          border: '0.5px solid var(--border)',
-                          transition: 'border-color 0.2s',
-                        }}
-                          onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--border-hover)'}
-                          onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border)'}
-                        >
-                          <div style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-primary)', marginBottom: 6 }}>
+                      <div key={bid.id} style={{
+                        padding: '12px 14px', borderRadius: 12,
+                        border: '0.5px solid var(--border)',
+                        transition: 'border-color 0.2s',
+                      }}
+                        onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--border-hover)'}
+                        onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border)'}
+                      >
+                        <Link to={`/projects/${bid.project_id}`} style={{ textDecoration: 'none' }}>
+                          <div style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-primary)', marginBottom: 8 }}>
                             {bid.project_title || 'Проект'}
                           </div>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        </Link>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                             <Tag color="amber">В работе</Tag>
                             <span style={{ fontFamily: 'Syne, sans-serif', fontSize: 13, fontWeight: 700, color: 'var(--accent-green)' }}>
                               ${Number(bid.price).toLocaleString()}
                             </span>
                           </div>
+                          <Link to={`/chats?project=${bid.project_id}`} style={{ textDecoration: 'none', flexShrink: 0 }}>
+                            <button style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '4px 10px', borderRadius: 8, background: 'rgba(127,119,221,0.12)', border: '0.5px solid rgba(127,119,221,0.3)', color: 'var(--accent)', fontSize: 12, cursor: 'pointer', fontWeight: 500 }}>
+                              <i className="ti ti-messages" style={{ fontSize: 13 }} /> Чат
+                            </button>
+                          </Link>
                         </div>
-                      </Link>
+                      </div>
                     ))}
                   </div>
                 )}
@@ -222,7 +229,7 @@ function MyBidRow({ bid }) {
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6, flexShrink: 0 }}>
           <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 15, color: 'var(--accent)' }}>
-            {Number(bid.price).toLocaleString()} TJS
+            ${Number(bid.price).toLocaleString()}
           </span>
           <Tag color={st.color}>{st.label}</Tag>
         </div>

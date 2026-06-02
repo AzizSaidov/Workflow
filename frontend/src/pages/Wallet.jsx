@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import useThemeStore from '../store/themeStore'
 import useAuthStore from '../store/authStore'
+import useToastStore from '../store/toastStore'
 import { walletApi } from '../api/wallet'
 import StarBackground from '../components/StarBackground'
 import Navbar from '../components/Navbar'

@@ -85,8 +85,19 @@ def get_project_files(project_id: UUID, db: Session) -> list[ProjectFile]:
     return db.query(ProjectFile).filter(ProjectFile.project_id == project_id).order_by(ProjectFile.created_at.desc()).all()
 
 
+_AUDIO_MIME = {
+    'webm': 'audio/webm',
+    'ogg': 'audio/ogg',
+    'mp3': 'audio/mpeg',
+    'wav': 'audio/wav',
+    'm4a': 'audio/mp4',
+}
+
 def serve_file(filename: str) -> FileResponse:
     path = UPLOAD_DIR / filename
     if not path.exists():
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="File not found")
-    return FileResponse(str(path))
+    ext = Path(filename).suffix.lstrip('.').lower()
+    media_type = _AUDIO_MIME.get(ext)
+    headers = {"Content-Disposition": "inline"} if media_type else {}
+    return FileResponse(str(path), media_type=media_type, headers=headers)

@@ -2,6 +2,7 @@ import client from './client'
 
 export const chatsApi = {
   getHistory: (projectId) => client.get(`/chats/${projectId}`),
+  deleteChat: (projectId) => client.delete(`/chats/${projectId}`),
   getHidden: () => client.get('/chats/hidden'),
   hideChat: (projectId) => client.post(`/chats/${projectId}/hide`),
   editMessage: (projectId, messageId, content) => client.put(`/chats/${projectId}/messages/${messageId}`, { content }),
@@ -9,7 +10,7 @@ export const chatsApi = {
   uploadFile: (file) => {
     const form = new FormData()
     form.append('file', file)
-    return client.post('/media/upload', form, { headers: { 'Content-Type': 'multipart/form-data' } })
+    return client.post('/media/upload', form, { headers: { 'Content-Type': undefined } })
   },
 }
 

@@ -42,51 +42,60 @@ def delete_one(notif_id: UUID, db: Session = Depends(get_db), current_user: User
 
 @notifications_router.websocket("/ws/notifications/{user_id}")
 async def notification_ws(user_id: UUID, ws: WebSocket, token: str = Query(...)):
-    db: Session = SessionLocal()
+    token_user_id = decode_token(token)
+    if not token_user_id or token_user_id != str(user_id):
+        await ws.close(code=4001)
+        return
+
+    await notif_manager.connect(str(user_id), ws)
+
+    # Send unread notifications on connect with a short-lived session
+    db = SessionLocal()
     try:
-        token_user_id = decode_token(token)
-        if not token_user_id or token_user_id != str(user_id):
-            await ws.close(code=4001)
-            return
-
-        await notif_manager.connect(str(user_id), ws)
-
-        # send unread notifications on connect
         unread = db.query(Notification).filter(
             Notification.user_id == user_id, Notification.is_read == False
         ).order_by(Notification.created_at.asc()).all()
-        for n in unread:
-            await ws.send_json({
-                "id": str(n.id), "type": n.type, "title": n.title,
-                "message": n.message, "is_read": n.is_read,
-                "created_at": n.created_at.isoformat(),
-            })
+        notifs_to_send = [
+            {"id": str(n.id), "type": n.type, "title": n.title,
+             "message": n.message, "is_read": n.is_read,
+             "created_at": n.created_at.isoformat()}
+            for n in unread
+        ]
+    finally:
+        db.close()
 
-        last_check = get_dushanbe_time()
-        try:
-            while True:
-                try:
-                    await asyncio.sleep(5)
-                except asyncio.CancelledError:
-                    break
-                db.expire_all()
-                new = db.query(Notification).filter(
+    for payload in notifs_to_send:
+        await ws.send_json(payload)
+
+    last_check = get_dushanbe_time()
+    try:
+        while True:
+            try:
+                await asyncio.sleep(5)
+            except asyncio.CancelledError:
+                break
+            # Short-lived session per poll — no connection held during sleep
+            poll_db = SessionLocal()
+            try:
+                new = poll_db.query(Notification).filter(
                     Notification.user_id == user_id,
                     Notification.created_at > last_check,
                 ).all()
-                for n in new:
-                    try:
-                        await ws.send_json({
-                            "id": str(n.id), "type": n.type, "title": n.title,
-                            "message": n.message, "is_read": n.is_read,
-                            "created_at": n.created_at.isoformat(),
-                        })
-                    except Exception:
-                        break
-                last_check = get_dushanbe_time()
-        except WebSocketDisconnect:
-            pass
-        finally:
-            notif_manager.disconnect(str(user_id), ws)
+                new_payloads = [
+                    {"id": str(n.id), "type": n.type, "title": n.title,
+                     "message": n.message, "is_read": n.is_read,
+                     "created_at": n.created_at.isoformat()}
+                    for n in new
+                ]
+            finally:
+                poll_db.close()
+            for payload in new_payloads:
+                try:
+                    await ws.send_json(payload)
+                except Exception:
+                    break
+            last_check = get_dushanbe_time()
+    except WebSocketDisconnect:
+        pass
     finally:
-        db.close()
+        notif_manager.disconnect(str(user_id), ws)

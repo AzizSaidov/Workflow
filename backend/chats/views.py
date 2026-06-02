@@ -2,6 +2,7 @@ from uuid import UUID
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from chats.models import Message, ChatHidden
+from projects.models import Project
 from utils import get_dushanbe_time
 
 
@@ -55,6 +56,17 @@ def hide_chat(project_id: UUID, user_id: UUID, db: Session) -> None:
     if not existing:
         db.add(ChatHidden(user_id=user_id, project_id=project_id))
         db.commit()
+
+
+def delete_chat(project_id: UUID, user_id: UUID, db: Session) -> None:
+    project = db.query(Project).filter(Project.id == project_id).first()
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    participants = {str(project.client_id), str(project.assigned_freelancer_id)}
+    if str(user_id) not in participants:
+        raise HTTPException(status_code=403, detail="Not a participant")
+    db.query(Message).filter(Message.project_id == project_id).delete()
+    db.commit()
 
 
 def get_hidden_project_ids(user_id: UUID, db: Session) -> list[UUID]:

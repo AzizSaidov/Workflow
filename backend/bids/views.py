@@ -5,6 +5,7 @@ from bids.models import Bid, BidStatus
 from bids.schemas import BidCreate
 from projects.models import Project, ProjectStatus
 from users.models import User, UserRole
+from profiles.models import FreelancerProfile
 from notifications.models import NotificationType
 from notifications.views import create_notification
 
@@ -34,17 +35,41 @@ def create_bid(project_id: UUID, data: BidCreate, freelancer: User, db: Session)
     return bid
 
 
-def get_project_bids(project_id: UUID, current_user: User, db: Session) -> list[Bid]:
+def get_project_bids(project_id: UUID, current_user: User, db: Session) -> list[dict]:
     project = db.query(Project).filter(Project.id == project_id).first()
     if not project:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found")
     if project.client_id != current_user.id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not your project")
-    return db.query(Bid).filter(Bid.project_id == project_id).order_by(Bid.created_at.desc()).all()
+    bids = db.query(Bid).filter(Bid.project_id == project_id).order_by(Bid.created_at.desc()).all()
+    result = []
+    for bid in bids:
+        freelancer = db.query(User).filter(User.id == bid.freelancer_id).first()
+        fp = db.query(FreelancerProfile).filter(FreelancerProfile.user_id == bid.freelancer_id).first()
+        result.append({
+            "id": bid.id, "project_id": bid.project_id, "freelancer_id": bid.freelancer_id,
+            "price": bid.price, "cover_letter": bid.cover_letter,
+            "status": bid.status, "created_at": bid.created_at,
+            "freelancer_name": freelancer.full_name if freelancer else None,
+            "freelancer_avatar": freelancer.avatar_url if freelancer else None,
+            "rating": float(fp.rating) if fp and fp.rating else None,
+            "reviews_count": fp.total_jobs if fp else 0,
+        })
+    return result
 
 
-def get_my_bids(freelancer: User, db: Session) -> list[Bid]:
-    return db.query(Bid).filter(Bid.freelancer_id == freelancer.id).order_by(Bid.created_at.desc()).all()
+def get_my_bids(freelancer: User, db: Session) -> list[dict]:
+    bids = db.query(Bid).filter(Bid.freelancer_id == freelancer.id).order_by(Bid.created_at.desc()).all()
+    result = []
+    for bid in bids:
+        project = db.query(Project).filter(Project.id == bid.project_id).first()
+        result.append({
+            "id": bid.id, "project_id": bid.project_id, "freelancer_id": bid.freelancer_id,
+            "price": bid.price, "cover_letter": bid.cover_letter,
+            "status": bid.status, "created_at": bid.created_at,
+            "project_title": project.title if project else None,
+        })
+    return result
 
 
 def accept_bid(bid_id: UUID, current_user: User, db: Session) -> Bid:

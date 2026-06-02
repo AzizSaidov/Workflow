@@ -27,6 +27,8 @@ export default function ProjectDetail() {
 
   const [project, setProject] = useState(null)
   const [bids, setBids] = useState([])
+  const [clientData, setClientData] = useState(null)
+  const [assignedUser, setAssignedUser] = useState(null)
   const [loading, setLoading] = useState(true)
   const [bidForm, setBidForm] = useState({ price: '', cover_letter: '' })
   const [bidLoading, setBidLoading] = useState(false)
@@ -42,8 +44,15 @@ export default function ProjectDetail() {
       projectsApi.getOne(id),
       bidsApi.getForProject(id).catch(() => ({ data: [] })),
     ]).then(([p, b]) => {
-      setProject(p.data)
+      const proj = p.data
+      setProject(proj)
       setBids(b.data || [])
+      if (proj?.client_id) {
+        client.get(`/users/${proj.client_id}`).then(r => setClientData(r.data)).catch(() => {})
+      }
+      if (proj?.assigned_freelancer_id) {
+        client.get(`/users/${proj.assigned_freelancer_id}`).then(r => setAssignedUser(r.data)).catch(() => {})
+      }
     }).finally(() => setLoading(false))
   }
 
@@ -53,6 +62,8 @@ export default function ProjectDetail() {
   const isFreelancer = user?.role === 'freelancer'
   const canBid = isFreelancer && project?.status === 'open' && !isOwner
   const alreadyBid = bids.some(b => b.freelancer_id === user?.id)
+  const isAssignedFreelancer = isFreelancer && project?.assigned_freelancer_id === user?.id
+  const hasChatAccess = ['in_progress', 'delivered', 'completed'].includes(project?.status) && (isOwner || isAssignedFreelancer)
 
   const submitBid = async (e) => {
     e.preventDefault()
@@ -282,19 +293,40 @@ export default function ProjectDetail() {
                 </div>
               </div>
 
+              {/* Chat button */}
+              {hasChatAccess && (
+                <Link to={`/chats?project=${id}`} style={{ textDecoration: 'none' }}>
+                  <Button variant="primary" icon="messages" style={{ width: '100%' }}>
+                    Открыть чат
+                  </Button>
+                </Link>
+              )}
+
               {/* Client info */}
               <div style={{ background: 'var(--bg-card)', border: '0.5px solid var(--border)', borderRadius: 16, padding: 22 }}>
                 <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 14, textTransform: 'uppercase', letterSpacing: 0.5 }}>Заказчик</div>
                 <Link to={`/profile/${project.client_id}`} style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
-                  <Avatar name="Заказчик" size={40} />
+                  <Avatar src={clientData?.avatar_url} name={clientData?.full_name || 'Client'} size={40} />
                   <div>
-                    <div style={{ fontSize: 14, fontWeight: 500, color: 'var(--text-primary)' }}>Посмотреть профиль</div>
-                    <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 2 }}>
-                      <i className="ti ti-arrow-right" style={{ fontSize: 11 }} /> Открыть
-                    </div>
+                    <div style={{ fontSize: 14, fontWeight: 500, color: 'var(--text-primary)' }}>{clientData?.full_name || '...'}</div>
+                    <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 2 }}>Профиль заказчика</div>
                   </div>
                 </Link>
               </div>
+
+              {/* Assigned freelancer info */}
+              {assignedUser && ['in_progress', 'delivered', 'completed'].includes(project.status) && (
+                <div style={{ background: 'var(--bg-card)', border: '0.5px solid var(--border)', borderRadius: 16, padding: 22 }}>
+                  <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 14, textTransform: 'uppercase', letterSpacing: 0.5 }}>Исполнитель</div>
+                  <Link to={`/profile/${project.assigned_freelancer_id}`} style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
+                    <Avatar src={assignedUser.avatar_url} name={assignedUser.full_name} size={40} />
+                    <div>
+                      <div style={{ fontSize: 14, fontWeight: 500, color: 'var(--text-primary)' }}>{assignedUser.full_name}</div>
+                      <div style={{ fontSize: 12, color: 'var(--accent)', marginTop: 2 }}>Фрилансер</div>
+                    </div>
+                  </Link>
+                </div>
+              )}
 
               {/* Actions for owner */}
               {isOwner && (
