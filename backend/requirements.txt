@@ -11,3 +11,4 @@ python-dotenv
 httpx
 python-multipart
 aiofiles
+redis
