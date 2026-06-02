@@ -1,147 +1,226 @@
+import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import useThemeStore from '../store/themeStore'
-import StarBackground from '../components/StarBackground'
 import ThemeToggle from '../components/ThemeToggle'
 
 export default function RoleSelect() {
-  const { isDark } = useThemeStore()
   const navigate = useNavigate()
+  const [hovered, setHovered] = useState(null)
 
   const choose = (role) => navigate('/register', { state: { role } })
 
   return (
-    <div className="page-wrapper" style={{ background: 'var(--bg)' }}>
-      <StarBackground isDark={isDark} intensity="full" />
-      <div className="glow-blob glow-1" />
-      <div className="glow-blob glow-2" />
+    <div style={{ display: 'flex', height: '100vh', overflow: 'hidden', position: 'relative' }}>
 
-      <div style={{ position: 'fixed', top: 20, right: 20, zIndex: 10 }}>
+      {/* Theme toggle */}
+      <div style={{ position: 'fixed', top: 24, right: 24, zIndex: 20 }}>
         <ThemeToggle />
       </div>
 
-      <div style={{
-        position: 'relative', zIndex: 2,
-        display: 'flex', flexDirection: 'column', alignItems: 'center',
-        justifyContent: 'center', minHeight: '100vh', padding: '60px 24px',
-      }}>
-        <Link to="/" style={{ textDecoration: 'none', marginBottom: 40 }}>
-          <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 24, letterSpacing: '-0.5px', color: 'var(--text-primary)' }}>
-            work<span style={{ color: 'var(--accent)' }}>flow</span>
+      {/* Logo + login link — centered top */}
+      <div style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 10, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '24px 40px' }}>
+        <Link to="/" style={{ textDecoration: 'none' }}>
+          <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 22, letterSpacing: '-0.5px', color: '#fff', textShadow: '0 2px 12px rgba(0,0,0,0.4)' }}>
+            work<span style={{ color: '#7F77DD' }}>flow</span>
           </span>
         </Link>
-
-        <div style={{
-          display: 'inline-flex', alignItems: 'center', gap: 7,
-          fontSize: 12, padding: '6px 16px', borderRadius: 20, marginBottom: 16,
-          fontWeight: 500,
-          background: isDark ? 'rgba(127,119,221,0.08)' : 'rgba(80,72,213,0.08)',
-          border: `0.5px solid ${isDark ? 'rgba(127,119,221,0.2)' : 'rgba(80,72,213,0.22)'}`,
-          color: 'var(--accent)',
-        }}>
-          <span className="blink" style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--accent)', display: 'inline-block' }} />
-          Добро пожаловать
-        </div>
-
-        <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 44, fontWeight: 800, letterSpacing: '-1.8px', textAlign: 'center', lineHeight: 1.08, marginBottom: 12, color: 'var(--text-primary)' }}>
-          Кто ты?
-        </h1>
-        <p style={{ fontSize: 16, textAlign: 'center', fontWeight: 300, marginBottom: 48, maxWidth: 360, lineHeight: 1.7, color: 'var(--text-secondary)' }}>
-          Выбери роль — это займёт меньше минуты. Можно сменить позже.
-        </p>
-
-        <div style={{ display: 'flex', gap: 20, width: '100%', maxWidth: 620, marginBottom: 36 }}>
-          <RoleCard
-            isDark={isDark}
-            variant="client"
-            icon="briefcase"
-            title="Заказчик"
-            desc="Размещаю проекты и нанимаю лучших специалистов для своих задач."
-            features={['Публикация проектов', 'Выбор из заявок фрилансеров', 'Безопасная эскроу-оплата', 'Отзывы и рейтинги']}
-            btnLabel="Я заказчик"
-            onChoose={() => choose('client')}
-          />
-          <RoleCard
-            isDark={isDark}
-            variant="freelancer"
-            icon="code"
-            title="Фрилансер"
-            desc="Нахожу интересные проекты и зарабатываю на своих навыках."
-            features={['Поиск и фильтрация проектов', 'Подача заявок (биддинг)', 'Портфолио и профиль', 'Гарантированная оплата']}
-            btnLabel="Я фрилансер"
-            onChoose={() => choose('freelancer')}
-          />
-        </div>
-
-        <div className="gradient-divider" style={{ width: 340, marginBottom: 24 }} />
-        <p style={{ fontSize: 14, color: 'var(--text-muted)' }}>
-          Уже есть аккаунт?{' '}
-          <Link to="/login" style={{ color: 'var(--accent)', fontWeight: 500 }}>Войти</Link>
-        </p>
+        <Link to="/login" style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 5, transition: 'color 0.2s' }}
+          onMouseEnter={e => e.currentTarget.style.color = '#fff'}
+          onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.6)'}
+        >
+          Уже есть аккаунт
+          <i className="ti ti-arrow-right" style={{ fontSize: 13 }} />
+        </Link>
       </div>
+
+      {/* Divider line */}
+      <div style={{
+        position: 'absolute', top: 0, bottom: 0,
+        left: '50%', width: '0.5px',
+        background: 'rgba(255,255,255,0.08)',
+        zIndex: 5, pointerEvents: 'none',
+        transform: `scaleX(${hovered ? 2 : 1})`,
+        transition: 'transform 0.4s ease',
+      }} />
+
+      {/* Center badge */}
+      <div style={{
+        position: 'absolute', top: '50%', left: '50%',
+        transform: 'translate(-50%, -50%)',
+        zIndex: 6, pointerEvents: 'none',
+        background: 'rgba(13,13,24,0.9)',
+        border: '0.5px solid rgba(255,255,255,0.1)',
+        borderRadius: '50%', width: 52, height: 52,
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        backdropFilter: 'blur(12px)',
+        boxShadow: '0 0 32px rgba(0,0,0,0.6)',
+        fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.4)',
+        letterSpacing: 0.5,
+      }}>
+        или
+      </div>
+
+      {/* CLIENT panel */}
+      <Panel
+        role="client"
+        hovered={hovered}
+        onHover={setHovered}
+        onClick={() => choose('client')}
+        bg="linear-gradient(160deg, #0D0B1E 0%, #110F2A 40%, #0A0A18 100%)"
+        accent="#7F77DD"
+        accentRgb="127,119,221"
+        icon="building"
+        title="Я заказчик"
+        subtitle="Нанимаю специалистов"
+        desc="Размещаю проекты, выбираю лучших фрилансеров и оплачиваю через безопасное эскроу."
+        features={[
+          { icon: 'plus', text: 'Публикую проекты' },
+          { icon: 'users', text: 'Выбираю из заявок' },
+          { icon: 'shield-check', text: 'Эскроу-защита' },
+          { icon: 'star', text: 'Отзывы и рейтинги' },
+        ]}
+        side="left"
+      />
+
+      {/* FREELANCER panel */}
+      <Panel
+        role="freelancer"
+        hovered={hovered}
+        onHover={setHovered}
+        onClick={() => choose('freelancer')}
+        bg="linear-gradient(160deg, #071812 0%, #0A1F16 40%, #061210 100%)"
+        accent="#1D9E75"
+        accentRgb="29,158,117"
+        icon="code"
+        title="Я фрилансер"
+        subtitle="Нахожу проекты"
+        desc="Ищу интересные задачи, подаю заявки и получаю гарантированную оплату за работу."
+        features={[
+          { icon: 'search', text: 'Нахожу проекты' },
+          { icon: 'send', text: 'Подаю заявки' },
+          { icon: 'briefcase', text: 'Портфолио и профиль' },
+          { icon: 'wallet', text: 'Гарантированная оплата' },
+        ]}
+        side="right"
+      />
     </div>
   )
 }
 
-function RoleCard({ isDark, variant, icon, title, desc, features, btnLabel, onChoose }) {
-  const isClient = variant === 'client'
-  const accent = isClient
-    ? (isDark ? '#7F77DD' : '#5048D5')
-    : (isDark ? '#5DCAA5' : '#0D9268')
-  const borderBase = isClient
-    ? (isDark ? 'rgba(127,119,221,0.15)' : 'rgba(80,72,213,0.18)')
-    : (isDark ? 'rgba(93,202,165,0.15)' : 'rgba(13,146,104,0.18)')
-  const borderHover = isClient
-    ? (isDark ? 'rgba(127,119,221,0.55)' : 'rgba(80,72,213,0.5)')
-    : (isDark ? 'rgba(93,202,165,0.5)' : 'rgba(13,146,104,0.45)')
-  const shadowHover = isClient
-    ? (isDark ? '0 0 40px rgba(127,119,221,0.12)' : '0 8px 40px rgba(80,72,213,0.13)')
-    : (isDark ? '0 0 40px rgba(93,202,165,0.1)' : '0 8px 40px rgba(13,146,104,0.11)')
+function Panel({ role, hovered, onHover, onClick, bg, accent, accentRgb, icon, title, subtitle, desc, features, side }) {
+  const isActive = hovered === role
+  const isDimmed = hovered && hovered !== role
 
   return (
     <div
-      onClick={onChoose}
+      onClick={onClick}
+      onMouseEnter={() => onHover(role)}
+      onMouseLeave={() => onHover(null)}
       style={{
-        flex: 1, borderRadius: 22, padding: '34px 26px', cursor: 'pointer',
-        background: 'var(--bg-card)',
-        border: `1px solid ${borderBase}`,
-        transition: 'transform 0.3s, border-color 0.3s, box-shadow 0.3s',
-      }}
-      onMouseEnter={e => {
-        e.currentTarget.style.transform = 'translateY(-7px)'
-        e.currentTarget.style.borderColor = borderHover
-        e.currentTarget.style.boxShadow = shadowHover
-      }}
-      onMouseLeave={e => {
-        e.currentTarget.style.transform = 'translateY(0)'
-        e.currentTarget.style.borderColor = borderBase
-        e.currentTarget.style.boxShadow = 'none'
+        flex: 1, position: 'relative', cursor: 'pointer',
+        background: bg, overflow: 'hidden',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        transition: 'flex 0.5s cubic-bezier(0.4,0,0.2,1)',
+        flex: isActive ? 1.15 : isDimmed ? 0.85 : 1,
       }}
     >
-      <div style={{ width: 58, height: 58, borderRadius: 15, background: `${accent}1a`, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20 }}>
-        <i className={`ti ti-${icon}`} style={{ fontSize: 25, color: accent }} />
+      {/* Animated glow */}
+      <div style={{
+        position: 'absolute',
+        top: side === 'left' ? '20%' : '15%',
+        left: side === 'left' ? '15%' : '20%',
+        width: 400, height: 400, borderRadius: '50%',
+        background: `radial-gradient(circle, rgba(${accentRgb},${isActive ? 0.22 : 0.1}) 0%, transparent 65%)`,
+        transition: 'opacity 0.4s',
+        pointerEvents: 'none',
+      }} />
+      <div style={{
+        position: 'absolute', bottom: '10%',
+        right: side === 'left' ? '10%' : '15%',
+        width: 280, height: 280, borderRadius: '50%',
+        background: `radial-gradient(circle, rgba(${accentRgb},${isActive ? 0.12 : 0.05}) 0%, transparent 65%)`,
+        transition: 'opacity 0.4s',
+        pointerEvents: 'none',
+      }} />
+
+      {/* Overlay dim */}
+      <div style={{
+        position: 'absolute', inset: 0,
+        background: `rgba(0,0,0,${isDimmed ? 0.35 : 0})`,
+        transition: 'background 0.4s',
+        pointerEvents: 'none',
+      }} />
+
+      {/* Content */}
+      <div style={{
+        position: 'relative', zIndex: 2,
+        display: 'flex', flexDirection: 'column',
+        alignItems: 'center', textAlign: 'center',
+        padding: '0 48px', maxWidth: 420,
+        transform: `translateY(${isActive ? -8 : 0}px)`,
+        transition: 'transform 0.4s ease',
+      }}>
+
+        {/* Icon */}
+        <div style={{
+          width: 80, height: 80, borderRadius: 22,
+          background: `rgba(${accentRgb},${isActive ? 0.2 : 0.12})`,
+          border: `1px solid rgba(${accentRgb},${isActive ? 0.4 : 0.2})`,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          marginBottom: 28,
+          transition: 'all 0.3s',
+          transform: `scale(${isActive ? 1.08 : 1})`,
+          boxShadow: isActive ? `0 0 40px rgba(${accentRgb},0.25)` : 'none',
+        }}>
+          <i className={`ti ti-${icon}`} style={{ fontSize: 34, color: accent, transition: 'font-size 0.3s' }} />
+        </div>
+
+        {/* Title */}
+        <h2 style={{
+          fontFamily: 'Syne, sans-serif', fontSize: 36, fontWeight: 800,
+          letterSpacing: '-1.5px', color: '#fff', lineHeight: 1,
+          marginBottom: 8,
+        }}>
+          {title}
+        </h2>
+        <div style={{ fontSize: 14, color: `rgba(${accentRgb},0.9)`, fontWeight: 500, marginBottom: 18 }}>
+          {subtitle}
+        </div>
+
+        {/* Description */}
+        <p style={{
+          fontSize: 14, color: 'rgba(255,255,255,0.5)', lineHeight: 1.7,
+          fontWeight: 300, marginBottom: 32, maxWidth: 300,
+        }}>
+          {desc}
+        </p>
+
+        {/* Features */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 11, marginBottom: 36, width: '100%', maxWidth: 280 }}>
+          {features.map(({ icon: fi, text }) => (
+            <div key={text} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 13, color: 'rgba(255,255,255,0.65)' }}>
+              <div style={{ width: 28, height: 28, borderRadius: 8, background: `rgba(${accentRgb},0.12)`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <i className={`ti ti-${fi}`} style={{ fontSize: 13, color: accent }} />
+              </div>
+              {text}
+            </div>
+          ))}
+        </div>
+
+        {/* CTA */}
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 8,
+          padding: '14px 32px', borderRadius: 14,
+          background: isActive ? accent : `rgba(${accentRgb},0.15)`,
+          border: `1px solid rgba(${accentRgb},${isActive ? 0 : 0.3})`,
+          color: '#fff', fontSize: 15, fontWeight: 700,
+          fontFamily: 'Syne, sans-serif', letterSpacing: '-0.3px',
+          transition: 'all 0.3s',
+          boxShadow: isActive ? `0 8px 30px rgba(${accentRgb},0.35)` : 'none',
+        }}>
+          <i className="ti ti-arrow-right" style={{ fontSize: 16 }} />
+          Выбрать
+        </div>
       </div>
-      <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 22, fontWeight: 800, marginBottom: 7, color: 'var(--text-primary)' }}>{title}</div>
-      <p style={{ fontSize: 13, lineHeight: 1.65, marginBottom: 22, fontWeight: 300, color: 'var(--text-secondary)' }}>{desc}</p>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 9, marginBottom: 26 }}>
-        {features.map(f => (
-          <div key={f} style={{ display: 'flex', alignItems: 'center', gap: 9, fontSize: 13, color: 'var(--text-secondary)' }}>
-            <span style={{ width: 4, height: 4, borderRadius: '50%', background: accent, flexShrink: 0 }} />
-            {f}
-          </div>
-        ))}
-      </div>
-      <button
-        className="btn"
-        style={{
-          width: '100%', padding: '13px 0', borderRadius: 12, fontSize: 14,
-          fontWeight: 600, fontFamily: 'Syne, sans-serif',
-          background: accent, color: '#fff', border: 'none',
-          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7,
-        }}
-      >
-        <i className="ti ti-arrow-right" />
-        {btnLabel}
-      </button>
     </div>
   )
 }
