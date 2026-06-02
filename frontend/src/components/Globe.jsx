@@ -2,22 +2,19 @@ import { useEffect, useRef, useState, useMemo, useCallback } from 'react'
 import GlobeGL from 'react-globe.gl'
 import useThemeStore from '../store/themeStore'
 
-// City database for floating labels
 const CITY_DB = [
-  { flag: '🇹🇯', name: 'Душанбе',  lat: 38.56, lng: 68.77 },
-  { flag: '🇺🇿', name: 'Ташкент',  lat: 41.30, lng: 69.24 },
-  { flag: '🇰🇿', name: 'Алматы',   lat: 43.22, lng: 76.85 },
-  { flag: '🇷🇺', name: 'Москва',   lat: 55.75, lng: 37.62 },
-  { flag: '🇩🇪', name: 'Берлин',   lat: 52.52, lng: 13.40 },
-  { flag: '🇮🇹', name: 'Рим',      lat: 41.90, lng: 12.50 },
-  { flag: '🇬🇧', name: 'Лондон',   lat: 51.51, lng: -0.13 },
-  { flag: '🇦🇪', name: 'Дубай',    lat: 25.20, lng: 55.27 },
-  { flag: '🇫🇷', name: 'Париж',    lat: 48.86, lng:  2.35 },
-  { flag: '🇮🇳', name: 'Дели',     lat: 28.61, lng: 77.21 },
-  { flag: '🇨🇳', name: 'Шанхай',   lat: 31.22, lng: 121.47 },
-  { flag: '🇹🇷', name: 'Стамбул',  lat: 41.01, lng: 28.97 },
-  { flag: '🇺🇸', name: 'Нью-Йорк', lat: 40.71, lng: -74.01 },
-  { flag: '🇧🇷', name: 'Сан-Паулу',lat: -23.55, lng: -46.63 },
+  { flag: '🇹🇯', name: 'Душанбе',   lat: 38.56, lng: 68.77 },
+  { flag: '🇺🇿', name: 'Ташкент',   lat: 41.30, lng: 69.24 },
+  { flag: '🇰🇿', name: 'Алматы',    lat: 43.22, lng: 76.85 },
+  { flag: '🇷🇺', name: 'Москва',    lat: 55.75, lng: 37.62 },
+  { flag: '🇩🇪', name: 'Берлин',    lat: 52.52, lng: 13.40 },
+  { flag: '🇮🇹', name: 'Рим',       lat: 41.90, lng: 12.50 },
+  { flag: '🇬🇧', name: 'Лондон',    lat: 51.51, lng: -0.13 },
+  { flag: '🇦🇪', name: 'Дубай',     lat: 25.20, lng: 55.27 },
+  { flag: '🇫🇷', name: 'Париж',     lat: 48.86, lng:  2.35 },
+  { flag: '🇮🇳', name: 'Дели',      lat: 28.61, lng: 77.21 },
+  { flag: '🇨🇳', name: 'Шанхай',    lat: 31.22, lng: 121.47 },
+  { flag: '🇹🇷', name: 'Стамбул',   lat: 41.01, lng: 28.97 },
 ]
 
 export default function Globe({
@@ -40,7 +37,6 @@ export default function Globe({
     controls.enablePan = false
   }, [loaded])
 
-  // Points
   const points = useMemo(() => locations
     .filter(l => l.lat != null && l.lng != null)
     .map(l => ({
@@ -50,7 +46,6 @@ export default function Globe({
       label: l.role === 'me' ? 'Вы' : l.role === 'client' ? 'Заказчик' : 'Фрилансер',
     })), [locations])
 
-  // Arcs — connections between clients and freelancers
   const arcs = useMemo(() => {
     const clients = points.filter(p => p.role === 'client')
     const freelancers = points.filter(p => p.role === 'freelancer')
@@ -68,7 +63,6 @@ export default function Globe({
     return result.slice(0, 10)
   }, [points])
 
-  // Pulsing rings — "me" dot + most active cluster
   const rings = useMemo(() => {
     const result = []
     const me = locations.find(l => l.role === 'me')
@@ -80,24 +74,22 @@ export default function Globe({
     return result
   }, [locations])
 
-  // City floating labels — only for cities that have nearby users
+  // City labels shown as React elements (not htmlElementsData — avoids gl crash)
   const cityLabels = useMemo(() => {
     if (!showLabels || width < 420) return []
     return CITY_DB.filter(city =>
-      locations.some(l =>
-        l.lat != null &&
+      locations.some(l => l.lat != null &&
         Math.abs(l.lat - city.lat) < 3 &&
         Math.abs(l.lng - city.lng) < 3
       )
     )
   }, [locations, showLabels, width])
 
-  // Click dot → pause rotation for 2s so tooltip is readable
   const handlePointClick = useCallback(() => {
     if (!globeRef.current) return
-    const controls = globeRef.current.controls()
-    controls.autoRotate = false
-    setTimeout(() => { controls.autoRotate = true }, 2000)
+    const c = globeRef.current.controls()
+    c.autoRotate = false
+    setTimeout(() => { c.autoRotate = true }, 2000)
   }, [])
 
   const earthTexture = isDark ? '/earth-night.jpg' : '/earth-blue-marble.jpg'
@@ -118,29 +110,29 @@ export default function Globe({
           from { transform: translate(-50%,-50%) rotateX(82deg) rotateZ(220deg); }
           to   { transform: translate(-50%,-50%) rotateX(82deg) rotateZ(580deg); }
         }
-        @keyframes globeIn {
-          from { opacity:0; transform:scale(0.94); }
-          to   { opacity:1; transform:scale(1); }
+        @keyframes globeCityIn {
+          from { opacity:0; transform:translateY(4px); }
+          to   { opacity:1; transform:translateY(0); }
         }
       `}</style>
 
-      {/* Deep space glow behind the globe */}
+      {/* Deep space glow */}
       <div style={{
-        position: 'absolute', inset: '-15%', borderRadius: '50%',
+        position: 'absolute', inset: '-12%', borderRadius: '50%',
         background: isDark
-          ? 'radial-gradient(circle, rgba(127,119,221,0.14) 0%, rgba(29,158,117,0.06) 50%, transparent 70%)'
-          : 'radial-gradient(circle, rgba(80,72,213,0.11) 0%, transparent 65%)',
+          ? 'radial-gradient(circle, rgba(127,119,221,0.13) 0%, rgba(29,158,117,0.05) 50%, transparent 70%)'
+          : 'radial-gradient(circle, rgba(80,72,213,0.10) 0%, transparent 65%)',
         pointerEvents: 'none', zIndex: 0,
       }} />
 
-      {/* Orbital ring 1 — purple, medium speed */}
+      {/* Orbital ring 1 — purple */}
       {loaded && (
         <div style={{
           position: 'absolute', top: '50%', left: '50%',
           width: width * 1.09, height: width * 1.09,
           borderRadius: '50%',
           border: '1px solid rgba(127,119,221,0.2)',
-          boxShadow: '0 0 12px rgba(127,119,221,0.06) inset',
+          boxShadow: '0 0 10px rgba(127,119,221,0.06) inset',
           animation: 'orbitSpin1 16s linear infinite',
           pointerEvents: 'none', zIndex: 0,
         }}>
@@ -153,13 +145,13 @@ export default function Globe({
         </div>
       )}
 
-      {/* Orbital ring 2 — green, slow */}
+      {/* Orbital ring 2 — green */}
       {loaded && (
         <div style={{
           position: 'absolute', top: '50%', left: '50%',
           width: width * 1.17, height: width * 1.17,
           borderRadius: '50%',
-          border: '0.5px solid rgba(29,158,117,0.15)',
+          border: '0.5px solid rgba(29,158,117,0.14)',
           animation: 'orbitSpin2 26s linear infinite',
           pointerEvents: 'none', zIndex: 0,
         }}>
@@ -172,13 +164,13 @@ export default function Globe({
         </div>
       )}
 
-      {/* Orbital ring 3 — faint, fast */}
+      {/* Orbital ring 3 — faint fast */}
       {loaded && (
         <div style={{
           position: 'absolute', top: '50%', left: '50%',
           width: width * 1.04, height: width * 1.04,
           borderRadius: '50%',
-          border: '0.5px solid rgba(255,255,255,0.06)',
+          border: '0.5px solid rgba(255,255,255,0.05)',
           animation: 'orbitSpin3 10s linear infinite',
           pointerEvents: 'none', zIndex: 0,
         }} />
@@ -187,13 +179,8 @@ export default function Globe({
       {/* Skeleton */}
       {!loaded && <GlobeSkeleton size={width} isDark={isDark} />}
 
-      {/* Globe */}
-      <div style={{
-        position: 'relative', zIndex: 1,
-        opacity: loaded ? 1 : 0,
-        transition: 'opacity 0.6s ease',
-        animation: loaded ? 'globeIn 0.7s ease' : 'none',
-      }}>
+      {/* Globe — always rendered so onGlobeReady fires */}
+      <div style={{ position: 'relative', zIndex: 1, opacity: loaded ? 1 : 0, transition: 'opacity 0.7s ease' }}>
         <GlobeGL
           ref={globeRef}
           width={width}
@@ -209,8 +196,7 @@ export default function Globe({
           pointRadius="size"
           pointLabel={p =>
             `<div style="background:rgba(10,10,20,0.93);border:0.5px solid rgba(255,255,255,0.13);` +
-            `border-radius:8px;padding:5px 11px;font-family:DM Sans,sans-serif;font-size:12px;` +
-            `color:#fff;pointer-events:none;backdrop-filter:blur(8px);` +
+            `border-radius:8px;padding:5px 11px;font-size:12px;color:#fff;pointer-events:none;` +
             `box-shadow:0 2px 12px rgba(0,0,0,0.5);">${p.label}</div>`
           }
           onPointClick={handlePointClick}
@@ -237,39 +223,24 @@ export default function Globe({
           ringPropagationSpeed={3}
           ringRepeatPeriod={1100}
 
-          htmlElementsData={cityLabels}
-          htmlLat="lat"
-          htmlLng="lng"
-          htmlAltitude={0.2}
-          htmlElement={d => {
-            const el = document.createElement('div')
-            el.style.cssText = [
-              'display:flex', 'align-items:center', 'gap:5px',
-              'background:rgba(7,7,14,0.88)',
-              'border:0.5px solid rgba(127,119,221,0.32)',
-              'border-radius:20px', 'padding:3px 9px 3px 5px',
-              "font-family:'DM Sans',sans-serif", 'font-size:11px',
-              'color:rgba(255,255,255,0.9)', 'white-space:nowrap',
-              'pointer-events:none',
-              'box-shadow:0 2px 14px rgba(0,0,0,0.55)',
-              'backdrop-filter:blur(8px)',
-            ].join(';')
-            el.innerHTML = `<span style="font-size:13px;line-height:1">${d.flag}</span><span>${d.name}</span>`
-            return el
-          }}
-
           onGlobeReady={() => setLoaded(true)}
         />
       </div>
 
-      {/* Vignette — globe fades into background at edges, looks like floating in space */}
+      {/* Vignette — edges fade to background */}
       {loaded && (
         <div style={{
-          position: 'absolute', inset: 0, borderRadius: '50%',
-          background: `radial-gradient(circle, transparent 50%, rgba(${fadeRgb},0.35) 68%, rgba(${fadeRgb},0.75) 84%, rgba(${fadeRgb},0.96) 100%)`,
+          position: 'absolute', inset: 0,
+          background: `radial-gradient(circle, transparent 48%, rgba(${fadeRgb},0.3) 66%, rgba(${fadeRgb},0.72) 82%, rgba(${fadeRgb},0.95) 100%)`,
           pointerEvents: 'none', zIndex: 2,
+          borderRadius: '50%',
         }} />
       )}
+
+      {/* City badges — React overlay (not htmlElementsData) */}
+      {loaded && cityLabels.map(city => (
+        <CityBadge key={city.name} city={city} isDark={isDark} />
+      ))}
 
       {/* Legend */}
       {loaded && showLegend && (
@@ -303,6 +274,45 @@ export default function Globe({
           )}
         </div>
       )}
+    </div>
+  )
+}
+
+// Static decorative city badges around the globe
+const BADGE_POSITIONS = [
+  { top: '14%', right: '4%' },
+  { top: '28%', left: '2%' },
+  { bottom: '32%', right: '3%' },
+  { bottom: '18%', left: '4%' },
+  { top: '50%', right: '1%' },
+  { top: '8%',  left: '12%' },
+]
+
+function CityBadge({ city, isDark }) {
+  // Pick a stable position based on city name hash
+  const posIdx = city.name.charCodeAt(0) % BADGE_POSITIONS.length
+  const pos = BADGE_POSITIONS[posIdx]
+
+  return (
+    <div style={{
+      position: 'absolute', ...pos, zIndex: 3,
+      pointerEvents: 'none',
+      animation: 'globeCityIn 0.5s ease both',
+    }}>
+      <div style={{
+        display: 'flex', alignItems: 'center', gap: 5,
+        background: isDark ? 'rgba(7,7,14,0.88)' : 'rgba(255,255,255,0.88)',
+        border: `0.5px solid ${isDark ? 'rgba(127,119,221,0.3)' : 'rgba(80,72,213,0.2)'}`,
+        borderRadius: 20, padding: '3px 9px 3px 5px',
+        fontSize: 11,
+        color: isDark ? 'rgba(255,255,255,0.88)' : 'rgba(13,11,30,0.88)',
+        whiteSpace: 'nowrap',
+        boxShadow: isDark ? '0 2px 12px rgba(0,0,0,0.5)' : '0 2px 12px rgba(80,72,213,0.1)',
+        backdropFilter: 'blur(8px)',
+      }}>
+        <span style={{ fontSize: 13, lineHeight: 1 }}>{city.flag}</span>
+        <span>{city.name}</span>
+      </div>
     </div>
   )
 }
