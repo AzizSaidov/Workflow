@@ -67,7 +67,7 @@ export default function Globe({
   }, [])
 
   const earthTexture = isDark ? '/earth-night.jpg' : '/earth-blue-marble.jpg'
-  const fadeRgb = isDark ? '7,7,14' : '248,247,255'
+  const fadeRgb = isDark ? '7,7,14' : '247,248,252'
 
   return (
     <div style={{ position: 'relative', width, height }}>
@@ -213,7 +213,7 @@ export default function Globe({
         <div style={{
           position: 'absolute', bottom: 28, left: '50%', transform: 'translateX(-50%)',
           display: 'flex', gap: 14, zIndex: 4,
-          background: isDark ? 'rgba(13,13,24,0.75)' : 'rgba(248,247,255,0.85)',
+          background: isDark ? 'rgba(13,13,24,0.75)' : 'rgba(247,248,252,0.85)',
           backdropFilter: 'blur(8px)',
           border: '0.5px solid var(--border)',
           borderRadius: 20, padding: '6px 16px',

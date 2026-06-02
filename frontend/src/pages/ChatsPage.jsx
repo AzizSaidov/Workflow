@@ -391,7 +391,7 @@ export default function ChatsPage() {
         <div style={{
           width: 300, flexShrink: 0, borderRight: '0.5px solid var(--border)',
           display: 'flex', flexDirection: 'column',
-          background: isDark ? 'rgba(7,7,14,0.95)' : 'rgba(248,247,255,0.95)',
+          background: isDark ? 'rgba(7,7,14,0.95)' : 'rgba(247,248,252,0.95)',
           backdropFilter: 'blur(16px)',
         }}>
           <div style={{ padding: '16px 18px 12px', borderBottom: '0.5px solid var(--border)', flexShrink: 0 }}>
@@ -495,7 +495,7 @@ export default function ChatsPage() {
             <div style={{
               padding: '12px 20px', borderBottom: '0.5px solid var(--border)',
               display: 'flex', alignItems: 'center', gap: 12,
-              background: isDark ? 'rgba(7,7,14,0.88)' : 'rgba(248,247,255,0.88)',
+              background: isDark ? 'rgba(7,7,14,0.88)' : 'rgba(247,248,252,0.88)',
               backdropFilter: 'blur(12px)', flexShrink: 0,
             }}>
               {partner
@@ -552,7 +552,7 @@ export default function ChatsPage() {
             {/* Input */}
             <div style={{
               padding: '10px 14px', borderTop: '0.5px solid var(--border)',
-              background: isDark ? 'rgba(7,7,14,0.88)' : 'rgba(248,247,255,0.88)',
+              background: isDark ? 'rgba(7,7,14,0.88)' : 'rgba(247,248,252,0.88)',
               backdropFilter: 'blur(12px)', flexShrink: 0,
             }}>
               <input type="file" ref={fileInputRef} style={{ display: 'none' }} accept="image/*,.pdf,.docx,.txt,.zip,.mp4" onChange={handleFileSelect} />

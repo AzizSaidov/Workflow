@@ -93,8 +93,8 @@ export default function Navbar() {
       display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       padding: '0 40px', height: 64,
       background: scrolled
-        ? isDark ? 'rgba(7,7,14,0.95)' : 'rgba(248,247,255,0.96)'
-        : isDark ? 'rgba(7,7,14,0.5)' : 'rgba(248,247,255,0.7)',
+        ? isDark ? 'rgba(7,7,14,0.95)' : 'rgba(247,248,252,0.96)'
+        : isDark ? 'rgba(7,7,14,0.5)' : 'rgba(247,248,252,0.7)',
       borderBottom: scrolled
         ? isDark ? '0.5px solid rgba(255,255,255,0.07)' : '0.5px solid rgba(80,72,213,0.12)'
         : '0.5px solid transparent',
