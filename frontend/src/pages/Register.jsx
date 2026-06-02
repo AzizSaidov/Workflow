@@ -6,112 +6,7 @@ import { authApi } from '../api/auth'
 import ThemeToggle from '../components/ThemeToggle'
 import Input from '../components/Input'
 import Button from '../components/Button'
-import Globe from '../components/Globe'
-
-const DEMO_LOCATIONS = [
-  { lat: 40.7, lng: -74.0, role: 'client' },
-  { lat: 51.5, lng: -0.1, role: 'freelancer' },
-  { lat: 48.8, lng: 2.3, role: 'client' },
-  { lat: 35.6, lng: 139.6, role: 'freelancer' },
-  { lat: -33.8, lng: 151.2, role: 'client' },
-  { lat: 55.7, lng: 37.6, role: 'freelancer' },
-  { lat: 1.3, lng: 103.8, role: 'client' },
-  { lat: 41.0, lng: 28.9, role: 'freelancer' },
-]
-
-function AuthLeft({ isDark, role }) {
-  const isClient = role === 'client'
-  return (
-    <div style={{
-      width: '52%', minHeight: '100vh', position: 'relative',
-      background: isDark
-        ? 'linear-gradient(160deg, #0A0A18 0%, #0D0D22 50%, #080812 100%)'
-        : 'linear-gradient(160deg, #1a1a3e 0%, #0f0f2d 50%, #080818 100%)',
-      display: 'flex', flexDirection: 'column',
-      alignItems: 'center', justifyContent: 'center',
-      overflow: 'hidden', flexShrink: 0,
-    }}>
-      <div style={{ position: 'absolute', top: '15%', left: '20%', width: 300, height: 300, borderRadius: '50%', background: `radial-gradient(circle, ${isClient ? 'rgba(127,119,221,0.18)' : 'rgba(29,158,117,0.18)'} 0%, transparent 70%)`, animation: 'pulse 4s ease-in-out infinite', pointerEvents: 'none' }} />
-      <div style={{ position: 'absolute', bottom: '20%', right: '15%', width: 250, height: 250, borderRadius: '50%', background: 'radial-gradient(circle, rgba(127,119,221,0.12) 0%, transparent 70%)', animation: 'pulse 5s ease-in-out infinite 1.5s', pointerEvents: 'none' }} />
-
-      <style>{`
-        @keyframes pulse { 0%,100%{transform:scale(1);opacity:0.7} 50%{transform:scale(1.15);opacity:1} }
-        @keyframes floatUp { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
-        @keyframes floatUpDelay { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
-      `}</style>
-
-      {/* Logo */}
-      <div style={{ position: 'absolute', top: 32, left: 36 }}>
-        <Link to="/" style={{ textDecoration: 'none' }}>
-          <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 22, letterSpacing: '-0.5px', color: '#fff' }}>
-            work<span style={{ color: '#7F77DD' }}>flow</span>
-          </span>
-        </Link>
-      </div>
-
-      {/* Globe */}
-      <div style={{ position: 'relative', zIndex: 2 }}>
-        <div style={{ position: 'absolute', inset: -30, borderRadius: '50%', background: 'radial-gradient(circle, rgba(127,119,221,0.15) 0%, transparent 65%)', pointerEvents: 'none' }} />
-        <Globe locations={DEMO_LOCATIONS} width={380} height={380} />
-      </div>
-
-      {/* Floating badges */}
-      <div style={{ position: 'absolute', top: '18%', right: '8%', animation: 'floatUp 3.5s ease-in-out infinite', zIndex: 3 }}>
-        <div style={{ background: 'rgba(13,13,24,0.85)', border: '0.5px solid rgba(127,119,221,0.3)', borderRadius: 14, padding: '10px 16px', backdropFilter: 'blur(12px)', display: 'flex', alignItems: 'center', gap: 9 }}>
-          <div style={{ width: 32, height: 32, borderRadius: 9, background: 'rgba(127,119,221,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <i className="ti ti-lock" style={{ fontSize: 15, color: '#7F77DD' }} />
-          </div>
-          <div>
-            <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 13, fontWeight: 800, color: '#fff' }}>$2,400</div>
-            <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)' }}>в эскроу</div>
-          </div>
-        </div>
-      </div>
-
-      <div style={{ position: 'absolute', top: '30%', left: '5%', animation: 'floatUpDelay 4s ease-in-out infinite 0.8s', zIndex: 3 }}>
-        <div style={{ background: 'rgba(13,13,24,0.85)', border: '0.5px solid rgba(29,158,117,0.3)', borderRadius: 14, padding: '10px 16px', backdropFilter: 'blur(12px)', display: 'flex', alignItems: 'center', gap: 9 }}>
-          <div style={{ width: 32, height: 32, borderRadius: 9, background: 'rgba(29,158,117,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <i className="ti ti-circle-check" style={{ fontSize: 15, color: '#5DCAA5' }} />
-          </div>
-          <div>
-            <div style={{ fontSize: 12, fontWeight: 700, color: '#fff' }}>Работа сдана</div>
-            <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)' }}>только что</div>
-          </div>
-        </div>
-      </div>
-
-      <div style={{ position: 'absolute', bottom: '28%', left: '6%', animation: 'floatUp 3.8s ease-in-out infinite 1.2s', zIndex: 3 }}>
-        <div style={{ background: 'rgba(13,13,24,0.85)', border: '0.5px solid rgba(239,159,39,0.3)', borderRadius: 14, padding: '10px 16px', backdropFilter: 'blur(12px)', display: 'flex', alignItems: 'center', gap: 9 }}>
-          <div style={{ width: 32, height: 32, borderRadius: 9, background: 'rgba(239,159,39,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <i className="ti ti-star-filled" style={{ fontSize: 15, color: '#EF9F27' }} />
-          </div>
-          <div>
-            <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 13, fontWeight: 800, color: '#fff' }}>4.9 / 5</div>
-            <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)' }}>средний рейтинг</div>
-          </div>
-        </div>
-      </div>
-
-      <div style={{ position: 'absolute', bottom: '22%', right: '6%', animation: 'floatUpDelay 4.2s ease-in-out infinite 0.4s', zIndex: 3 }}>
-        <div style={{ background: 'rgba(13,13,24,0.85)', border: '0.5px solid rgba(127,119,221,0.25)', borderRadius: 14, padding: '10px 16px', backdropFilter: 'blur(12px)', display: 'flex', alignItems: 'center', gap: 9 }}>
-          <div style={{ width: 32, height: 32, borderRadius: 9, background: 'rgba(127,119,221,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <i className="ti ti-robot" style={{ fontSize: 15, color: '#7F77DD' }} />
-          </div>
-          <div>
-            <div style={{ fontSize: 12, fontWeight: 700, color: '#fff' }}>AI-ассистент</div>
-            <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)' }}>в каждом проекте</div>
-          </div>
-        </div>
-      </div>
-
-      <div style={{ position: 'absolute', bottom: 40, left: 0, right: 0, textAlign: 'center', zIndex: 2 }}>
-        <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)', letterSpacing: 0.3 }}>
-          Присоединяйся к тысячам специалистов
-        </p>
-      </div>
-    </div>
-  )
-}
+import AuthLeft from '../components/AuthLeft'
 
 export default function Register() {
   const { isDark } = useThemeStore()
@@ -148,13 +43,9 @@ export default function Register() {
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--bg)' }}>
-      <AuthLeft isDark={isDark} role={form.role} />
+      <AuthLeft isDark={isDark} />
 
-      <div style={{
-        flex: 1, display: 'flex', flexDirection: 'column',
-        alignItems: 'center', justifyContent: 'center',
-        padding: '40px 48px', position: 'relative', overflowY: 'auto',
-      }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 48px', position: 'relative', overflowY: 'auto' }}>
         <div style={{ position: 'absolute', top: 24, right: 24 }}>
           <ThemeToggle />
         </div>
