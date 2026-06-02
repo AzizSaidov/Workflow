@@ -9,5 +9,7 @@ export const notificationsApi = {
 }
 
 export function createNotifWS(userId, token) {
-  return new WebSocket(`ws://localhost:8000/api/notifications/ws/notifications/${userId}?token=${token}`)
+  const wsBase = (import.meta.env.VITE_API_URL || 'http://localhost:8000')
+    .replace(/^https/, 'wss').replace(/^http/, 'ws')
+  return new WebSocket(`${wsBase}/ws/notifications/${userId}?token=${token}`)
 }

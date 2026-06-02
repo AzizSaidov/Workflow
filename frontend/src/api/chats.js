@@ -15,5 +15,7 @@ export const chatsApi = {
 }
 
 export function createChatWS(projectId, token) {
-  return new WebSocket(`ws://localhost:8000/ws/chat/${projectId}?token=${token}`)
+  const wsBase = (import.meta.env.VITE_API_URL || 'http://localhost:8000')
+    .replace(/^https/, 'wss').replace(/^http/, 'ws')
+  return new WebSocket(`${wsBase}/ws/chat/${projectId}?token=${token}`)
 }

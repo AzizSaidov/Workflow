@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const client = axios.create({
-  baseURL: 'http://localhost:8000/api',
+  baseURL: `${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api`,
   headers: { 'Content-Type': 'application/json' },
 })
 
@@ -54,7 +54,7 @@ client.interceptors.response.use(
         if (!refreshToken) throw new Error('No refresh token')
 
         const { data } = await axios.post(
-          'http://localhost:8000/api/users/refresh',
+          `${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/users/refresh`,
           { refresh_token: refreshToken }
         )
         const newAccess = data.access_token
