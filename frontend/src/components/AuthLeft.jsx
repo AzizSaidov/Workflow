@@ -83,7 +83,7 @@ export default function AuthLeft({ isDark }) {
         iconBg="#5DCAA5"
         icon={<i className="ti ti-shield-check" style={{ fontSize: 17, color: '#5DCAA5' }} />}
         value="99%"
-        label="эскроу фрилансеру"
+        label="эскроу защита"
       />
 
       {/* Badge 2 — Online */}
