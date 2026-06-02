@@ -4,10 +4,11 @@ import useThemeStore from '../store/themeStore'
 import useAuthStore from '../store/authStore'
 import { authApi } from '../api/auth'
 
-function requestGeolocation(onSaved) {
+function requestGeolocation(userId, onSaved) {
   if (!navigator.geolocation) return
-  if (localStorage.getItem('geo-asked')) return
-  localStorage.setItem('geo-asked', '1')
+  const key = `geo-asked-${userId}`
+  if (localStorage.getItem(key)) return
+  localStorage.setItem(key, '1')
   navigator.geolocation.getCurrentPosition(
     ({ coords }) => {
       authApi.updateLocation(coords.latitude, coords.longitude)
@@ -43,7 +44,7 @@ export default function Login() {
     try {
       const { data } = await authApi.login(form.email, form.password)
       login(data.user, data.access_token, data.refresh_token)
-      requestGeolocation((lat, lng) => {
+      requestGeolocation(data.user.id, (lat, lng) => {
         setUser({ ...data.user, latitude: lat, longitude: lng })
       })
       navigate(from, { replace: true })

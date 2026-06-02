@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import useThemeStore from '../store/themeStore'
 import useAuthStore from '../store/authStore'
 import { statsApi } from '../api/stats'
+import { authApi } from '../api/auth'
 import { categoriesApi } from '../api/categories'
 import StarBackground from '../components/StarBackground'
 import Globe from '../components/Globe'
@@ -94,7 +95,7 @@ function CategoryCard({ cat, isDark }) {
 
 export default function Home() {
   const { isDark } = useThemeStore()
-  const { user } = useAuthStore()
+  const { user, setUser } = useAuthStore()
   const [stats, setStats] = useState(null)
   const [locations, setLocations] = useState([])
   const [onlineCount, setOnlineCount] = useState(0)
@@ -116,7 +117,22 @@ export default function Home() {
     })
   }, [user?.id])
 
-  // Separate effect: adds/updates red "me" dot when geolocation arrives (async after login)
+  // Fallback: if logged in but no coords yet, request geolocation here too
+  useEffect(() => {
+    if (!user?.id || user?.latitude || !navigator.geolocation) return
+    const key = `geo-asked-${user.id}`
+    if (localStorage.getItem(key)) return
+    localStorage.setItem(key, '1')
+    navigator.geolocation.getCurrentPosition(
+      ({ coords }) => {
+        authApi.updateLocation(coords.latitude, coords.longitude).catch(() => {})
+        setUser({ ...user, latitude: coords.latitude, longitude: coords.longitude })
+      },
+      () => {}
+    )
+  }, [user?.id])
+
+  // Separate effect: adds/updates red "me" dot when geolocation arrives
   useEffect(() => {
     if (!user?.latitude || !user?.longitude) return
     setLocations(prev => {
