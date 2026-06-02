@@ -113,7 +113,17 @@ export default function Home() {
       statsApi.getOnlineCount().catch(() => ({ data: { count: 0 } })),
     ]).then(([locRes, onlineRes]) => {
       setOnlineCount(onlineRes.data?.count || 0)
-      setLocations(locRes.data || [])
+      const locs = locRes.data || []
+      // Read fresh user from store (not stale closure)
+      const u = useAuthStore.getState().user
+      if (u?.latitude && u?.longitude) {
+        const withoutDupe = locs.filter(p =>
+          !(Math.abs((p.lat || 0) - u.latitude) < 0.001 && Math.abs((p.lng || 0) - u.longitude) < 0.001)
+        )
+        setLocations([...withoutDupe, { lat: u.latitude, lng: u.longitude, role: 'me' }])
+      } else {
+        setLocations(locs)
+      }
     })
   }, [user?.id])
 
