@@ -41,6 +41,59 @@ def dt(days_ago: int = 0) -> datetime:
     return get_dushanbe_time() - timedelta(days=days_ago)
 
 
+ALL_SKILLS = {
+    "web-dev":    [("React", "react"), ("Vue.js", "vuejs"), ("FastAPI", "fastapi"),
+                   ("Node.js", "nodejs"), ("PostgreSQL", "postgresql"), ("TypeScript", "typescript"),
+                   ("JavaScript", "javascript"), ("Python", "python-web"), ("C#", "csharp"),
+                   ("C++", "cpp"), ("C", "c"), ("Java", "java"), ("Go", "go"),
+                   ("Rust", "rust"), ("PHP", "php"), ("Ruby", "ruby"),
+                   ("Next.js", "nextjs"), ("Nuxt.js", "nuxtjs"), ("Django", "django"),
+                   ("Laravel", "laravel"), ("Spring", "spring"), (".NET", "dotnet"),
+                   ("MongoDB", "mongodb"), ("Redis", "redis"), ("GraphQL", "graphql"),
+                   ("REST API", "rest-api"), ("Bash", "bash")],
+    "mobile-dev": [("Flutter", "flutter"), ("React Native", "react-native"),
+                   ("Swift", "swift"), ("Kotlin", "kotlin"),
+                   ("Objective-C", "objc"), ("Xamarin", "xamarin"), ("Ionic", "ionic")],
+    "design":     [("Figma", "figma"), ("Adobe XD", "adobe-xd"), ("Illustrator", "illustrator"),
+                   ("Photoshop", "photoshop"), ("Blender 3D", "blender")],
+    "data-ai":    [("Python", "python"), ("TensorFlow", "tensorflow"), ("PyTorch", "pytorch"),
+                   ("Pandas", "pandas"), ("SQL", "sql"), ("R", "r-lang"), ("Scala", "scala"),
+                   ("Jupyter", "jupyter"), ("NumPy", "numpy"), ("Scikit-learn", "sklearn"),
+                   ("OpenCV", "opencv"), ("LangChain", "langchain")],
+    "marketing":  [("Google Ads", "google-ads"), ("Facebook Ads", "facebook-ads"),
+                   ("SEO", "seo"), ("Email Marketing", "email-marketing")],
+    "writing":    [("Копирайтинг", "copywriting"), ("Технический текст", "tech-writing"),
+                   ("Перевод RU-EN", "translation-ru-en"), ("Сценарии", "scripts")],
+    "devops":     [("Docker", "docker"), ("Kubernetes", "kubernetes"), ("AWS", "aws"),
+                   ("GitHub Actions", "github-actions"), ("Terraform", "terraform"),
+                   ("Linux", "linux"), ("Nginx", "nginx"), ("CI/CD", "cicd"),
+                   ("Ansible", "ansible"), ("GCP", "gcp"), ("Azure", "azure")],
+    "security":   [("Penetration Testing", "pentest"), ("OWASP", "owasp"),
+                   ("Bug Bounty", "bug-bounty"), ("Burp Suite", "burp-suite")],
+    "video":      [("Premiere Pro", "premiere"), ("After Effects", "after-effects"),
+                   ("DaVinci Resolve", "davinci"), ("Cinema 4D", "cinema4d")],
+    "finance":    [("1С:Бухгалтерия", "1c"), ("Excel / VBA", "excel-vba"),
+                   ("МСФО", "ifrs"), ("Финансовый анализ", "financial-analysis")],
+}
+
+
+def _sync_skills(db):
+    added = 0
+    for cat_slug, skill_list in ALL_SKILLS.items():
+        cat = db.query(Category).filter(Category.slug == cat_slug).first()
+        if not cat:
+            continue
+        for name, slug in skill_list:
+            if not db.query(Skill).filter(Skill.slug == slug).first():
+                db.add(Skill(name=name, slug=slug, category_id=cat.id))
+                added += 1
+    if added:
+        db.commit()
+        print(f"  + {added} new skills added.")
+    else:
+        print("  Skills already up to date.")
+
+
 def seed():
     force = "--force" in sys.argv
 
@@ -58,7 +111,9 @@ def seed():
     db = SessionLocal()
     try:
         if db.query(User).filter(User.email == "timur@techcorp.tj").first():
-            print("Already seeded. Run 'python seed.py --force' to reset and re-seed.")
+            print("Already seeded — syncing skills/languages only...")
+            _sync_skills(db)
+            print("Done.")
             return
 
         print("Seeding database...")
@@ -84,42 +139,8 @@ def seed():
         db.flush()
 
         # ── SKILLS ──────────────────────────────────────────────────────────
-        skills_data = {
-            "web-dev":   [("React", "react"), ("Vue.js", "vuejs"), ("FastAPI", "fastapi"),
-                          ("Node.js", "nodejs"), ("PostgreSQL", "postgresql"), ("TypeScript", "typescript"),
-                          ("JavaScript", "javascript"), ("Python", "python-web"), ("C#", "csharp"),
-                          ("C++", "cpp"), ("C", "c"), ("Java", "java"), ("Go", "go"),
-                          ("Rust", "rust"), ("PHP", "php"), ("Ruby", "ruby"),
-                          ("Next.js", "nextjs"), ("Nuxt.js", "nuxtjs"), ("Django", "django"),
-                          ("Laravel", "laravel"), ("Spring", "spring"), (".NET", "dotnet"),
-                          ("MongoDB", "mongodb"), ("Redis", "redis"), ("GraphQL", "graphql"),
-                          ("REST API", "rest-api"), ("Bash", "bash")],
-            "mobile-dev":[("Flutter", "flutter"), ("React Native", "react-native"),
-                          ("Swift", "swift"), ("Kotlin", "kotlin"),
-                          ("Objective-C", "objc"), ("Xamarin", "xamarin"), ("Ionic", "ionic")],
-            "design":    [("Figma", "figma"), ("Adobe XD", "adobe-xd"), ("Illustrator", "illustrator"),
-                          ("Photoshop", "photoshop"), ("Blender 3D", "blender")],
-            "data-ai":   [("Python", "python"), ("TensorFlow", "tensorflow"), ("PyTorch", "pytorch"),
-                          ("Pandas", "pandas"), ("SQL", "sql"), ("R", "r-lang"), ("Scala", "scala"),
-                          ("Jupyter", "jupyter"), ("NumPy", "numpy"), ("Scikit-learn", "sklearn"),
-                          ("OpenCV", "opencv"), ("LangChain", "langchain")],
-            "marketing": [("Google Ads", "google-ads"), ("Facebook Ads", "facebook-ads"),
-                          ("SEO", "seo"), ("Email Marketing", "email-marketing")],
-            "writing":   [("Копирайтинг", "copywriting"), ("Технический текст", "tech-writing"),
-                          ("Перевод RU-EN", "translation-ru-en"), ("Сценарии", "scripts")],
-            "devops":    [("Docker", "docker"), ("Kubernetes", "kubernetes"), ("AWS", "aws"),
-                          ("GitHub Actions", "github-actions"), ("Terraform", "terraform"),
-                          ("Linux", "linux"), ("Nginx", "nginx"), ("CI/CD", "cicd"),
-                          ("Ansible", "ansible"), ("GCP", "gcp"), ("Azure", "azure")],
-            "security":  [("Penetration Testing", "pentest"), ("OWASP", "owasp"),
-                          ("Bug Bounty", "bug-bounty"), ("Burp Suite", "burp-suite")],
-            "video":     [("Premiere Pro", "premiere"), ("After Effects", "after-effects"),
-                          ("DaVinci Resolve", "davinci"), ("Cinema 4D", "cinema4d")],
-            "finance":   [("1С:Бухгалтерия", "1c"), ("Excel / VBA", "excel-vba"),
-                          ("МСФО", "ifrs"), ("Финансовый анализ", "financial-analysis")],
-        }
         skills = {}
-        for cat_slug, skill_list in skills_data.items():
+        for cat_slug, skill_list in ALL_SKILLS.items():
             for skill_name, skill_slug in skill_list:
                 s = Skill(name=skill_name, slug=skill_slug, category_id=cats[cat_slug].id)
                 db.add(s)
