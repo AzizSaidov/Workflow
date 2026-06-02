@@ -2,6 +2,20 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
 
+/* ========= ANIMATABLE CSS VARIABLES ========= */
+/* @property makes CSS vars themselves transition — all var()-consumers get smooth theme switch */
+@property --bg             { syntax: '<color>'; inherits: true; initial-value: #07070E;                 }
+@property --bg-card        { syntax: '<color>'; inherits: true; initial-value: #0D0D18;                 }
+@property --bg-input       { syntax: '<color>'; inherits: true; initial-value: #0D0D18;                 }
+@property --text-primary   { syntax: '<color>'; inherits: true; initial-value: #FFFFFF;                 }
+@property --text-secondary { syntax: '<color>'; inherits: true; initial-value: rgba(255,255,255,0.38);  }
+@property --text-muted     { syntax: '<color>'; inherits: true; initial-value: rgba(255,255,255,0.22);  }
+@property --accent         { syntax: '<color>'; inherits: true; initial-value: #7F77DD;                 }
+@property --accent-green   { syntax: '<color>'; inherits: true; initial-value: #1D9E75;                 }
+@property --accent-teal    { syntax: '<color>'; inherits: true; initial-value: #5DCAA5;                 }
+@property --accent-light   { syntax: '<color>'; inherits: true; initial-value: #AFA9EC;                 }
+@property --border-hover   { syntax: '<color>'; inherits: true; initial-value: rgba(127,119,221,0.45);  }
+
 /* ========= DARK THEME (default) ========= */
 :root {
   --bg:              #07070E;
@@ -17,6 +31,20 @@ html { scroll-behavior: smooth; }
   --text-secondary:  rgba(255,255,255,0.38);
   --text-muted:      rgba(255,255,255,0.22);
   --shadow-card:     0 4px 24px rgba(0,0,0,0.4);
+
+  /* Animate CSS vars themselves — drives smooth theme transitions for all var()-consumers */
+  transition:
+    --bg 0.4s ease,
+    --bg-card 0.4s ease,
+    --bg-input 0.35s ease,
+    --text-primary 0.3s ease,
+    --text-secondary 0.32s ease,
+    --text-muted 0.32s ease,
+    --accent 0.35s ease,
+    --accent-green 0.35s ease,
+    --accent-teal 0.35s ease,
+    --accent-light 0.35s ease,
+    --border-hover 0.35s ease;
 }
 
 /* ========= LIGHT THEME ========= */
@@ -109,22 +137,22 @@ html { scroll-behavior: smooth; }
 }
 
 /* ========= THEME TRANSITION ========= */
-/* NOTE: no opacity here — conflicts with fadeInUp stagger animations causing text flicker */
+/* no opacity — conflicts with fadeInUp stagger animations */
+/* background-color handles inline isDark? styles; @property handles var() consumers */
 *, *::before, *::after {
   transition:
-    background-color 0.35s ease,
-    border-color 0.35s ease,
-    color 0.25s ease,
-    box-shadow 0.35s ease;
+    background-color 0.38s ease,
+    border-color 0.38s ease,
+    color 0.28s ease;
 }
-/* Interactive elements also get transform */
-button, a, .card, .btn, input, .rs-card {
+/* Interactive elements keep transform for hover effects */
+button, a, .card, .btn, input, select, textarea {
   transition:
-    background-color 0.35s ease,
-    border-color 0.35s ease,
-    color 0.25s ease,
-    box-shadow 0.35s ease,
-    transform 0.18s ease;
+    background-color 0.38s ease,
+    border-color 0.38s ease,
+    color 0.28s ease,
+    box-shadow 0.22s ease,
+    transform 0.16s ease;
 }
 
 /* ========= DIGIT FONT (Syne for all numbers everywhere) ========= */
