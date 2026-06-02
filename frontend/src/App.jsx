@@ -16,6 +16,7 @@ import AdminPanel from './pages/AdminPanel'
 import Freelancers from './pages/Freelancers'
 import ChatsPage from './pages/ChatsPage'
 import Favorites from './pages/Favorites'
+import AIAssistant from './pages/AIAssistant'
 
 export default function App() {
   return (
@@ -28,17 +29,19 @@ export default function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
         <Route path="/freelancers" element={<ProtectedRoute><Freelancers /></ProtectedRoute>} />
+        <Route path="/projects" element={<ProjectsFeed />} />
+        <Route path="/projects/:id" element={<ProjectDetail />} />
+        <Route path="/profile/:id" element={<Profile />} />
 
         {/* Protected */}
         <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-        <Route path="/projects" element={<ProtectedRoute><ProjectsFeed /></ProtectedRoute>} />
-        <Route path="/projects/new" element={<ProtectedRoute><CreateProject /></ProtectedRoute>} />
-        <Route path="/projects/:id/edit" element={<ProtectedRoute><EditProject /></ProtectedRoute>} />
-        <Route path="/projects/:id" element={<ProtectedRoute><ProjectDetail /></ProtectedRoute>} />
+        <Route path="/projects/new" element={<ProtectedRoute requireRole="client"><CreateProject /></ProtectedRoute>} />
+        <Route path="/projects/:id/edit" element={<ProtectedRoute requireRole="client"><EditProject /></ProtectedRoute>} />
         <Route path="/wallet" element={<ProtectedRoute><Wallet /></ProtectedRoute>} />
-        <Route path="/profile/:id" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+
         <Route path="/chats" element={<ProtectedRoute><ChatsPage /></ProtectedRoute>} />
         <Route path="/favorites" element={<ProtectedRoute><Favorites /></ProtectedRoute>} />
+        <Route path="/ai" element={<ProtectedRoute><AIAssistant /></ProtectedRoute>} />
         <Route path="/admin" element={<ProtectedRoute requireRole="admin"><AdminPanel /></ProtectedRoute>} />
 
         <Route path="*" element={<Navigate to="/" replace />} />

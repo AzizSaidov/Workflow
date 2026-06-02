@@ -42,6 +42,7 @@ def _build_profile_response(profile: FreelancerProfile, db: Session) -> dict:
         "experience_years": profile.experience_years,
         "response_time": profile.response_time,
         "connects_balance": profile.connects_balance,
+        "github_url": profile.github_url,
         "skills": skills,
         "languages": languages,
     }

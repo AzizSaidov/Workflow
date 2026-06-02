@@ -9,7 +9,7 @@ from projects.views import (
     accept_delivery, get_featured_projects, get_projects_by_category,
 )
 from media.views import get_project_files
-from users.permissions import get_current_user
+from users.permissions import get_current_user, get_optional_user
 from users.models import User
 from pydantic import BaseModel
 
@@ -29,7 +29,7 @@ projects_router = APIRouter(prefix="/api/projects", tags=["projects"])
 
 
 @projects_router.get("/featured", response_model=list[ProjectResponse])
-def featured(db: Session = Depends(get_db), _: User = Depends(get_current_user)):
+def featured(db: Session = Depends(get_db), _: User | None = Depends(get_optional_user)):
     return get_featured_projects(db)
 
 
@@ -39,7 +39,7 @@ def my_projects(db: Session = Depends(get_db), current_user: User = Depends(get_
 
 
 @projects_router.get("/by-category/{slug}", response_model=list[ProjectResponse])
-def by_category(slug: str, db: Session = Depends(get_db), _: User = Depends(get_current_user)):
+def by_category(slug: str, db: Session = Depends(get_db), _: User | None = Depends(get_optional_user)):
     return get_projects_by_category(slug, db)
 
 
@@ -54,7 +54,7 @@ def list_projects(
     skill_id: UUID | None = Query(default=None),
     search: str | None = Query(default=None),
     db: Session = Depends(get_db),
-    _: User = Depends(get_current_user),
+    _: User | None = Depends(get_optional_user),
 ):
     return get_projects(db, category, category_id, budget_min, budget_max, project_type, experience_level, skill_id, search)
 
@@ -65,7 +65,7 @@ def create(data: ProjectCreate, db: Session = Depends(get_db), current_user: Use
 
 
 @projects_router.get("/{project_id}", response_model=ProjectResponse)
-def project_detail(project_id: UUID, db: Session = Depends(get_db), _: User = Depends(get_current_user)):
+def project_detail(project_id: UUID, db: Session = Depends(get_db), _: User | None = Depends(get_optional_user)):
     return get_project(project_id, db)
 
 

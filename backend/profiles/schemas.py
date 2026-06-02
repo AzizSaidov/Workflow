@@ -9,6 +9,7 @@ class ProfileUpdate(BaseModel):
     hourly_rate: Decimal | None = None
     experience_years: int | None = None
     response_time: str | None = None
+    github_url: str | None = None
 
 
 class SkillInProfile(BaseModel):
@@ -41,6 +42,7 @@ class ProfileResponse(BaseModel):
     experience_years: int
     response_time: str | None
     connects_balance: int
+    github_url: str | None = None
     skills: list[SkillInProfile]
     languages: list[LanguageInProfile]
 

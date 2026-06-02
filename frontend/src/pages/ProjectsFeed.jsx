@@ -181,7 +181,7 @@ export default function ProjectsFeed() {
 
   const [search, setSearch] = useState(searchParams.get('search') || '')
   const [filters, setFilters] = useState({
-    category_id: searchParams.get('category') || '',
+    category_id: searchParams.get('category_id') || '',
     project_type: '',
     experience_level: '',
     budget_min: '',
@@ -189,7 +189,11 @@ export default function ProjectsFeed() {
   })
   const [applied, setApplied] = useState({
     search: searchParams.get('search') || '',
-    ...filters,
+    category_id: searchParams.get('category_id') || '',
+    project_type: '',
+    experience_level: '',
+    budget_min: '',
+    budget_max: '',
   })
 
   useEffect(() => {

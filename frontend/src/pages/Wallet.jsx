@@ -61,55 +61,69 @@ export default function Wallet() {
             Кошелёк
           </h1>
 
-          {/* Balance cards */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 36 }}>
-            {/* Main balance */}
-            <div style={{
-              background: isDark
-                ? 'linear-gradient(135deg, rgba(127,119,221,0.15) 0%, rgba(13,13,24,0.8) 100%)'
-                : 'linear-gradient(135deg, rgba(80,72,213,0.1) 0%, #FFFFFF 100%)',
-              border: '0.5px solid var(--border-hover)',
-              borderRadius: 20, padding: '28px 28px',
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
-                <div style={{ width: 40, height: 40, borderRadius: 12, background: 'rgba(127,119,221,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <i className="ti ti-wallet" style={{ fontSize: 20, color: 'var(--accent)' }} />
+          {/* Balance — main card full width */}
+          <div style={{
+            background: isDark
+              ? 'linear-gradient(135deg, rgba(127,119,221,0.13) 0%, rgba(13,13,24,0.9) 100%)'
+              : 'linear-gradient(135deg, rgba(80,72,213,0.08) 0%, var(--bg-card) 100%)',
+            border: '0.5px solid var(--border-hover)',
+            borderRadius: 22, padding: '32px 36px',
+            marginBottom: 20,
+          }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 32, flexWrap: 'wrap' }}>
+              {/* Available balance */}
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+                  <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(127,119,221,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <i className="ti ti-wallet" style={{ fontSize: 18, color: 'var(--accent)' }} />
+                  </div>
+                  <span style={{ fontSize: 13, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.5, fontWeight: 500 }}>
+                    Доступно
+                  </span>
                 </div>
-                <span style={{ fontSize: 14, color: 'var(--text-secondary)' }}>Доступный баланс</span>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
+                  <span style={{ fontFamily: 'Syne, sans-serif', fontSize: 22, fontWeight: 700, color: 'var(--accent)', letterSpacing: '-0.5px', lineHeight: 1 }}>
+                    $
+                  </span>
+                  <span style={{ fontFamily: 'Syne, sans-serif', fontSize: 56, fontWeight: 800, letterSpacing: '-3px', color: 'var(--text-primary)', lineHeight: 1 }}>
+                    {loading ? '—' : Number(wallet?.balance || 0).toLocaleString()}
+                  </span>
+                  <span style={{ fontFamily: 'Syne, sans-serif', fontSize: 22, fontWeight: 400, color: 'var(--text-muted)', marginLeft: 2 }}>
+                    .00
+                  </span>
+                </div>
               </div>
-              <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 40, fontWeight: 800, letterSpacing: '-2px', color: 'var(--text-primary)' }}>
-                {loading ? '—' : Number(wallet?.balance || 0).toLocaleString()}
-                <span style={{ fontSize: 18, fontWeight: 400, color: 'var(--text-muted)', marginLeft: 2 }}>$</span>
-              </div>
-              <div style={{ marginTop: 20 }}>
+
+              {/* Frozen + info */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 16, minWidth: 180 }}>
+                <div style={{ background: 'rgba(239,159,39,0.08)', border: '0.5px solid rgba(239,159,39,0.25)', borderRadius: 14, padding: '16px 20px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 8 }}>
+                    <i className="ti ti-lock" style={{ fontSize: 15, color: '#EF9F27' }} />
+                    <span style={{ fontSize: 12, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.5, fontWeight: 500 }}>
+                      В эскроу
+                    </span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'baseline', gap: 3 }}>
+                    <span style={{ fontFamily: 'Syne, sans-serif', fontSize: 15, fontWeight: 700, color: '#EF9F27' }}>$</span>
+                    <span style={{ fontFamily: 'Syne, sans-serif', fontSize: 32, fontWeight: 800, letterSpacing: '-1.5px', color: '#EF9F27', lineHeight: 1 }}>
+                      {loading ? '—' : Number(wallet?.frozen || 0).toLocaleString()}
+                    </span>
+                  </div>
+                  <p style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 6, lineHeight: 1.5 }}>
+                    Заморожено в активных проектах
+                  </p>
+                </div>
+
                 <div style={{
-                  display: 'flex', alignItems: 'center', gap: 8,
+                  display: 'flex', alignItems: 'flex-start', gap: 8,
                   padding: '10px 14px', borderRadius: 10,
-                  background: 'rgba(127,119,221,0.06)',
-                  border: '0.5px solid rgba(127,119,221,0.15)',
+                  background: 'rgba(127,119,221,0.06)', border: '0.5px solid rgba(127,119,221,0.15)',
                   fontSize: 12, color: 'var(--text-muted)',
                 }}>
-                  <i className="ti ti-info-circle" style={{ fontSize: 14, color: 'var(--accent)', flexShrink: 0 }} />
-                  Для пополнения баланса обратитесь к администратору
+                  <i className="ti ti-info-circle" style={{ fontSize: 14, color: 'var(--accent)', flexShrink: 0, marginTop: 1 }} />
+                  Для пополнения обратитесь к администратору
                 </div>
               </div>
-            </div>
-
-            {/* Frozen */}
-            <div style={{ background: 'var(--bg-card)', border: '0.5px solid var(--border)', borderRadius: 20, padding: '28px 28px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
-                <div style={{ width: 40, height: 40, borderRadius: 12, background: 'rgba(239,159,39,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <i className="ti ti-lock" style={{ fontSize: 20, color: '#EF9F27' }} />
-                </div>
-                <span style={{ fontSize: 14, color: 'var(--text-secondary)' }}>В эскроу</span>
-              </div>
-              <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 40, fontWeight: 800, letterSpacing: '-2px', color: '#EF9F27' }}>
-                {loading ? '—' : Number(wallet?.frozen || 0).toLocaleString()}
-                <span style={{ fontSize: 18, fontWeight: 400, color: 'var(--text-muted)', marginLeft: 2 }}>$</span>
-              </div>
-              <p style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 20, lineHeight: 1.6 }}>
-                Средства заморожены до завершения проекта
-              </p>
             </div>
           </div>
 

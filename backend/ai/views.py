@@ -64,9 +64,11 @@ async def help_bid(project_title: str, project_description: str, skills: list[st
 
 async def ai_chat(message: str, context: str | None) -> str:
     system = (
-        "You are an AI assistant for the Workflow freelance platform. "
-        "Help users with questions about freelancing, projects, and the platform. "
-        "Be concise and helpful."
+        "Ты помощник платформы Workflow — фриланс-биржи. Помогаешь:\n"
+        "- Фрилансерам: написать заявку, составить профиль, разобраться с платформой\n"
+        "- Заказчикам: сформулировать проект, оценить бюджет, выбрать фрилансера\n"
+        "- Всем: разобраться как работает эскроу, споры, рейтинг\n"
+        "Отвечай по-русски. Давай конкретные советы."
     )
     user_msg = f"{context}\n\n{message}" if context else message
     return await _ask(system, user_msg)

@@ -225,7 +225,7 @@ export default function Navbar() {
                     { to: '/dashboard', icon: 'layout-dashboard', label: 'Дашборд' },
                     { to: '/wallet', icon: 'wallet', label: 'Кошелёк' },
                     { to: '/favorites', icon: 'heart', label: 'Избранное' },
-                    user?.role === 'freelancer' && { to: '/ai', icon: 'robot', label: 'AI-ассистент' },
+                    { to: '/ai', icon: 'robot', label: 'AI-ассистент' },
                     user?.role === 'admin' && { to: '/admin', icon: 'shield-lock', label: 'Панель админа' },
                   ].filter(Boolean).map(({ to, icon, label }) => (
                     <Link key={to} to={to} onClick={() => setMenuOpen(false)} style={{

@@ -7,7 +7,7 @@ from profiles.views import (
     get_profile, update_my_profile, get_top_freelancers,
     add_skill, remove_skill, add_language, remove_language,
 )
-from users.permissions import get_current_user
+from users.permissions import get_current_user, get_optional_user
 from users.models import User
 
 profiles_router = APIRouter(prefix="/api/profiles", tags=["profiles"])
@@ -17,13 +17,13 @@ profiles_router = APIRouter(prefix="/api/profiles", tags=["profiles"])
 def top_freelancers(
     category: str | None = Query(default=None),
     db: Session = Depends(get_db),
-    _: User = Depends(get_current_user),
+    _: User | None = Depends(get_optional_user),
 ):
     return get_top_freelancers(db, category_slug=category)
 
 
 @profiles_router.get("/{user_id}", response_model=ProfileResponse)
-def profile(user_id: UUID, db: Session = Depends(get_db), _: User = Depends(get_current_user)):
+def profile(user_id: UUID, db: Session = Depends(get_db), _: User | None = Depends(get_optional_user)):
     return get_profile(user_id, db)
 
 

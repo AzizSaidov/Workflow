@@ -10,4 +10,5 @@ export const projectsApi = {
   deliver: (id, data) => client.put(`/projects/${id}/deliver`, data),
   acceptDelivery: (id) => client.put(`/projects/${id}/accept-delivery`),
   requestRevision: (id, data) => client.put(`/projects/${id}/revision`, data),
+  getFiles: (id) => client.get(`/projects/${id}/files`),
 }

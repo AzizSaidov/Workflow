@@ -111,16 +111,22 @@ export default function Home() {
       statsApi.getUserLocations().catch(() => ({ data: [] })),
       statsApi.getOnlineCount().catch(() => ({ data: { count: 0 } })),
     ]).then(([locRes, onlineRes]) => {
-      const pts = locRes.data || []
       setOnlineCount(onlineRes.data?.count || 0)
-      if (user?.latitude && user?.longitude) {
-        const withMe = pts.filter(p => !(Math.abs(p.lat - user.latitude) < 0.0001 && Math.abs(p.lng - user.longitude) < 0.0001))
-        setLocations([...withMe, { lat: user.latitude, lng: user.longitude, role: 'me' }])
-      } else {
-        setLocations(pts)
-      }
+      setLocations(locRes.data || [])
     })
   }, [user?.id])
+
+  // Separate effect: adds/updates red "me" dot when geolocation arrives (async after login)
+  useEffect(() => {
+    if (!user?.latitude || !user?.longitude) return
+    setLocations(prev => {
+      const withoutMe = prev.filter(p =>
+        p.role !== 'me' &&
+        !(Math.abs((p.lat || 0) - user.latitude) < 0.001 && Math.abs((p.lng || 0) - user.longitude) < 0.001)
+      )
+      return [...withoutMe, { lat: user.latitude, lng: user.longitude, role: 'me' }]
+    })
+  }, [user?.latitude, user?.longitude])
 
   return (
     <div className="page-wrapper" style={{ background: 'var(--bg)' }}>

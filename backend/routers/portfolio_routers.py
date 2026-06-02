@@ -4,14 +4,14 @@ from sqlalchemy.orm import Session
 from database import get_db
 from portfolio.schemas import PortfolioCreate, PortfolioUpdate, PortfolioResponse
 from portfolio.views import get_user_portfolio, create_item, update_item, delete_item, like_item, unlike_item
-from users.permissions import get_current_user
+from users.permissions import get_current_user, get_optional_user
 from users.models import User
 
 portfolio_router = APIRouter(prefix="/api/portfolio", tags=["portfolio"])
 
 
 @portfolio_router.get("/{user_id}", response_model=list[PortfolioResponse])
-def list_portfolio(user_id: UUID, db: Session = Depends(get_db), _: User = Depends(get_current_user)):
+def list_portfolio(user_id: UUID, db: Session = Depends(get_db), _: User | None = Depends(get_optional_user)):
     return get_user_portfolio(user_id, db)
 
 

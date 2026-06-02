@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from database import get_db
 from users.schemas import UserCreate, LoginRequest, TokenResponse, UserResponse, UserUpdate
 from users.views import register_user, login_user, get_all_users, get_user_by_id, update_user, delete_user
-from users.permissions import get_current_user
+from users.permissions import get_current_user, get_optional_user
 from users.models import User, UserRole
 from users.auth import decode_token, create_access_token, create_refresh_token
 from stats.schemas import UserStats
@@ -91,5 +91,5 @@ def update_location(data: LocationUpdate, db: Session = Depends(get_db), current
 
 
 @users_router.get("/{user_id}", response_model=UserResponse)
-def user_profile(user_id: UUID, db: Session = Depends(get_db), _: User = Depends(get_current_user)):
+def user_profile(user_id: UUID, db: Session = Depends(get_db), _: User | None = Depends(get_optional_user)):
     return get_user_by_id(user_id, db)

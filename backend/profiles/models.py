@@ -23,6 +23,7 @@ class FreelancerProfile(Base):
     connects_balance = Column(Integer, nullable=False, default=10)
     is_verified = Column(Boolean, nullable=False, default=False)
     response_time = Column(String, nullable=True)
+    github_url = Column(String, nullable=True)
 
 
 class LanguageLevel(str, enum.Enum):

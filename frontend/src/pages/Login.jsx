@@ -27,7 +27,7 @@ export default function Login() {
   const { login, setUser, user: authUser } = useAuthStore()
   const navigate = useNavigate()
   const location = useLocation()
-  const from = location.state?.from?.pathname || '/dashboard'
+  const from = location.state?.from?.pathname || '/'
 
   const [form, setForm] = useState({ email: '', password: '' })
   const [error, setError] = useState('')
