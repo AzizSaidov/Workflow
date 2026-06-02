@@ -34,6 +34,7 @@ export default function DashboardFreelancer() {
 
   const filtered = activeTab ? bids.filter(b => b.status === activeTab) : bids
   const activeProjects = bids.filter(b => b.status === 'accepted')
+  const pendingCount = bids.filter(b => b.status === 'pending').length
 
   return (
     <div className="page-wrapper" style={{ background: 'var(--bg)' }}>
@@ -49,8 +50,10 @@ export default function DashboardFreelancer() {
             <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
               <Avatar src={user?.avatar_url} name={user?.full_name} size={56} online />
               <div>
-                <p style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 4 }}>Фрилансер</p>
-                <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 28, fontWeight: 800, letterSpacing: '-1px', color: 'var(--text-primary)' }}>
+                <p style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 3, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                  Кабинет фрилансера
+                </p>
+                <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 28, fontWeight: 800, letterSpacing: '-1px', color: 'var(--text-primary)', lineHeight: 1.1 }}>
                   {user?.full_name}
                 </h1>
                 {stats?.average_rating > 0 && (
@@ -58,17 +61,22 @@ export default function DashboardFreelancer() {
                 )}
               </div>
             </div>
-            <Link to="/projects">
-              <Button variant="primary" icon="search">Найти проекты</Button>
-            </Link>
+            <div style={{ display: 'flex', gap: 10 }}>
+              <Link to="/my-work">
+                <Button variant="outline" icon="briefcase">Мои работы</Button>
+              </Link>
+              <Link to="/projects">
+                <Button variant="primary" icon="search">Найти проекты</Button>
+              </Link>
+            </div>
           </div>
 
           {/* Stats */}
           <div className="stagger" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 36 }}>
             {[
               { icon: 'send', label: 'Всего заявок', value: stats?.total_bids ?? bids.length, color: 'var(--accent)', sub: 'подано' },
-              { icon: 'loader-2', label: 'В работе', value: stats?.active_projects ?? activeProjects.length, color: '#EF9F27', sub: 'активных проектов' },
-              { icon: 'circle-check', label: 'Завершено', value: stats?.completed_projects, color: 'var(--accent-green)', sub: 'проектов' },
+              { icon: 'loader-2', label: 'В работе', value: stats?.active_projects ?? activeProjects.length, color: '#EF9F27', sub: 'активных' },
+              { icon: 'circle-check', label: 'Завершено', value: stats?.completed_projects ?? 0, color: 'var(--accent-green)', sub: 'проектов' },
               { icon: 'coin', label: 'Заработано', value: stats?.total_earned ? '$' + Number(stats.total_earned).toLocaleString() : '$0', color: 'var(--accent-teal)', sub: 'за всё время' },
             ].map(({ icon, label, value, color, sub }) => (
               <div key={label} style={{ background: 'var(--bg-card)', border: '0.5px solid var(--border)', borderRadius: 18, padding: '22px 24px', position: 'relative', overflow: 'hidden' }}>
@@ -88,6 +96,7 @@ export default function DashboardFreelancer() {
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: 28, alignItems: 'start' }}>
+
             {/* Bids list */}
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
@@ -140,25 +149,37 @@ export default function DashboardFreelancer() {
                   <Link to="/projects"><Button variant="outline" icon="search">Найти проекты</Button></Link>
                 </div>
               ) : (
-                <div className="stagger" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                <div className="stagger" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                   {filtered.map(bid => <MyBidRow key={bid.id} bid={bid} />)}
                 </div>
               )}
             </div>
 
-            {/* Active projects sidebar */}
-            <div style={{ position: 'sticky', top: 90 }}>
+            {/* Sidebar */}
+            <div style={{ position: 'sticky', top: 90, display: 'flex', flexDirection: 'column', gap: 16 }}>
+
+              {/* Active projects */}
               <div style={{ background: 'var(--bg-card)', border: '0.5px solid var(--border)', borderRadius: 16, padding: 20 }}>
-                <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 16 }}>
-                  Активные проекты ({activeProjects.length})
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                    Активные проекты
+                  </div>
+                  {activeProjects.length > 0 && (
+                    <span style={{ fontSize: 11, fontWeight: 700, background: 'rgba(239,159,39,0.15)', color: '#EF9F27', border: '0.5px solid rgba(239,159,39,0.3)', borderRadius: 20, padding: '2px 8px' }}>
+                      {activeProjects.length}
+                    </span>
+                  )}
                 </div>
                 {activeProjects.length === 0 ? (
-                  <p style={{ fontSize: 13, color: 'var(--text-muted)' }}>Нет активных проектов</p>
+                  <div style={{ textAlign: 'center', padding: '12px 0' }}>
+                    <i className="ti ti-briefcase" style={{ fontSize: 28, color: 'var(--text-muted)', display: 'block', marginBottom: 8, opacity: 0.3 }} />
+                    <p style={{ fontSize: 12, color: 'var(--text-muted)' }}>Нет активных проектов</p>
+                  </div>
                 ) : (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                     {activeProjects.map(bid => (
                       <div key={bid.id} style={{
-                        padding: '12px 14px', borderRadius: 12,
+                        padding: '12px 14px', borderRadius: 11,
                         border: '0.5px solid var(--border)',
                         transition: 'border-color 0.2s',
                       }}
@@ -166,20 +187,17 @@ export default function DashboardFreelancer() {
                         onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border)'}
                       >
                         <Link to={`/projects/${bid.project_id}`} style={{ textDecoration: 'none' }}>
-                          <div style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-primary)', marginBottom: 8 }}>
+                          <div style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-primary)', marginBottom: 8, lineHeight: 1.4 }}>
                             {bid.project_title || 'Проект'}
                           </div>
                         </Link>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                            <Tag color="amber">В работе</Tag>
-                            <span style={{ fontFamily: 'Syne, sans-serif', fontSize: 13, fontWeight: 700, color: 'var(--accent-green)' }}>
-                              ${Number(bid.price).toLocaleString()}
-                            </span>
-                          </div>
-                          <Link to={`/chats?project=${bid.project_id}`} style={{ textDecoration: 'none', flexShrink: 0 }}>
-                            <button style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '4px 10px', borderRadius: 8, background: 'rgba(127,119,221,0.12)', border: '0.5px solid rgba(127,119,221,0.3)', color: 'var(--accent)', fontSize: 12, cursor: 'pointer', fontWeight: 500 }}>
-                              <i className="ti ti-messages" style={{ fontSize: 13 }} /> Чат
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <span style={{ fontFamily: 'Syne, sans-serif', fontSize: 13, fontWeight: 700, color: 'var(--accent-green)' }}>
+                            ${Number(bid.price).toLocaleString()}
+                          </span>
+                          <Link to={`/chats?project=${bid.project_id}`} style={{ textDecoration: 'none' }}>
+                            <button style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '4px 9px', borderRadius: 7, background: 'rgba(127,119,221,0.1)', border: '0.5px solid rgba(127,119,221,0.25)', color: 'var(--accent)', fontSize: 11, cursor: 'pointer', fontWeight: 500 }}>
+                              <i className="ti ti-messages" style={{ fontSize: 12 }} /> Чат
                             </button>
                           </Link>
                         </div>
@@ -188,8 +206,86 @@ export default function DashboardFreelancer() {
                   </div>
                 )}
               </div>
+
+              {/* Quick link — My Work */}
+              {activeProjects.length > 0 && (
+                <Link to="/my-work" style={{ textDecoration: 'none' }}>
+                  <div style={{
+                    background: 'var(--bg-card)', border: '0.5px solid var(--border)',
+                    borderRadius: 12, padding: '12px 16px',
+                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                    transition: 'border-color 0.2s',
+                    cursor: 'pointer',
+                  }}
+                    onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--border-hover)'}
+                    onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border)'}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                      <div style={{ width: 32, height: 32, borderRadius: 9, background: 'rgba(29,158,117,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <i className="ti ti-briefcase" style={{ fontSize: 15, color: 'var(--accent-green)' }} />
+                      </div>
+                      <div>
+                        <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>Мои работы</div>
+                        <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Трекер задач</div>
+                      </div>
+                    </div>
+                    <i className="ti ti-arrow-right" style={{ fontSize: 14, color: 'var(--text-muted)' }} />
+                  </div>
+                </Link>
+              )}
+
+              {/* AI Banner */}
+              <Link to="/ai" style={{ textDecoration: 'none' }}>
+                <div style={{
+                  borderRadius: 16, padding: '20px 18px', overflow: 'hidden', position: 'relative',
+                  background: isDark
+                    ? 'linear-gradient(135deg, rgba(127,119,221,0.18) 0%, rgba(93,202,165,0.1) 100%)'
+                    : 'linear-gradient(135deg, rgba(80,72,213,0.12) 0%, rgba(29,158,117,0.08) 100%)',
+                  border: '0.5px solid rgba(127,119,221,0.25)',
+                  cursor: 'pointer',
+                  transition: 'border-color 0.2s, transform 0.2s',
+                }}
+                  onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(127,119,221,0.5)'; e.currentTarget.style.transform = 'translateY(-2px)' }}
+                  onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(127,119,221,0.25)'; e.currentTarget.style.transform = 'translateY(0)' }}
+                >
+                  {/* Glow orb */}
+                  <div style={{ position: 'absolute', top: -20, right: -20, width: 100, height: 100, borderRadius: '50%', background: 'radial-gradient(circle, rgba(127,119,221,0.3) 0%, transparent 70%)', pointerEvents: 'none' }} />
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10, position: 'relative' }}>
+                    <div style={{ width: 34, height: 34, borderRadius: 10, background: 'rgba(127,119,221,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <i className="ti ti-sparkles" style={{ fontSize: 17, color: '#7F77DD' }} />
+                    </div>
+                    <div>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)' }}>AI Ассистент</div>
+                      <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Powered by Llama 3.3</div>
+                    </div>
+                  </div>
+
+                  <p style={{ fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: 12, position: 'relative' }}>
+                    Помогу написать заявку, улучшить описание проекта или ответить на вопросы.
+                  </p>
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 12, fontWeight: 600, color: 'var(--accent)', position: 'relative' }}>
+                    Открыть ассистента
+                    <i className="ti ti-arrow-right" style={{ fontSize: 13 }} />
+                  </div>
+                </div>
+              </Link>
+
+              {/* Pending bids hint */}
+              {pendingCount > 0 && (
+                <div style={{ background: 'var(--bg-card)', border: '0.5px solid rgba(127,119,221,0.15)', borderRadius: 12, padding: '12px 16px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <div style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--accent)', boxShadow: '0 0 6px var(--accent)', flexShrink: 0 }} />
+                    <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+                      <span style={{ color: 'var(--text-primary)', fontWeight: 600 }}>{pendingCount}</span> заявок ожидают рассмотрения
+                    </span>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
+
         </div>
       </div>
 
@@ -217,8 +313,8 @@ function MyBidRow({ bid }) {
         onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--border-hover)'; e.currentTarget.style.transform = 'translateX(3px)' }}
         onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.transform = 'translateX(0)' }}
       >
-        <div style={{ flex: 1 }}>
-          <div style={{ fontSize: 15, fontWeight: 500, color: 'var(--text-primary)', marginBottom: 5 }}>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 5, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
             {bid.project_title || `Проект #${bid.project_id?.slice(0, 8)}`}
           </div>
           {bid.cover_letter && (
