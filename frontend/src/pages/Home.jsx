@@ -10,8 +10,9 @@ import Globe from '../components/Globe'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
 import ProjectCard from '../components/ProjectCard'
-import FreelancerCard from '../components/FreelancerCard'
 import Tag from '../components/Tag'
+import Avatar from '../components/Avatar'
+import Rating from '../components/Rating'
 
 // --- Count-up hook ---
 function useCountUp(target, duration = 1800, started = false) {
@@ -123,7 +124,7 @@ export default function Home() {
   useEffect(() => {
     statsApi.getGlobal().then(r => setStats(r.data)).catch(() => {})
     statsApi.getRecentProjects().then(r => setProjects(r.data?.slice(0, 6) || [])).catch(() => {})
-    statsApi.getTopFreelancers().then(r => setFreelancers(r.data?.slice(0, 4) || [])).catch(() => {})
+    statsApi.getTopFreelancers().then(r => setFreelancers(r.data?.slice(0, 10) || [])).catch(() => {})
     categoriesApi.getAll().then(r => setCategories(r.data || [])).catch(() => {})
     Promise.all([
       statsApi.getUserLocations().catch(() => ({ data: [] })),
@@ -358,26 +359,152 @@ export default function Home() {
         </section>
       )}
 
-      {/* ===== TOP FREELANCERS ===== */}
+      {/* ===== TOP FREELANCERS LEADERBOARD ===== */}
       {freelancers.length > 0 && (
         <section style={{ position: 'relative', zIndex: 2, padding: '72px 0' }}>
           <div className="container">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 36 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 48 }}>
               <div>
-                <Tag color="amber" style={{ marginBottom: 12 }}>Топ таланты</Tag>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+                  <div style={{ width: 28, height: 28, borderRadius: 8, background: 'rgba(245,197,24,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <i className="ti ti-trophy" style={{ fontSize: 14, color: '#F5C518' }} />
+                  </div>
+                  <Tag color="amber">Таблица лидеров</Tag>
+                </div>
                 <h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: 34, fontWeight: 800, letterSpacing: '-1.5px', color: 'var(--text-primary)' }}>
                   Лучшие фрилансеры
                 </h2>
               </div>
               <Link to="/freelancers">
                 <button className="btn btn-outline btn-sm" style={{ gap: 6 }}>
-                  Все таланты <i className="ti ti-arrow-right" />
+                  Полный рейтинг <i className="ti ti-arrow-right" />
                 </button>
               </Link>
             </div>
-            <div className="stagger" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 20 }}>
-              {freelancers.map(f => <FreelancerCard key={f.user_id} freelancer={f} />)}
-            </div>
+
+            {/* Podium top 3 */}
+            {(() => {
+              const MEDAL = {
+                1: { color: '#F5C518', glow: 'rgba(245,197,24,0.2)' },
+                2: { color: '#B0B8C8', glow: 'rgba(176,184,200,0.15)' },
+                3: { color: '#CD8B5A', glow: 'rgba(205,139,90,0.15)' },
+              }
+              const top = freelancers.slice(0, 10)
+              const podium = top.length >= 3
+                ? [{ f: top[1], rank: 2, offset: 40 }, { f: top[0], rank: 1, offset: 0 }, { f: top[2], rank: 3, offset: 72 }]
+                : top.slice(0, 3).map((f, i) => ({ f, rank: i + 1, offset: i * 40 }))
+
+              return (
+                <div>
+                  {/* Podium row */}
+                  <div style={{ display: 'flex', gap: 20, alignItems: 'flex-start', paddingTop: 28, marginBottom: 20 }}>
+                    {podium.map(({ f, rank, offset }) => {
+                      const m = MEDAL[rank]
+                      return (
+                        <Link key={f.user_id} to={`/profile/${f.user_id}`} style={{ textDecoration: 'none', flex: 1 }}>
+                          <div
+                            style={{
+                              background: 'var(--bg-card)',
+                              border: `1.5px solid ${m.color}50`,
+                              borderRadius: rank === 1 ? 20 : 16,
+                              padding: rank === 1 ? '28px 20px 22px' : '22px 16px 18px',
+                              display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10,
+                              marginTop: offset,
+                              position: 'relative',
+                              boxShadow: rank === 1 ? `0 8px 36px ${m.glow}` : `0 4px 18px ${m.glow}`,
+                              transition: 'transform 0.2s, border-color 0.2s',
+                              cursor: 'pointer',
+                            }}
+                            onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.borderColor = `${m.color}90` }}
+                            onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.borderColor = `${m.color}50` }}
+                          >
+                            {rank === 1 && (
+                              <div style={{ position: 'absolute', top: -26, left: '50%', transform: 'translateX(-50%)' }}>
+                                <i className="ti ti-crown" style={{ fontSize: 22, color: m.color }} />
+                              </div>
+                            )}
+                            <div style={{
+                              position: 'absolute', top: -12, left: '50%', transform: 'translateX(-50%)',
+                              minWidth: 26, height: 26, borderRadius: 13,
+                              background: m.color, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                              fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 12, color: '#0a0a0a',
+                              padding: '0 7px', boxShadow: `0 3px 10px ${m.glow}`,
+                            }}>
+                              #{rank}
+                            </div>
+                            <div style={{ marginTop: 8 }}>
+                              <Avatar src={f.avatar_url} name={f.full_name} size={rank === 1 ? 72 : 58} online={f.is_online} />
+                            </div>
+                            <div style={{ textAlign: 'center' }}>
+                              <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: rank === 1 ? 15 : 13, color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 130 }}>
+                                {f.full_name}
+                              </div>
+                            </div>
+                            {f.rating > 0 && <Rating value={Number(f.rating)} size={10} />}
+                            <div style={{ display: 'flex', gap: 14 }}>
+                              <div style={{ textAlign: 'center' }}>
+                                <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 15, color: m.color }}>{Number(f.rating).toFixed(1)}</div>
+                                <div style={{ fontSize: 10, color: 'var(--text-muted)' }}>рейтинг</div>
+                              </div>
+                              {f.total_jobs > 0 && (
+                                <div style={{ textAlign: 'center' }}>
+                                  <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 15, color: 'var(--text-primary)' }}>{f.total_jobs}</div>
+                                  <div style={{ fontSize: 10, color: 'var(--text-muted)' }}>работ</div>
+                                </div>
+                              )}
+                            </div>
+                            <div style={{
+                              height: offset === 0 ? 48 : offset === 40 ? 30 : 14,
+                              width: '100%', background: `linear-gradient(180deg, ${m.color}18 0%, transparent 100%)`,
+                              borderRadius: '0 0 8px 8px', position: 'absolute', bottom: -1, left: 0,
+                            }} />
+                          </div>
+                        </Link>
+                      )
+                    })}
+                  </div>
+
+                  {/* Rows 4–10 */}
+                  {top.slice(3).length > 0 && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                      {top.slice(3).map((f, i) => (
+                        <Link key={f.user_id} to={`/profile/${f.user_id}`} style={{ textDecoration: 'none' }}>
+                          <div
+                            style={{
+                              background: 'var(--bg-card)', border: '0.5px solid var(--border)', borderRadius: 14,
+                              padding: '14px 20px', display: 'flex', alignItems: 'center', gap: 16,
+                              transition: 'border-color 0.15s, transform 0.15s', cursor: 'pointer',
+                            }}
+                            onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--border-hover)'; e.currentTarget.style.transform = 'translateX(4px)' }}
+                            onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.transform = 'translateX(0)' }}
+                          >
+                            <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 20, color: 'var(--accent)', width: 36, textAlign: 'center', flexShrink: 0 }}>{i + 4}</div>
+                            <Avatar src={f.avatar_url} name={f.full_name} size={40} online={f.is_online} />
+                            <div style={{ flex: 1 }}>
+                              <div style={{ fontWeight: 600, fontSize: 14, color: 'var(--text-primary)', marginBottom: 2 }}>{f.full_name}</div>
+                              <Rating value={Number(f.rating)} size={10} />
+                            </div>
+                            <div style={{ display: 'flex', gap: 20, alignItems: 'center' }}>
+                              <div style={{ textAlign: 'center' }}>
+                                <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 15, color: 'var(--text-primary)' }}>{Number(f.rating).toFixed(1)}</div>
+                                <div style={{ fontSize: 10, color: 'var(--text-muted)' }}>рейтинг</div>
+                              </div>
+                              {f.total_jobs > 0 && (
+                                <div style={{ textAlign: 'center' }}>
+                                  <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 15, color: 'var(--text-primary)' }}>{f.total_jobs}</div>
+                                  <div style={{ fontSize: 10, color: 'var(--text-muted)' }}>работ</div>
+                                </div>
+                              )}
+                            </div>
+                            <i className="ti ti-chevron-right" style={{ fontSize: 16, color: 'var(--text-muted)' }} />
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )
+            })()}
           </div>
         </section>
       )}

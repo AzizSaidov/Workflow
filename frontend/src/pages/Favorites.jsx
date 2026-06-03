@@ -56,15 +56,23 @@ export default function Favorites() {
   useEffect(() => { load() }, [])
 
   const removeFreelancer = async (favId, freelancerId) => {
-    await favoritesApi.removeFreelancer(freelancerId).catch(() => {})
-    setFreelancers(prev => prev.filter(f => f.fav.id !== favId))
-    toast('Удалено из избранного', 'info')
+    try {
+      await favoritesApi.removeFreelancer(freelancerId)
+      setFreelancers(prev => prev.filter(f => f.fav.id !== favId))
+      toast('Удалено из избранного', 'info')
+    } catch (err) {
+      toast(err.response?.data?.detail || 'Не удалось удалить из избранного', 'error')
+    }
   }
 
   const removeProject = async (favId, projectId) => {
-    await favoritesApi.removeProject(projectId).catch(() => {})
-    setProjects(prev => prev.filter(p => p.fav.id !== favId))
-    toast('Удалено из избранного', 'info')
+    try {
+      await favoritesApi.removeProject(projectId)
+      setProjects(prev => prev.filter(p => p.fav.id !== favId))
+      toast('Удалено из избранного', 'info')
+    } catch (err) {
+      toast(err.response?.data?.detail || 'Не удалось удалить из избранного', 'error')
+    }
   }
 
   return (
@@ -189,7 +197,7 @@ function FreelancerFavCard({ user, profile, isDark, onRemove }) {
       onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border)'}
     >
       <Link to={`/profile/${user.id}`} style={{ display: 'flex', alignItems: 'center', gap: 14, flex: 1, textDecoration: 'none', minWidth: 0 }}>
-        <Avatar src={user.avatar_url} name={user.full_name} size={52} online />
+        <Avatar src={user.avatar_url} name={user.full_name} size={52} />
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 2 }}>
             {user.full_name}

@@ -68,9 +68,11 @@ def get_my_stats(user: User, db: Session) -> UserStats:
     completed_projects = db.query(func.count(Project.id)).filter(
         Project.assigned_freelancer_id == user.id, Project.status == ProjectStatus.completed
     ).scalar() or 0
-    total_earned = db.query(func.coalesce(func.sum(Transaction.amount), 0)).filter(
+    commission_rate = Decimal(os.getenv("PLATFORM_COMMISSION_RATE", "0.01"))
+    total_earned_raw = db.query(func.coalesce(func.sum(Transaction.amount), 0)).filter(
         Transaction.freelancer_id == user.id, Transaction.status == EscrowStatus.released
     ).scalar() or Decimal(0)
+    total_earned = Decimal(str(total_earned_raw)) * (1 - commission_rate)
     profile = db.query(FreelancerProfile).filter(FreelancerProfile.user_id == user.id).first()
     average_rating = Decimal(str(profile.rating)) if profile else Decimal(0)
     return UserStats(
@@ -87,7 +89,10 @@ def get_top_freelancers(db: Session) -> list[TopFreelancerResponse]:
     rows = (
         db.query(FreelancerProfile, User)
         .join(User, User.id == FreelancerProfile.user_id)
-        .order_by(FreelancerProfile.rating.desc())
+        .filter(FreelancerProfile.rating > 0)
+        .order_by(
+            (FreelancerProfile.rating * func.ln(func.greatest(FreelancerProfile.total_jobs, 0) + 2)).desc()
+        )
         .limit(10)
         .all()
     )

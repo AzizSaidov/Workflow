@@ -18,6 +18,12 @@ def create_bid(project_id: UUID, data: BidCreate, freelancer: User, db: Session)
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found")
     if project.status != ProjectStatus.open:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Project is not open for bids")
+    if float(data.price) <= 0:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Ставка должна быть больше нуля")
+    if float(data.price) < float(project.budget_min):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Ставка не может быть ниже минимального бюджета (${project.budget_min})")
+    if float(data.price) > float(project.budget_max):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Ставка не может превышать максимальный бюджет (${project.budget_max})")
     existing = db.query(Bid).filter(Bid.project_id == project_id, Bid.freelancer_id == freelancer.id).first()
     if existing:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="You already bid on this project")
@@ -110,6 +116,10 @@ def accept_bid(bid_id: UUID, current_user: User, db: Session) -> Bid:
     db.commit()
     db.refresh(bid)
     return bid
+
+
+def get_my_bid_for_project(project_id: UUID, user: User, db: Session):
+    return db.query(Bid).filter(Bid.project_id == project_id, Bid.freelancer_id == user.id).first()
 
 
 def reject_bid(bid_id: UUID, current_user: User, db: Session) -> Bid:

@@ -285,18 +285,7 @@ export default function DashboardClient() {
             </div>
           ) : (
             <div className="stagger" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 18 }}>
-              {filtered.map(p => (
-                <div key={p.id} style={{ position: 'relative' }}>
-                  <ProjectCard project={p} />
-                  {p.status === 'in_progress' && (
-                    <Link to={`/chats?project=${p.id}`} style={{ textDecoration: 'none', position: 'absolute', bottom: 14, right: 14 }}>
-                      <button style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '5px 11px', borderRadius: 8, background: 'rgba(127,119,221,0.13)', border: '0.5px solid rgba(127,119,221,0.35)', color: 'var(--accent)', fontSize: 12, cursor: 'pointer', fontWeight: 500 }}>
-                        <i className="ti ti-messages" style={{ fontSize: 13 }} /> Чат
-                      </button>
-                    </Link>
-                  )}
-                </div>
-              ))}
+              {filtered.map(p => <ProjectCard key={p.id} project={p} />)}
             </div>
           )}
         </div>

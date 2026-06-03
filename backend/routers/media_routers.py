@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, UploadFile, File
 from sqlalchemy.orm import Session
 from fastapi.responses import FileResponse
 from database import get_db
-from media.views import upload_avatar, upload_file, upload_delivery, get_project_files, serve_file
+from media.views import upload_avatar, upload_file, upload_delivery, upload_project_file, get_project_files, serve_file
 from media.models import ProjectFile
 from users.permissions import get_current_user
 from users.models import User
@@ -44,6 +44,11 @@ def file_upload(file: UploadFile = File(...), _: User = Depends(get_current_user
 @media_router.post("/project/{project_id}/delivery", response_model=ProjectFileResponse, status_code=201)
 def deliver_project(project_id: UUID, file: UploadFile = File(...), db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     return upload_delivery(project_id, file, current_user, db)
+
+
+@media_router.post("/project/{project_id}/upload", response_model=ProjectFileResponse, status_code=201)
+def upload_project(project_id: UUID, file: UploadFile = File(...), db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    return upload_project_file(project_id, file, current_user, db)
 
 
 @media_router.get("/project/{project_id}/files", response_model=list[ProjectFileResponse])

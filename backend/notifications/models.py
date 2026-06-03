@@ -13,6 +13,7 @@ class NotificationType(str, enum.Enum):
     payment_received = "payment_received"
     new_review = "new_review"
     project_disputed = "project_disputed"
+    revision_requested = "revision_requested"
 
 
 class Notification(Base):

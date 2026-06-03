@@ -37,6 +37,7 @@ export default function Wallet() {
 
   useEffect(() => { load() }, [])
 
+  const COMMISSION = 0.01
   const isClient = (tx) => tx.client_id === user?.id
   const txType = (tx) => isClient(tx) ? 'Оплата проекта' : 'Получение оплаты'
   const txSign = (tx) => {
@@ -46,6 +47,20 @@ export default function Wallet() {
   const txColor = (tx) => {
     if (tx.status === 'released') return isClient(tx) ? '#F87171' : 'var(--accent-green)'
     return 'var(--text-muted)'
+  }
+  // Freelancer receives amount minus platform commission; client pays full amount
+  const txDisplayAmount = (tx) => {
+    if (tx.status === 'released' && !isClient(tx)) {
+      return (Number(tx.amount) * (1 - COMMISSION)).toLocaleString(undefined, { maximumFractionDigits: 2 })
+    }
+    return Number(tx.amount).toLocaleString()
+  }
+  const txSubNote = (tx) => {
+    if (tx.status === 'released' && !isClient(tx)) {
+      const fee = (Number(tx.amount) * COMMISSION).toFixed(2)
+      return `комиссия платформы $${fee}`
+    }
+    return null
   }
 
   return (
@@ -169,8 +184,13 @@ export default function Wallet() {
                             {txType(tx)}
                           </div>
                         </td>
-                        <td style={{ padding: '14px 24px', fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 15, color: txColor(tx) }}>
-                          {txSign(tx)}${Number(tx.amount).toLocaleString()}
+                        <td style={{ padding: '14px 24px' }}>
+                          <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 15, color: txColor(tx) }}>
+                            {txSign(tx)}${txDisplayAmount(tx)}
+                          </div>
+                          {txSubNote(tx) && (
+                            <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 2 }}>{txSubNote(tx)}</div>
+                          )}
                         </td>
                         <td style={{ padding: '14px 24px' }}>
                           <Tag color={st.color}>{st.label}</Tag>

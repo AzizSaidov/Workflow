@@ -81,6 +81,30 @@ def upload_delivery(project_id: UUID, file: UploadFile, uploader: User, db: Sess
     return pf
 
 
+def upload_project_file(project_id: UUID, file: UploadFile, uploader: User, db: Session) -> ProjectFile:
+    project = db.query(Project).filter(Project.id == project_id).first()
+    if not project:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found")
+    if project.client_id != uploader.id and project.assigned_freelancer_id != uploader.id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not a project participant")
+    if project.status in (ProjectStatus.cancelled,):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Cannot upload files to a cancelled project")
+    if project.client_id != uploader.id and project.status not in (ProjectStatus.in_progress, ProjectStatus.delivered, ProjectStatus.completed):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Can only upload files to active projects")
+    stored_name, original_name, file_type = _validate_and_save(file)
+    pf = ProjectFile(
+        project_id=project_id,
+        uploader_id=uploader.id,
+        original_name=original_name,
+        stored_name=stored_name,
+        file_type=file_type,
+    )
+    db.add(pf)
+    db.commit()
+    db.refresh(pf)
+    return pf
+
+
 def get_project_files(project_id: UUID, db: Session) -> list[ProjectFile]:
     return db.query(ProjectFile).filter(ProjectFile.project_id == project_id).order_by(ProjectFile.created_at.desc()).all()
 

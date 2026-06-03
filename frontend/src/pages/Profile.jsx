@@ -25,48 +25,6 @@ const LEVEL_LABEL = { basic: 'Базовый', conversational: 'Разговор
 const EMPTY_PORTFOLIO = { title: '', description: '', project_url: '', image_url: '' }
 const EMPTY_CERT = { title: '', issuer: '', issue_date: '', credential_url: '' }
 
-function GitHubButton({ url }) {
-  const username = url.replace(/https?:\/\/(www\.)?github\.com\/?/, '').replace(/\/$/, '') || url
-  return (
-    <a
-      href={url} target="_blank" rel="noreferrer"
-      style={{
-        display: 'flex', alignItems: 'center', gap: 14,
-        padding: '14px 18px', borderRadius: 16,
-        background: '#161B22',
-        border: '1px solid rgba(255,255,255,0.08)',
-        color: '#fff', textDecoration: 'none',
-        boxShadow: '0 4px 20px rgba(0,0,0,0.35)',
-        transition: 'all 0.22s',
-      }}
-      onMouseEnter={e => {
-        e.currentTarget.style.border = '1px solid rgba(127,119,221,0.55)'
-        e.currentTarget.style.boxShadow = '0 6px 28px rgba(0,0,0,0.45), 0 0 0 1px rgba(127,119,221,0.2)'
-        e.currentTarget.style.transform = 'translateY(-2px)'
-      }}
-      onMouseLeave={e => {
-        e.currentTarget.style.border = '1px solid rgba(255,255,255,0.08)'
-        e.currentTarget.style.boxShadow = '0 4px 20px rgba(0,0,0,0.35)'
-        e.currentTarget.style.transform = 'none'
-      }}
-    >
-      <div style={{
-        width: 44, height: 44, borderRadius: 12, flexShrink: 0,
-        background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center',
-      }}>
-        <i className="ti ti-brand-github" style={{ fontSize: 24, color: '#161B22' }} />
-      </div>
-      <div style={{ flex: 1, overflow: 'hidden' }}>
-        <div style={{ fontSize: 14, fontWeight: 700, color: '#fff', letterSpacing: '-0.2px' }}>GitHub</div>
-        <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.38)', marginTop: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-          @{username}
-        </div>
-      </div>
-      <i className="ti ti-arrow-right" style={{ fontSize: 16, color: 'rgba(255,255,255,0.3)', flexShrink: 0 }} />
-    </a>
-  )
-}
-
 function SkillSelector({ selected = [], onAdd, onRemove }) {
   const [all, setAll] = useState([])
   const [open, setOpen] = useState(false)
@@ -86,60 +44,29 @@ function SkillSelector({ selected = [], onAdd, onRemove }) {
       {selected.length > 0 && (
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
           {selected.map(s => (
-            <div key={s.id} style={{
-              display: 'flex', alignItems: 'center', gap: 5,
-              padding: '4px 10px 4px 12px', borderRadius: 20, fontSize: 13,
-              background: 'rgba(127,119,221,0.12)', border: '0.5px solid rgba(127,119,221,0.25)',
-              color: 'var(--text-primary)',
-            }}>
+            <div key={s.id} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '4px 10px 4px 12px', borderRadius: 20, fontSize: 13, background: 'rgba(127,119,221,0.12)', border: '0.5px solid rgba(127,119,221,0.25)', color: 'var(--text-primary)' }}>
               {s.name}
-              <button onClick={() => onRemove(s.skill_id)} style={{
-                background: 'none', border: 'none', cursor: 'pointer',
-                color: 'var(--text-muted)', fontSize: 14, lineHeight: 1, padding: 0, marginLeft: 2,
-              }}>×</button>
+              <button onClick={() => onRemove(s.skill_id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', fontSize: 14, lineHeight: 1, padding: 0, marginLeft: 2 }}>×</button>
             </div>
           ))}
         </div>
       )}
       {!open ? (
-        <button onClick={() => setOpen(true)} style={{
-          display: 'inline-flex', alignItems: 'center', gap: 6, alignSelf: 'flex-start',
-          padding: '6px 14px', borderRadius: 10, fontSize: 13,
-          border: '0.5px solid rgba(127,119,221,0.35)', background: 'transparent',
-          color: 'var(--accent)', cursor: 'pointer',
-        }}>
+        <button onClick={() => setOpen(true)} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, alignSelf: 'flex-start', padding: '6px 14px', borderRadius: 10, fontSize: 13, border: '0.5px solid rgba(127,119,221,0.35)', background: 'transparent', color: 'var(--accent)', cursor: 'pointer' }}>
           <i className="ti ti-plus" style={{ fontSize: 13 }} /> Добавить навык
         </button>
       ) : (
         <div style={{ display: 'flex', gap: 8 }}>
-          <input
-            autoFocus
-            className="input"
-            placeholder="Поиск навыка..."
-            value={query}
-            onChange={e => setQuery(e.target.value)}
-            style={{ flex: 1, fontSize: 13 }}
-          />
-          <button onClick={() => { setOpen(false); setQuery('') }} style={{
-            padding: '0 12px', borderRadius: 10, border: '0.5px solid var(--border)',
-            background: 'transparent', color: 'var(--text-muted)', cursor: 'pointer', fontSize: 13,
-          }}>✕</button>
+          <input autoFocus className="input" placeholder="Поиск навыка..." value={query} onChange={e => setQuery(e.target.value)} style={{ flex: 1, fontSize: 13 }} />
+          <button onClick={() => { setOpen(false); setQuery('') }} style={{ padding: '0 12px', borderRadius: 10, border: '0.5px solid var(--border)', background: 'transparent', color: 'var(--text-muted)', cursor: 'pointer', fontSize: 13 }}>✕</button>
         </div>
       )}
       {open && (
-        <div style={{
-          display: 'flex', flexWrap: 'wrap', gap: 6,
-          padding: 12, borderRadius: 10, background: 'var(--bg)',
-          border: '0.5px solid var(--border)', maxHeight: 130, overflowY: 'auto',
-        }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, padding: 12, borderRadius: 10, background: 'var(--bg)', border: '0.5px solid var(--border)', maxHeight: 130, overflowY: 'auto' }}>
           {available.length === 0
             ? <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>{query ? 'Ничего не найдено' : 'Все навыки уже добавлены'}</span>
             : available.slice(0, 20).map(s => (
-              <button key={s.id} onClick={() => { onAdd(s.id); setQuery('') }} style={{
-                padding: '4px 12px', borderRadius: 20, fontSize: 12,
-                background: 'rgba(127,119,221,0.08)', border: '0.5px solid rgba(127,119,221,0.2)',
-                color: 'var(--accent)', cursor: 'pointer',
-              }}>
+              <button key={s.id} onClick={() => { onAdd(s.id); setQuery('') }} style={{ padding: '4px 12px', borderRadius: 20, fontSize: 12, background: 'rgba(127,119,221,0.08)', border: '0.5px solid rgba(127,119,221,0.2)', color: 'var(--accent)', cursor: 'pointer' }}>
                 {s.name}
               </button>
             ))
@@ -168,10 +95,10 @@ export default function Profile() {
   const [loadError, setLoadError] = useState(false)
   const [isFavorited, setIsFavorited] = useState(false)
   const [favLoading, setFavLoading] = useState(false)
-
+  const [clientProjects, setClientProjects] = useState([])
   const [activeTab, setActiveTab] = useState('about')
   const [editMode, setEditMode] = useState(false)
-  const [editForm, setEditForm] = useState({ full_name: '', bio: '', title: '', hourly_rate: '', experience_years: '', github_url: '' })
+  const [editForm, setEditForm] = useState({ full_name: '', bio: '', title: '', experience_years: '', github_url: '' })
   const [saving, setSaving] = useState(false)
   const [avatarUploading, setAvatarUploading] = useState(false)
 
@@ -204,14 +131,7 @@ export default function Profile() {
       setPortfolio(po.data || []); setReviews(rv.data || [])
       setAchievements(ua.data || []); setAllAchievements(aa.data || [])
       if (p.data) {
-        setEditForm({
-          full_name: u.data?.full_name || '',
-          bio: u.data?.bio || '',
-          title: p.data.title || '',
-          hourly_rate: p.data.hourly_rate || '',
-          experience_years: p.data.experience_years || '',
-          github_url: p.data.github_url || '',
-        })
+        setEditForm({ full_name: u.data?.full_name || '', bio: u.data?.bio || '', title: p.data.title || '', experience_years: p.data.experience_years || '', github_url: p.data.github_url || '' })
         certificationsApi.getByProfile(p.data.id).then(r => setCertifications(r.data || [])).catch(() => {})
       }
     }).catch(() => setLoadError(true)).finally(() => setLoading(false))
@@ -221,10 +141,15 @@ export default function Profile() {
 
   useEffect(() => {
     if (!me || me.id === id) return
-    favoritesApi.getAll()
-      .then(r => setIsFavorited((r.data || []).some(f => f.freelancer_id === id)))
-      .catch(() => {})
+    favoritesApi.getAll().then(r => setIsFavorited((r.data || []).some(f => f.freelancer_id === id))).catch(() => {})
   }, [id, me])
+
+  useEffect(() => {
+    if (!userData || userData.role !== 'client') return
+    client.get(`/projects/?client_id=${id}&limit=20`)
+      .then(r => setClientProjects(r.data?.items || r.data || []))
+      .catch(() => {})
+  }, [userData?.id])
 
   const handleSaveProfile = async () => {
     setSaving(true)
@@ -236,7 +161,6 @@ export default function Profile() {
       if (isFreelancer) {
         await profilesApi.updateMe({
           title: editForm.title || undefined,
-          hourly_rate: parseFloat(editForm.hourly_rate) || undefined,
           experience_years: parseInt(editForm.experience_years) || undefined,
           github_url: editForm.github_url || null,
         })
@@ -256,20 +180,11 @@ export default function Profile() {
     } catch {} finally { setAvatarUploading(false) }
   }
 
-  const handleAddSkill = async (skillId) => {
-    try { await profilesApi.addSkill(skillId); load() } catch {}
-  }
-  const handleRemoveSkill = async (skillId) => {
-    try { await profilesApi.removeSkill(skillId); load() } catch {}
-  }
-  const handleAddLanguage = async (langId, level) => {
-    try { await profilesApi.addLanguage(langId, level); load() } catch {}
-  }
-  const handleRemoveLanguage = async (langId) => {
-    try { await profilesApi.removeLanguage(langId); load() } catch {}
-  }
+  const handleAddSkill = async (skillId) => { try { await profilesApi.addSkill(skillId); load() } catch {} }
+  const handleRemoveSkill = async (skillId) => { try { await profilesApi.removeSkill(skillId); load() } catch {} }
+  const handleAddLanguage = async (langId, level) => { try { await profilesApi.addLanguage(langId, level); load() } catch {} }
+  const handleRemoveLanguage = async (langId) => { try { await profilesApi.removeLanguage(langId); load() } catch {} }
 
-  // Portfolio
   const handlePortfolioImageUpload = async (e, setter) => {
     const file = e.target.files[0]; if (!file) return
     setPortfolioImageUploading(true)
@@ -277,9 +192,9 @@ export default function Profile() {
       const form = new FormData(); form.append('file', file)
       const { data } = await client.post('/media/upload', form, { headers: { 'Content-Type': 'multipart/form-data' } })
       if (data?.url) setter(f => ({ ...f, image_url: data.url }))
-    } catch { toast('Ошибка загрузки', 'error') }
-    finally { setPortfolioImageUploading(false) }
+    } catch { toast('Ошибка загрузки', 'error') } finally { setPortfolioImageUploading(false) }
   }
+
   const handleAddPortfolio = async (e) => {
     e.preventDefault()
     if (!portfolioAddForm.title.trim()) { toast('Укажите название', 'error'); return }
@@ -287,12 +202,9 @@ export default function Profile() {
     try {
       await portfolioApi.create({ title: portfolioAddForm.title, description: portfolioAddForm.description || null, project_url: portfolioAddForm.project_url || null, image_url: portfolioAddForm.image_url || null })
       toast('Работа добавлена!', 'success'); setShowPortfolioAdd(false); setPortfolioAddForm(EMPTY_PORTFOLIO); load()
-    } catch (err) { toast(err.response?.data?.detail || 'Ошибка', 'error') }
-    finally { setPortfolioAddLoading(false) }
+    } catch (err) { toast(err.response?.data?.detail || 'Ошибка', 'error') } finally { setPortfolioAddLoading(false) }
   }
-  const handleDeletePortfolio = async (itemId) => {
-    try { await portfolioApi.delete(itemId); toast('Удалено', 'info'); load() } catch { toast('Ошибка', 'error') }
-  }
+  const handleDeletePortfolio = async (itemId) => { try { await portfolioApi.delete(itemId); toast('Удалено', 'info'); load() } catch { toast('Ошибка', 'error') } }
   const handleSavePortfolio = async (e) => {
     e.preventDefault()
     if (!editingPortfolioForm.title.trim()) { toast('Укажите название', 'error'); return }
@@ -301,11 +213,8 @@ export default function Profile() {
       toast('Сохранено', 'success'); setEditingPortfolioId(null); load()
     } catch { toast('Ошибка', 'error') }
   }
-  const handleLike = async (item) => {
-    try { if (item.liked_by_me) await portfolioApi.unlike(item.id); else await portfolioApi.like(item.id); load() } catch {}
-  }
+  const handleLike = async (item) => { try { if (item.liked_by_me) await portfolioApi.unlike(item.id); else await portfolioApi.like(item.id); load() } catch {} }
 
-  // Certifications
   const handleAddCert = async (e) => {
     e.preventDefault()
     if (!certAddForm.title.trim()) { toast('Укажите название', 'error'); return }
@@ -313,12 +222,9 @@ export default function Profile() {
     try {
       await certificationsApi.create({ profile_id: profile.id, title: certAddForm.title, issuer: certAddForm.issuer || null, issue_date: certAddForm.issue_date || null, credential_url: certAddForm.credential_url || null })
       toast('Сертификат добавлен!', 'success'); setShowCertAdd(false); setCertAddForm(EMPTY_CERT); load()
-    } catch { toast('Ошибка', 'error') }
-    finally { setCertAddLoading(false) }
+    } catch { toast('Ошибка', 'error') } finally { setCertAddLoading(false) }
   }
-  const handleDeleteCert = async (certId) => {
-    try { await certificationsApi.delete(certId); toast('Удалено', 'info'); load() } catch { toast('Ошибка', 'error') }
-  }
+  const handleDeleteCert = async (certId) => { try { await certificationsApi.delete(certId); toast('Удалено', 'info'); load() } catch { toast('Ошибка', 'error') } }
   const handleSaveCert = async (e) => {
     e.preventDefault()
     try {
@@ -350,15 +256,12 @@ export default function Profile() {
       { key: 'portfolio', label: 'Портфолио', icon: 'layout-grid', count: portfolio.length },
       { key: 'certs', label: 'Сертификаты', icon: 'certificate', count: certifications.length },
     ] : []),
+    ...(!isFreelancer ? [
+      { key: 'projects', label: 'Проекты', icon: 'briefcase', count: clientProjects.length },
+    ] : []),
     { key: 'reviews', label: 'Отзывы', icon: 'star', count: reviews.length },
     { key: 'achievements', label: 'Достижения', icon: 'trophy', count: achievements.length },
   ]
-
-  const statItems = isFreelancer && profile ? [
-    { icon: 'currency-dollar', label: 'Ставка', value: profile.hourly_rate ? `$${Number(profile.hourly_rate).toLocaleString()}/hr` : '—', color: 'var(--accent-green)' },
-    { icon: 'briefcase', label: 'Выполнено', value: profile.total_jobs || 0, color: 'var(--accent)' },
-    { icon: 'clock', label: 'Опыт', value: profile.experience_years ? `${profile.experience_years} лет` : '—', color: '#EF9F27' },
-  ] : []
 
   return (
     <div className="page-wrapper" style={{ background: 'var(--bg)' }}>
@@ -379,166 +282,196 @@ export default function Profile() {
             <span style={{ color: 'var(--text-secondary)' }}>{userData?.full_name || 'Профиль'}</span>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '290px 1fr', gap: 28, alignItems: 'start' }}>
+          {/* ══════════ HERO CARD ══════════ */}
+          <div style={{
+            background: 'var(--bg-card)',
+            border: '0.5px solid var(--border)',
+            borderRadius: 24,
+            padding: '36px 36px 32px',
+            marginBottom: 24,
+            position: 'relative',
+            overflow: 'hidden',
+          }}>
+            {/* BG decoration */}
+            <div style={{ position: 'absolute', top: -80, right: -80, width: 280, height: 280, borderRadius: '50%', background: 'rgba(127,119,221,0.05)', pointerEvents: 'none' }} />
+            <div style={{ position: 'absolute', bottom: -40, left: -40, width: 160, height: 160, borderRadius: '50%', background: 'rgba(29,158,117,0.04)', pointerEvents: 'none' }} />
 
-            {/* ── LEFT SIDEBAR ── */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 14, position: 'sticky', top: 90 }}>
+            {/* Top: avatar + name + actions */}
+            <div style={{ display: 'flex', gap: 28, alignItems: 'flex-start', flexWrap: 'wrap' }}>
 
-              {/* Profile card */}
-              <div style={{ background: 'var(--bg-card)', border: '0.5px solid var(--border)', borderRadius: 20, padding: '28px 22px', textAlign: 'center' }}>
-
-                {/* Avatar */}
-                <div style={{ position: 'relative', display: 'inline-block', marginBottom: 16 }}>
-                  <div style={{ position: 'relative' }}>
-                    <Avatar src={userData?.avatar_url} name={userData?.full_name} size={88} />
-                    {isOwnProfile && (
-                      <>
-                        <label htmlFor="avatar-input" style={{
-                          position: 'absolute', inset: 0, borderRadius: '50%',
-                          background: avatarUploading ? 'rgba(0,0,0,0.55)' : 'rgba(0,0,0,0)',
-                          display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          cursor: 'pointer', transition: 'background 0.2s',
-                        }}
-                          onMouseEnter={e => e.currentTarget.style.background = 'rgba(0,0,0,0.5)'}
-                          onMouseLeave={e => e.currentTarget.style.background = avatarUploading ? 'rgba(0,0,0,0.55)' : 'rgba(0,0,0,0)'}
-                        >
-                          {avatarUploading
-                            ? <i className="ti ti-loader-2" style={{ color: '#fff', fontSize: 20, animation: 'spin 0.8s linear infinite' }} />
-                            : <i className="ti ti-camera" style={{ color: '#fff', fontSize: 20 }} />}
-                        </label>
-                        <input id="avatar-input" type="file" accept="image/*" style={{ display: 'none' }} onChange={handleAvatarUpload} />
-                      </>
-                    )}
-                  </div>
-                  {profile?.is_verified && (
-                    <div style={{
-                      position: 'absolute', bottom: 2, right: 2,
-                      width: 24, height: 24, borderRadius: '50%',
-                      background: 'var(--bg-card)', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      boxShadow: '0 0 0 2px var(--bg-card)',
-                    }}>
-                      <i className="ti ti-rosette-discount-check" style={{ fontSize: 18, color: 'var(--accent-green)' }} />
-                    </div>
-                  )}
-                </div>
-
-                {/* Name */}
-                <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 20, fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.5px', marginBottom: 4 }}>
-                  {userData?.full_name}
-                </h1>
-
-                {/* Title */}
-                {profile?.title && (
-                  <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 10, lineHeight: 1.4 }}>{profile.title}</p>
-                )}
-
-                {/* Rating */}
-                {profile?.rating > 0 && (
-                  <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 12 }}>
-                    <Rating value={profile.rating} count={profile.total_jobs} size={13} />
-                  </div>
-                )}
-
-                {/* Role tag */}
-                <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginBottom: 18 }}>
-                  <Tag color={isFreelancer ? 'purple' : 'green'}>{isFreelancer ? 'Фрилансер' : 'Заказчик'}</Tag>
-                </div>
-
-                {/* Actions */}
-                {isOwnProfile && !editMode && (
-                  <button onClick={() => { setEditMode(true); setActiveTab('about') }} style={{
-                    width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7,
-                    padding: '10px 16px', borderRadius: 10, fontSize: 13, fontWeight: 500,
-                    border: '0.5px solid var(--border)', background: 'transparent',
-                    color: 'var(--text-secondary)', cursor: 'pointer',
-                  }}
-                    onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--border-hover)'; e.currentTarget.style.color = 'var(--accent)' }}
-                    onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--text-secondary)' }}
-                  >
-                    <i className="ti ti-pencil" style={{ fontSize: 14 }} />
-                    Редактировать
-                  </button>
-                )}
-
-                {!isOwnProfile && me && (
-                  <button
-                    onClick={async () => {
-                      setFavLoading(true)
-                      try {
-                        if (isFavorited) { await favoritesApi.removeFreelancer(id); setIsFavorited(false); toast('Удалено из избранного', 'info') }
-                        else { await favoritesApi.addFreelancer(id); setIsFavorited(true); toast('Добавлено в избранное!', 'success') }
-                      } catch {} finally { setFavLoading(false) }
+              {/* Avatar with upload overlay */}
+              <div style={{ position: 'relative', flexShrink: 0 }}>
+                <Avatar src={userData?.avatar_url} name={userData?.full_name} size={110} />
+                {isOwnProfile && (
+                  <>
+                    <label htmlFor="avatar-input" style={{
+                      position: 'absolute', inset: 0, borderRadius: '50%',
+                      background: avatarUploading ? 'rgba(0,0,0,0.55)' : 'rgba(0,0,0,0)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      cursor: 'pointer', transition: 'background 0.2s',
                     }}
-                    disabled={favLoading}
-                    style={{
-                      width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                      padding: '10px 16px', borderRadius: 10, fontSize: 13, fontWeight: 500,
-                      cursor: favLoading ? 'not-allowed' : 'pointer',
-                      border: isFavorited ? '0.5px solid rgba(248,113,113,0.4)' : '0.5px solid var(--border)',
-                      background: isFavorited ? 'rgba(248,113,113,0.08)' : 'transparent',
-                      color: isFavorited ? '#F87171' : 'var(--text-secondary)',
-                    }}
-                  >
-                    <i className={`ti ti-heart${isFavorited ? '-filled' : ''}`} style={{ fontSize: 15 }} />
-                    {favLoading ? '...' : isFavorited ? 'В избранном' : 'В избранное'}
-                  </button>
+                      onMouseEnter={e => e.currentTarget.style.background = 'rgba(0,0,0,0.5)'}
+                      onMouseLeave={e => e.currentTarget.style.background = avatarUploading ? 'rgba(0,0,0,0.55)' : 'rgba(0,0,0,0)'}
+                    >
+                      {avatarUploading
+                        ? <i className="ti ti-loader-2" style={{ color: '#fff', fontSize: 22, animation: 'spin 0.8s linear infinite' }} />
+                        : <i className="ti ti-camera" style={{ color: '#fff', fontSize: 22 }} />}
+                    </label>
+                    <input id="avatar-input" type="file" accept="image/*" style={{ display: 'none' }} onChange={handleAvatarUpload} />
+                  </>
+                )}
+                {profile?.is_verified && (
+                  <div style={{ position: 'absolute', bottom: 4, right: 4, width: 26, height: 26, borderRadius: '50%', background: 'var(--bg-card)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 0 0 2px var(--bg-card)' }}>
+                    <i className="ti ti-rosette-discount-check" style={{ fontSize: 20, color: 'var(--accent-green)' }} />
+                  </div>
                 )}
               </div>
 
-              {/* GitHub button */}
-              {profile?.github_url && <GitHubButton url={profile.github_url} />}
+              {/* Name + title + role + actions */}
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
+                  <div>
+                    <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 28, fontWeight: 800, letterSpacing: '-0.8px', color: 'var(--text-primary)', lineHeight: 1.15, marginBottom: 6 }}>
+                      {userData?.full_name}
+                    </h1>
+                    {profile?.title && <p style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 10 }}>{profile.title}</p>}
+                    <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
+                      <Tag color={isFreelancer ? 'purple' : 'green'}>{isFreelancer ? 'Фрилансер' : 'Заказчик'}</Tag>
+                      {profile?.rating > 0 && <Rating value={profile.rating} count={profile.total_jobs} size={13} />}
+                    </div>
+                  </div>
 
-              {/* Stats card */}
-              {isFreelancer && profile && (
-                <div style={{ background: 'var(--bg-card)', border: '0.5px solid var(--border)', borderRadius: 16, padding: '6px 0' }}>
-                  {statItems.map(({ icon, label, value, color }) => (
-                    <div key={label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '11px 18px', borderBottom: '0.5px solid var(--border)' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: 'var(--text-muted)' }}>
-                        <i className={`ti ti-${icon}`} style={{ color, fontSize: 15 }} />
-                        {label}
-                      </div>
-                      <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)', fontFamily: 'Syne, sans-serif' }}>{value}</span>
-                    </div>
-                  ))}
-                  {isOwnProfile && (
-                    <div style={{ padding: '14px 18px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: 'var(--text-muted)' }}>
-                        <i className="ti ti-antenna" style={{ color: 'var(--accent-light)', fontSize: 15 }} />
-                        Коннекты
-                      </div>
-                      <span style={{ fontSize: 18, fontWeight: 800, color: 'var(--accent)', fontFamily: 'Syne, sans-serif' }}>
-                        {profile.connects_balance}
-                      </span>
-                    </div>
-                  )}
+                  <div style={{ display: 'flex', gap: 10, flexShrink: 0 }}>
+                    {isOwnProfile && !editMode && (
+                      <button onClick={() => { setEditMode(true); setActiveTab('about') }} style={{
+                        display: 'flex', alignItems: 'center', gap: 7, padding: '10px 18px', borderRadius: 11, fontSize: 13, fontWeight: 500,
+                        border: '0.5px solid var(--border)', background: 'transparent', color: 'var(--text-secondary)', cursor: 'pointer',
+                      }}
+                        onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--border-hover)'; e.currentTarget.style.color = 'var(--accent)' }}
+                        onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--text-secondary)' }}
+                      >
+                        <i className="ti ti-pencil" style={{ fontSize: 14 }} />Редактировать
+                      </button>
+                    )}
+                    {!isOwnProfile && me && isFreelancer && (
+                      <button
+                        onClick={async () => {
+                          setFavLoading(true)
+                          try {
+                            if (isFavorited) { await favoritesApi.removeFreelancer(id); setIsFavorited(false); toast('Удалено из избранного', 'info') }
+                            else { await favoritesApi.addFreelancer(id); setIsFavorited(true); toast('Добавлено в избранное!', 'success') }
+                          } catch {} finally { setFavLoading(false) }
+                        }}
+                        disabled={favLoading}
+                        style={{
+                          display: 'flex', alignItems: 'center', gap: 8, padding: '10px 18px', borderRadius: 11, fontSize: 13, fontWeight: 500,
+                          cursor: favLoading ? 'not-allowed' : 'pointer',
+                          border: isFavorited ? '0.5px solid rgba(248,113,113,0.4)' : '0.5px solid var(--border)',
+                          background: isFavorited ? 'rgba(248,113,113,0.08)' : 'transparent',
+                          color: isFavorited ? '#F87171' : 'var(--text-secondary)',
+                        }}
+                      >
+                        <i className={`ti ti-heart${isFavorited ? '-filled' : ''}`} style={{ fontSize: 15 }} />
+                        {favLoading ? '...' : isFavorited ? 'В избранном' : 'В избранное'}
+                      </button>
+                    )}
+                  </div>
                 </div>
+
+                {/* Stats row */}
+                {isFreelancer && profile && (
+                  <div style={{ display: 'flex', gap: 0, marginTop: 24, paddingTop: 24, borderTop: '0.5px solid var(--border)' }}>
+                    <StatNum value={profile.total_jobs || 0} label="Выполнено" color="var(--accent-green)" />
+                    <StatNum value={profile.experience_years ? `${profile.experience_years} лет` : '—'} label="Опыт" color="var(--accent)" />
+                    <StatNum value={reviews.length} label="Отзывов" color="#EF9F27" />
+                    <StatNum value={portfolio.length} label="Работ" color="var(--accent-teal)" />
+                  </div>
+                )}
+                {!isFreelancer && (
+                  <div style={{ display: 'flex', gap: 0, marginTop: 24, paddingTop: 24, borderTop: '0.5px solid var(--border)' }}>
+                    <StatNum value={clientProjects.length} label="Проектов" color="var(--accent)" />
+                    <StatNum value={clientProjects.filter(p => p.status === 'completed').length} label="Завершено" color="var(--accent-green)" />
+                    <StatNum value={reviews.length} label="Отзывов" color="#EF9F27" />
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* GitHub link */}
+            {profile?.github_url && (
+              <div style={{ marginTop: 24, paddingTop: 24, borderTop: '0.5px solid var(--border)' }}>
+                <a href={profile.github_url} target="_blank" rel="noreferrer" style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 10,
+                  padding: '10px 16px', borderRadius: 12,
+                  background: '#161B22', border: '1px solid rgba(255,255,255,0.08)',
+                  color: '#fff', textDecoration: 'none', transition: 'all 0.2s',
+                }}
+                  onMouseEnter={e => { e.currentTarget.style.border = '1px solid rgba(127,119,221,0.5)'; e.currentTarget.style.transform = 'translateY(-1px)' }}
+                  onMouseLeave={e => { e.currentTarget.style.border = '1px solid rgba(255,255,255,0.08)'; e.currentTarget.style.transform = 'none' }}
+                >
+                  <i className="ti ti-brand-github" style={{ fontSize: 18 }} />
+                  <span style={{ fontSize: 13, fontWeight: 600 }}>
+                    @{profile.github_url.replace(/https?:\/\/(www\.)?github\.com\/?/, '').replace(/\/$/, '') || 'GitHub'}
+                  </span>
+                  <i className="ti ti-arrow-up-right" style={{ fontSize: 13, opacity: 0.5 }} />
+                </a>
+              </div>
+            )}
+          </div>
+
+          {/* ══════════ CONTENT AREA ══════════ */}
+          <div style={{ display: 'grid', gridTemplateColumns: '220px 1fr', gap: 24, alignItems: 'start' }}>
+
+            {/* Left mini column: skills + languages (view) */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 14, position: 'sticky', top: 90 }}>
+              {isFreelancer && profile?.skills?.length > 0 && (
+                <div style={{ background: 'var(--bg-card)', border: '0.5px solid var(--border)', borderRadius: 16, padding: '18px 16px' }}>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.7, marginBottom: 12 }}>Навыки</div>
+                  <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                    {profile.skills.map(s => <Tag key={s.id} color="purple" style={{ fontSize: 11 }}>{s.name}</Tag>)}
+                  </div>
+                </div>
+              )}
+              {isFreelancer && profile?.languages?.length > 0 && (
+                <div style={{ background: 'var(--bg-card)', border: '0.5px solid var(--border)', borderRadius: 16, padding: '18px 16px' }}>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.7, marginBottom: 12 }}>Языки</div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                    {profile.languages.map(l => (
+                      <div key={l.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span style={{ fontSize: 13, color: 'var(--text-primary)' }}>{l.name}</span>
+                        <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>{LEVEL_LABEL[l.level]}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {(!isFreelancer || (!profile?.skills?.length && !profile?.languages?.length)) && (
+                <div style={{ height: 1 }} />
               )}
             </div>
 
-            {/* ── MAIN CONTENT ── */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 0, minWidth: 0 }}>
-
+            {/* Right: tabs + content */}
+            <div style={{ minWidth: 0 }}>
               {/* Tab bar */}
-              <div style={{ display: 'flex', borderBottom: '0.5px solid var(--border)', marginBottom: 24, overflowX: 'auto' }}>
+              <div style={{ display: 'flex', gap: 4, background: 'var(--bg-card)', border: '0.5px solid var(--border)', borderRadius: 14, padding: 5, marginBottom: 20, overflowX: 'auto' }}>
                 {tabs.map(tab => {
                   const active = activeTab === tab.key
                   return (
                     <button key={tab.key} onClick={() => setActiveTab(tab.key)} style={{
-                      padding: '10px 20px', background: 'none', border: 'none', cursor: 'pointer',
-                      fontSize: 14, fontWeight: active ? 600 : 400,
+                      display: 'flex', alignItems: 'center', gap: 6,
+                      padding: '8px 16px', borderRadius: 10, fontSize: 13,
+                      fontWeight: active ? 600 : 400, whiteSpace: 'nowrap', flexShrink: 0,
+                      border: 'none', cursor: 'pointer',
+                      background: active ? (isDark ? 'rgba(127,119,221,0.2)' : 'rgba(80,72,213,0.1)') : 'transparent',
                       color: active ? 'var(--accent)' : 'var(--text-muted)',
-                      borderBottom: `2px solid ${active ? 'var(--accent)' : 'transparent'}`,
-                      marginBottom: -1, whiteSpace: 'nowrap', flexShrink: 0,
-                      display: 'flex', alignItems: 'center', gap: 7,
-                      transition: 'color 0.15s',
+                      transition: 'all 0.15s',
                     }}>
+                      <i className={`ti ti-${tab.icon}`} style={{ fontSize: 14 }} />
                       {tab.label}
                       {tab.count > 0 && (
-                        <span style={{
-                          fontSize: 11, padding: '1px 7px', borderRadius: 10,
-                          background: active ? 'rgba(127,119,221,0.15)' : (isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.06)'),
-                          color: active ? 'var(--accent)' : 'var(--text-muted)',
-                        }}>{tab.count}</span>
+                        <span style={{ fontSize: 11, padding: '1px 6px', borderRadius: 8, background: active ? 'rgba(127,119,221,0.25)' : 'rgba(255,255,255,0.07)', color: active ? 'var(--accent)' : 'var(--text-muted)' }}>
+                          {tab.count}
+                        </span>
                       )}
                     </button>
                   )
@@ -547,18 +480,14 @@ export default function Profile() {
 
               {/* ── О себе ── */}
               {activeTab === 'about' && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
                   {editMode ? (
-                    /* Edit form */
                     <div style={{ background: 'var(--bg-card)', border: '0.5px solid var(--border)', borderRadius: 20, padding: 28 }}>
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 22 }}>
-                        <h3 style={{ fontFamily: 'Syne, sans-serif', fontSize: 18, fontWeight: 700, color: 'var(--text-primary)' }}>
-                          Редактирование профиля
-                        </h3>
+                        <h3 style={{ fontFamily: 'Syne, sans-serif', fontSize: 17, fontWeight: 700, color: 'var(--text-primary)' }}>Редактирование профиля</h3>
                         <button onClick={() => setEditMode(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', fontSize: 18 }}>✕</button>
                       </div>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
                           <Input label="Имя" value={editForm.full_name} onChange={e => setEditForm(f => ({ ...f, full_name: e.target.value }))} />
                           {isFreelancer && <Input label="Заголовок" placeholder="Senior React Developer" value={editForm.title} onChange={e => setEditForm(f => ({ ...f, title: e.target.value }))} />}
@@ -570,10 +499,9 @@ export default function Profile() {
                         {isFreelancer && (
                           <>
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
-                              <Input label="Hourly rate ($/hr)" type="number" value={editForm.hourly_rate} onChange={e => setEditForm(f => ({ ...f, hourly_rate: e.target.value }))} />
                               <Input label="Опыт (лет)" type="number" value={editForm.experience_years} onChange={e => setEditForm(f => ({ ...f, experience_years: e.target.value }))} />
+                              <Input label="GitHub URL" placeholder="https://github.com/username" value={editForm.github_url} onChange={e => setEditForm(f => ({ ...f, github_url: e.target.value }))} icon="brand-github" />
                             </div>
-                            <Input label="GitHub URL" placeholder="https://github.com/username" value={editForm.github_url} onChange={e => setEditForm(f => ({ ...f, github_url: e.target.value }))} icon="brand-github" />
                           </>
                         )}
                         <div style={{ display: 'flex', gap: 10, paddingTop: 4 }}>
@@ -583,53 +511,36 @@ export default function Profile() {
                       </div>
                     </div>
                   ) : (
-                    /* Bio display */
                     userData?.bio && (
-                      <div style={{ background: 'var(--bg-card)', border: '0.5px solid var(--border)', borderRadius: 20, padding: 24 }}>
-                        <SectionTitle>О себе</SectionTitle>
-                        <p style={{ fontSize: 15, color: 'var(--text-secondary)', lineHeight: 1.75, fontWeight: 300 }}>{userData.bio}</p>
+                      <div style={{ background: 'var(--bg-card)', border: '0.5px solid var(--border)', borderRadius: 18, padding: 24 }}>
+                        <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.7, marginBottom: 12 }}>О себе</div>
+                        <p style={{ fontSize: 15, color: 'var(--text-secondary)', lineHeight: 1.8, fontWeight: 300 }}>{userData.bio}</p>
                       </div>
                     )
                   )}
 
-                  {/* Skills */}
-                  {isFreelancer && (
-                    <div style={{ background: 'var(--bg-card)', border: '0.5px solid var(--border)', borderRadius: 16, padding: 24 }}>
-                      <SectionTitle>Навыки</SectionTitle>
-                      {isOwnProfile ? (
-                        <SkillSelector selected={profile?.skills || []} onAdd={handleAddSkill} onRemove={handleRemoveSkill} />
-                      ) : (
-                        profile?.skills?.length > 0 ? (
-                          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                            {profile.skills.map(s => <Tag key={s.id} color="purple">{s.name}</Tag>)}
-                          </div>
-                        ) : <p style={{ fontSize: 13, color: 'var(--text-muted)' }}>Навыки не добавлены</p>
-                      )}
+                  {/* Skills editor (own profile) */}
+                  {isFreelancer && isOwnProfile && (
+                    <div style={{ background: 'var(--bg-card)', border: '0.5px solid var(--border)', borderRadius: 16, padding: 22 }}>
+                      <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.7, marginBottom: 14 }}>Навыки</div>
+                      <SkillSelector selected={profile?.skills || []} onAdd={handleAddSkill} onRemove={handleRemoveSkill} />
                     </div>
                   )}
 
-                  {/* Languages */}
-                  {isFreelancer && (
-                    <div style={{ background: 'var(--bg-card)', border: '0.5px solid var(--border)', borderRadius: 16, padding: 24 }}>
-                      <SectionTitle>Языки</SectionTitle>
-                      {isOwnProfile ? (
-                        <LanguageSelector selected={profile?.languages || []} onAdd={handleAddLanguage} onRemove={handleRemoveLanguage} />
-                      ) : (
-                        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                          {profile?.languages?.length > 0 ? profile.languages.map(l => (
-                            <span key={l.id} style={{ padding: '4px 12px', borderRadius: 20, fontSize: 13, background: 'rgba(93,202,165,0.1)', color: 'var(--accent-teal)', border: '0.5px solid rgba(93,202,165,0.2)' }}>
-                              {l.name} · <span style={{ opacity: 0.7, fontSize: 11 }}>{LEVEL_LABEL[l.level]}</span>
-                            </span>
-                          )) : <p style={{ fontSize: 13, color: 'var(--text-muted)' }}>Не указано</p>}
-                        </div>
-                      )}
+                  {/* Languages editor (own profile) */}
+                  {isFreelancer && isOwnProfile && (
+                    <div style={{ background: 'var(--bg-card)', border: '0.5px solid var(--border)', borderRadius: 16, padding: 22 }}>
+                      <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.7, marginBottom: 14 }}>Языки</div>
+                      <LanguageSelector selected={profile?.languages || []} onAdd={handleAddLanguage} onRemove={handleRemoveLanguage} />
                     </div>
                   )}
 
                   {!userData?.bio && !isFreelancer && !editMode && (
-                    <div style={{ textAlign: 'center', padding: '48px 24px', color: 'var(--text-muted)' }}>
-                      <i className="ti ti-user-circle" style={{ fontSize: 40, display: 'block', marginBottom: 10, opacity: 0.25 }} />
-                      <div style={{ fontSize: 14 }}>Профиль пуст</div>
+                    <div style={{ padding: '20px 24px', borderRadius: 18, background: 'var(--bg-card)', border: '0.5px solid var(--border)' }}>
+                      <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.7, marginBottom: 10 }}>О себе</div>
+                      <p style={{ fontSize: 14, color: 'var(--text-muted)', fontStyle: 'italic' }}>
+                        {isOwnProfile ? 'Добавьте описание через кнопку "Редактировать"' : 'Описание не добавлено'}
+                      </p>
                     </div>
                   )}
                 </div>
@@ -640,18 +551,12 @@ export default function Profile() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
                   {isOwnProfile && (
                     <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                      <button onClick={() => { setShowPortfolioAdd(v => !v); setEditingPortfolioId(null) }} style={{
-                        display: 'flex', alignItems: 'center', gap: 6,
-                        padding: '8px 16px', borderRadius: 10, fontSize: 13,
-                        border: '0.5px solid rgba(127,119,221,0.4)', background: showPortfolioAdd ? 'rgba(127,119,221,0.12)' : 'transparent',
-                        color: 'var(--accent)', cursor: 'pointer',
-                      }}>
+                      <button onClick={() => { setShowPortfolioAdd(v => !v); setEditingPortfolioId(null) }} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 10, fontSize: 13, border: '0.5px solid rgba(127,119,221,0.4)', background: showPortfolioAdd ? 'rgba(127,119,221,0.12)' : 'transparent', color: 'var(--accent)', cursor: 'pointer' }}>
                         <i className={`ti ti-${showPortfolioAdd ? 'x' : 'plus'}`} style={{ fontSize: 13 }} />
                         {showPortfolioAdd ? 'Отмена' : 'Добавить работу'}
                       </button>
                     </div>
                   )}
-
                   {showPortfolioAdd && isOwnProfile && (
                     <form onSubmit={handleAddPortfolio} style={{ padding: 20, borderRadius: 16, background: 'rgba(127,119,221,0.06)', border: '0.5px solid rgba(127,119,221,0.2)', display: 'flex', flexDirection: 'column', gap: 12 }}>
                       <Input label="Название *" placeholder="Мой проект" value={portfolioAddForm.title} onChange={e => setPortfolioAddForm(f => ({ ...f, title: e.target.value }))} />
@@ -679,7 +584,6 @@ export default function Profile() {
                       </div>
                     </form>
                   )}
-
                   {portfolio.length > 0 ? (
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16 }}>
                       {portfolio.map(item => (
@@ -701,7 +605,7 @@ export default function Profile() {
                             </div>
                           </form>
                         ) : (
-                          <div key={item.id} style={{ border: '0.5px solid var(--border)', borderRadius: 16, overflow: 'hidden', background: 'var(--bg-card)', position: 'relative' }}
+                          <div key={item.id} style={{ border: '0.5px solid var(--border)', borderRadius: 16, overflow: 'hidden', background: 'var(--bg-card)', position: 'relative', transition: 'border-color 0.2s' }}
                             onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--border-hover)'}
                             onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border)'}
                           >
@@ -715,25 +619,14 @@ export default function Profile() {
                               {item.description && <p style={{ fontSize: 12, color: 'var(--text-muted)', lineHeight: 1.5, marginBottom: 10 }}>{item.description}</p>}
                               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                 <button onClick={() => handleLike(item)} style={{ display: 'flex', alignItems: 'center', gap: 5, background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, color: item.liked_by_me ? '#F87171' : 'var(--text-muted)' }}>
-                                  <i className={`ti ti-heart${item.liked_by_me ? '-filled' : ''}`} />
-                                  {item.likes_count || 0}
+                                  <i className={`ti ti-heart${item.liked_by_me ? '-filled' : ''}`} />{item.likes_count || 0}
                                 </button>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                  {item.project_url && (
-                                    <a href={item.project_url} target="_blank" rel="noreferrer" style={{ fontSize: 12, color: 'var(--accent)', display: 'flex', alignItems: 'center', gap: 4, textDecoration: 'none' }}>
-                                      <i className="ti ti-external-link" style={{ fontSize: 12 }} /> Открыть
-                                    </a>
-                                  )}
+                                  {item.project_url && <a href={item.project_url} target="_blank" rel="noreferrer" style={{ fontSize: 12, color: 'var(--accent)', display: 'flex', alignItems: 'center', gap: 4, textDecoration: 'none' }}><i className="ti ti-external-link" style={{ fontSize: 12 }} /> Открыть</a>}
                                   {isOwnProfile && (
                                     <div style={{ display: 'flex', gap: 4 }}>
-                                      <button onClick={() => { setEditingPortfolioId(item.id); setEditingPortfolioForm({ title: item.title, description: item.description || '', project_url: item.project_url || '', image_url: item.image_url || '' }) }} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '2px 4px', color: 'var(--text-muted)', borderRadius: 4 }}
-                                        onMouseEnter={e => e.currentTarget.style.color = 'var(--accent)'}
-                                        onMouseLeave={e => e.currentTarget.style.color = 'var(--text-muted)'}
-                                      ><i className="ti ti-pencil" style={{ fontSize: 14 }} /></button>
-                                      <button onClick={() => handleDeletePortfolio(item.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '2px 4px', color: 'var(--text-muted)', borderRadius: 4 }}
-                                        onMouseEnter={e => e.currentTarget.style.color = '#F87171'}
-                                        onMouseLeave={e => e.currentTarget.style.color = 'var(--text-muted)'}
-                                      ><i className="ti ti-trash" style={{ fontSize: 14 }} /></button>
+                                      <button onClick={() => { setEditingPortfolioId(item.id); setEditingPortfolioForm({ title: item.title, description: item.description || '', project_url: item.project_url || '', image_url: item.image_url || '' }) }} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '2px 4px', color: 'var(--text-muted)', borderRadius: 4 }} onMouseEnter={e => e.currentTarget.style.color = 'var(--accent)'} onMouseLeave={e => e.currentTarget.style.color = 'var(--text-muted)'}><i className="ti ti-pencil" style={{ fontSize: 14 }} /></button>
+                                      <button onClick={() => handleDeletePortfolio(item.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '2px 4px', color: 'var(--text-muted)', borderRadius: 4 }} onMouseEnter={e => e.currentTarget.style.color = '#F87171'} onMouseLeave={e => e.currentTarget.style.color = 'var(--text-muted)'}><i className="ti ti-trash" style={{ fontSize: 14 }} /></button>
                                     </div>
                                   )}
                                 </div>
@@ -759,18 +652,12 @@ export default function Profile() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                   {isOwnProfile && (
                     <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                      <button onClick={() => { setShowCertAdd(v => !v); setEditingCertId(null) }} style={{
-                        display: 'flex', alignItems: 'center', gap: 6,
-                        padding: '8px 16px', borderRadius: 10, fontSize: 13,
-                        border: '0.5px solid rgba(239,159,39,0.4)', background: showCertAdd ? 'rgba(239,159,39,0.1)' : 'transparent',
-                        color: '#EF9F27', cursor: 'pointer',
-                      }}>
+                      <button onClick={() => { setShowCertAdd(v => !v); setEditingCertId(null) }} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 10, fontSize: 13, border: '0.5px solid rgba(239,159,39,0.4)', background: showCertAdd ? 'rgba(239,159,39,0.1)' : 'transparent', color: '#EF9F27', cursor: 'pointer' }}>
                         <i className={`ti ti-${showCertAdd ? 'x' : 'plus'}`} style={{ fontSize: 13 }} />
                         {showCertAdd ? 'Отмена' : 'Добавить сертификат'}
                       </button>
                     </div>
                   )}
-
                   {showCertAdd && isOwnProfile && (
                     <form onSubmit={handleAddCert} style={{ padding: 20, borderRadius: 16, background: 'rgba(239,159,39,0.05)', border: '0.5px solid rgba(239,159,39,0.2)', display: 'flex', flexDirection: 'column', gap: 12 }}>
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
@@ -787,7 +674,6 @@ export default function Profile() {
                       </div>
                     </form>
                   )}
-
                   {certifications.length > 0 ? certifications.map(cert => (
                     editingCertId === cert.id ? (
                       <form key={cert.id} onSubmit={handleSaveCert} style={{ padding: 18, borderRadius: 14, border: '0.5px solid rgba(239,159,39,0.3)', background: 'rgba(239,159,39,0.04)', display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -805,7 +691,7 @@ export default function Profile() {
                         </div>
                       </form>
                     ) : (
-                      <div key={cert.id} style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '16px 20px', borderRadius: 14, background: 'var(--bg-card)', border: '0.5px solid var(--border)' }}
+                      <div key={cert.id} style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '16px 20px', borderRadius: 14, background: 'var(--bg-card)', border: '0.5px solid var(--border)', transition: 'border-color 0.2s' }}
                         onMouseEnter={e => e.currentTarget.style.borderColor = 'rgba(239,159,39,0.3)'}
                         onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border)'}
                       >
@@ -820,23 +706,11 @@ export default function Profile() {
                           </div>
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
-                          {cert.credential_url && (
-                            <a href={cert.credential_url} target="_blank" rel="noreferrer" style={{ fontSize: 12, color: 'var(--accent)', display: 'flex', alignItems: 'center', gap: 4, textDecoration: 'none', padding: '5px 10px', borderRadius: 8, border: '0.5px solid rgba(127,119,221,0.3)' }}>
-                              <i className="ti ti-external-link" style={{ fontSize: 13 }} /> Открыть
-                            </a>
-                          )}
+                          {cert.credential_url && <a href={cert.credential_url} target="_blank" rel="noreferrer" style={{ fontSize: 12, color: 'var(--accent)', display: 'flex', alignItems: 'center', gap: 4, textDecoration: 'none', padding: '5px 10px', borderRadius: 8, border: '0.5px solid rgba(127,119,221,0.3)' }}><i className="ti ti-external-link" style={{ fontSize: 13 }} /> Открыть</a>}
                           {isOwnProfile && (
                             <div style={{ display: 'flex', gap: 4 }}>
-                              <button onClick={() => { setEditingCertId(cert.id); setEditingCertForm({ title: cert.title, issuer: cert.issuer || '', issue_date: cert.issue_date ? cert.issue_date.slice(0, 10) : '', credential_url: cert.credential_url || '' }) }}
-                                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: '4px 6px', borderRadius: 6 }}
-                                onMouseEnter={e => e.currentTarget.style.color = 'var(--accent)'}
-                                onMouseLeave={e => e.currentTarget.style.color = 'var(--text-muted)'}
-                              ><i className="ti ti-pencil" style={{ fontSize: 15 }} /></button>
-                              <button onClick={() => handleDeleteCert(cert.id)}
-                                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: '4px 6px', borderRadius: 6 }}
-                                onMouseEnter={e => e.currentTarget.style.color = '#F87171'}
-                                onMouseLeave={e => e.currentTarget.style.color = 'var(--text-muted)'}
-                              ><i className="ti ti-trash" style={{ fontSize: 15 }} /></button>
+                              <button onClick={() => { setEditingCertId(cert.id); setEditingCertForm({ title: cert.title, issuer: cert.issuer || '', issue_date: cert.issue_date ? cert.issue_date.slice(0, 10) : '', credential_url: cert.credential_url || '' }) }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: '4px 6px', borderRadius: 6 }} onMouseEnter={e => e.currentTarget.style.color = 'var(--accent)'} onMouseLeave={e => e.currentTarget.style.color = 'var(--text-muted)'}><i className="ti ti-pencil" style={{ fontSize: 15 }} /></button>
+                              <button onClick={() => handleDeleteCert(cert.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: '4px 6px', borderRadius: 6 }} onMouseEnter={e => e.currentTarget.style.color = '#F87171'} onMouseLeave={e => e.currentTarget.style.color = 'var(--text-muted)'}><i className="ti ti-trash" style={{ fontSize: 15 }} /></button>
                             </div>
                           )}
                         </div>
@@ -849,6 +723,46 @@ export default function Profile() {
                         <div style={{ fontSize: 14 }}>{isOwnProfile ? 'Добавьте сертификаты' : 'Нет сертификатов'}</div>
                       </div>
                     )
+                  )}
+                </div>
+              )}
+
+              {/* ── Проекты клиента ── */}
+              {activeTab === 'projects' && !isFreelancer && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                  {clientProjects.length > 0 ? clientProjects.map(proj => (
+                    <Link key={proj.id} to={`/projects/${proj.id}`} style={{ textDecoration: 'none' }}>
+                      <div style={{
+                        padding: '16px 20px', borderRadius: 16,
+                        background: 'var(--bg-card)', border: '0.5px solid var(--border)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16,
+                        transition: 'border-color 0.2s', cursor: 'pointer'
+                      }}
+                        onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--border-hover)'}
+                        onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border)'}
+                      >
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{proj.title}</div>
+                          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                            <Tag status={proj.status} />
+                            {proj.category && <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>{proj.category}</span>}
+                          </div>
+                        </div>
+                        <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                          <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 16, color: 'var(--accent-green)' }}>
+                            ${Number(proj.budget_min).toLocaleString()} – ${Number(proj.budget_max).toLocaleString()}
+                          </div>
+                          <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 2 }}>
+                            {new Date(proj.created_at).toLocaleDateString('ru-RU')}
+                          </div>
+                        </div>
+                      </div>
+                    </Link>
+                  )) : (
+                    <div style={{ textAlign: 'center', padding: '52px 24px', color: 'var(--text-muted)' }}>
+                      <i className="ti ti-briefcase" style={{ fontSize: 40, display: 'block', marginBottom: 12, opacity: 0.2 }} />
+                      <div style={{ fontSize: 14 }}>Нет проектов</div>
+                    </div>
                   )}
                 </div>
               )}
@@ -887,16 +801,13 @@ export default function Profile() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
                   {achievements.length > 0 && (
                     <div>
-                      <SectionTitle>Получены</SectionTitle>
-                      <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginTop: 14 }}>
-                        {achievements.map(ua => (
-                          <AchievementBadge key={ua.id} achievement={ua.achievement} earned={true} earnedAt={ua.earned_at} size="md" />
-                        ))}
+                      <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.7, marginBottom: 14 }}>Получены</div>
+                      <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+                        {achievements.map(ua => <AchievementBadge key={ua.id} achievement={ua.achievement} earned={true} earnedAt={ua.earned_at} size="md" />)}
                       </div>
                       <div style={{ marginTop: 16, padding: '14px 18px', borderRadius: 12, background: 'rgba(127,119,221,0.08)', border: '0.5px solid rgba(127,119,221,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                         <div style={{ fontSize: 13, color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: 7 }}>
-                          <i className="ti ti-stars" style={{ color: '#EF9F27', fontSize: 16 }} />
-                          Всего очков
+                          <i className="ti ti-stars" style={{ color: '#EF9F27', fontSize: 16 }} />Всего очков
                         </div>
                         <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 22, color: 'var(--accent)' }}>
                           {achievements.reduce((sum, ua) => sum + (ua.achievement.points || 0), 0)}
@@ -906,15 +817,13 @@ export default function Profile() {
                   )}
                   {isOwnProfile && allAchievements.length > achievements.length && (
                     <div>
-                      <SectionTitle>Заблокированы</SectionTitle>
-                      <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginTop: 14 }}>
-                        {allAchievements.filter(a => !achievements.some(ua => ua.achievement.key === a.key)).slice(0, 8).map(a => (
-                          <AchievementBadge key={a.id} achievement={a} earned={false} size="md" />
-                        ))}
+                      <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.7, marginBottom: 14 }}>Заблокированы</div>
+                      <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+                        {allAchievements.filter(a => !achievements.some(ua => ua.achievement.key === a.key)).slice(0, 8).map(a => <AchievementBadge key={a.id} achievement={a} earned={false} size="md" />)}
                       </div>
                     </div>
                   )}
-                  {achievements.length === 0 && !isOwnProfile && (
+                  {achievements.length === 0 && (
                     <div style={{ textAlign: 'center', padding: '52px 24px', color: 'var(--text-muted)' }}>
                       <i className="ti ti-trophy" style={{ fontSize: 40, display: 'block', marginBottom: 12, opacity: 0.2 }} />
                       <div style={{ fontSize: 14 }}>Нет достижений</div>
@@ -924,18 +833,23 @@ export default function Profile() {
               )}
             </div>
           </div>
+
         </div>
       </div>
-
       <Footer />
     </div>
   )
 }
 
-function SectionTitle({ children }) {
+function StatNum({ value, label, color }) {
   return (
-    <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', letterSpacing: 0.8, textTransform: 'uppercase', marginBottom: 14 }}>
-      {children}
+    <div style={{ paddingRight: 24, marginRight: 24, borderRight: '0.5px solid var(--border)' }}>
+      <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 28, color: color || 'var(--text-primary)', letterSpacing: '-1.5px', lineHeight: 1 }}>
+        {value}
+      </div>
+      <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 4, fontWeight: 500, textTransform: 'uppercase', letterSpacing: 0.4 }}>
+        {label}
+      </div>
     </div>
   )
 }

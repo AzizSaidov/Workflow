@@ -22,8 +22,14 @@ class HelpBidResponse(BaseModel):
     cover_letter: str
 
 
+class ChatMessage(BaseModel):
+    role: str      # 'user' or 'assistant'
+    content: str
+
+
 class AIChatRequest(BaseModel):
     message: str
+    history: list[ChatMessage] = []
     context: str | None = None
 
 

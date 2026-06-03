@@ -2,6 +2,7 @@ from uuid import UUID
 import os
 import redis as redis_lib
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 from fastapi import HTTPException, status
 from profiles.models import FreelancerProfile, SkillToProfile, ProfileLanguage
 from profiles.schemas import ProfileUpdate, SkillAddRequest, LanguageAddRequest, SkillInProfile, LanguageInProfile
@@ -87,7 +88,9 @@ def get_top_freelancers(db: Session, category_slug: str | None = None) -> list[d
                 db.query(SkillToProfile).filter(SkillToProfile.skill_id.in_(skill_ids)).all()
             ]
             query = query.filter(FreelancerProfile.id.in_(profile_ids))
-    profiles = query.order_by(FreelancerProfile.rating.desc()).limit(20).all()
+    profiles = query.order_by(
+        (FreelancerProfile.rating * func.ln(func.greatest(FreelancerProfile.total_jobs, 0) + 2)).desc()
+    ).limit(20).all()
     return [_build_profile_response(p, db) for p in profiles]
 
 

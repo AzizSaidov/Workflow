@@ -1,6 +1,6 @@
 import uuid
 import enum
-from sqlalchemy import Column, String, Text, Enum, DateTime, Date, Numeric, ForeignKey, Boolean
+from sqlalchemy import Column, String, Text, Enum, DateTime, Date, Numeric, ForeignKey, Boolean, Integer
 from sqlalchemy.dialects.postgresql import UUID
 from database import Base
 from utils import get_dushanbe_time
@@ -44,6 +44,7 @@ class Project(Base):
     delivery_description = Column(Text, nullable=True)
     delivery_submitted_at = Column(DateTime(timezone=True), nullable=True)
     client_feedback = Column(Text, nullable=True)
+    progress_percent = Column(Integer, nullable=True, default=0)
     created_at = Column(DateTime(timezone=True), default=get_dushanbe_time)
 
 

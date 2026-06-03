@@ -42,6 +42,10 @@ class ClientFeedback(BaseModel):
     client_feedback: str
 
 
+class ProgressUpdate(BaseModel):
+    progress_percent: int
+
+
 class ProjectResponse(BaseModel):
     id: UUID
     client_id: UUID
@@ -65,6 +69,7 @@ class ProjectResponse(BaseModel):
     delivery_description: str | None
     delivery_submitted_at: datetime | None
     client_feedback: str | None
+    progress_percent: int | None
     created_at: datetime
 
     model_config = {"from_attributes": True}

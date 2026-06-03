@@ -66,6 +66,14 @@ export default function BidCard({ bid, isOwner = false, onAccepted }) {
           </Button>
         </div>
       )}
+      {isOwner && status === 'accepted' && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', borderRadius: 9, background: 'rgba(29,158,117,0.08)', border: '0.5px solid rgba(29,158,117,0.25)' }}>
+          <i className="ti ti-circle-check" style={{ fontSize: 15, color: 'var(--accent-green)' }} />
+          <span style={{ fontSize: 12, color: 'var(--accent-teal)', fontWeight: 500 }}>
+            Заявка принята — запустите проект через эскроу выше
+          </span>
+        </div>
+      )}
     </div>
   )
 }

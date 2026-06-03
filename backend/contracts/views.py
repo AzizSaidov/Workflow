@@ -21,6 +21,16 @@ def get_contract(contract_id: UUID, current_user: User, db: Session) -> Contract
     return contract
 
 
+def get_contract_by_project(project_id: UUID, current_user: User, db: Session) -> Contract | None:
+    from projects.models import Project
+    project = db.query(Project).filter(Project.id == project_id).first()
+    if not project:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found")
+    if project.client_id != current_user.id and project.assigned_freelancer_id != current_user.id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied")
+    return db.query(Contract).filter(Contract.project_id == project_id).first()
+
+
 def complete_contract(contract_id: UUID, current_user: User, db: Session) -> Contract:
     contract = get_contract(contract_id, current_user, db)
     if contract.status != ContractStatus.active:

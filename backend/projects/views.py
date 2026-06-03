@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import or_
 from fastapi import HTTPException, status
 from projects.models import Project, ProjectStatus, ProjectSkill
-from projects.schemas import ProjectCreate, ProjectUpdate, DeliverySubmit, ClientFeedback
+from projects.schemas import ProjectCreate, ProjectUpdate, DeliverySubmit, ClientFeedback, ProgressUpdate
 from users.models import User, UserRole
 from notifications.models import NotificationType
 from notifications.views import create_notification
@@ -129,6 +129,10 @@ def accept_delivery(project_id: UUID, client: User, db: Session) -> Project:
 
     project.status = ProjectStatus.completed
     if project.assigned_freelancer_id:
+        from profiles.models import FreelancerProfile
+        fp = db.query(FreelancerProfile).filter(FreelancerProfile.user_id == project.assigned_freelancer_id).first()
+        if fp:
+            fp.total_jobs = (fp.total_jobs or 0) + 1
         create_notification(
             user_id=project.assigned_freelancer_id,
             type=NotificationType.payment_received,
@@ -171,6 +175,45 @@ def deliver_project(project_id: UUID, data: DeliverySubmit, freelancer: User, db
     return project
 
 
+def update_project_progress(project_id: UUID, data: ProgressUpdate, freelancer: User, db: Session) -> Project:
+    project = get_project(project_id, db)
+    if project.assigned_freelancer_id != freelancer.id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not assigned to this project")
+    if project.status != ProjectStatus.in_progress:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Project is not in progress")
+    project.progress_percent = max(0, min(100, data.progress_percent))
+    db.commit()
+    db.refresh(project)
+    return project
+
+
+def open_dispute(project_id: UUID, client: User, db: Session) -> Project:
+    from escrow.models import Transaction, EscrowStatus
+    project = get_project(project_id, db)
+    if project.client_id != client.id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only the client can open a dispute")
+    if project.status not in (ProjectStatus.in_progress, ProjectStatus.delivered):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Dispute can only be opened on active or delivered projects")
+    tx = db.query(Transaction).filter(
+        Transaction.project_id == project_id,
+        Transaction.status == EscrowStatus.frozen,
+    ).first()
+    if tx:
+        tx.status = EscrowStatus.disputed
+    project.status = ProjectStatus.disputed
+    if project.assigned_freelancer_id:
+        create_notification(
+            user_id=project.assigned_freelancer_id,
+            type=NotificationType.project_disputed,
+            title="Открыт спор",
+            message=f"Заказчик открыл спор по проекту «{project.title}»",
+            db=db,
+        )
+    db.commit()
+    db.refresh(project)
+    return project
+
+
 def request_revision(project_id: UUID, data: ClientFeedback, client: User, db: Session) -> Project:
     project = get_project(project_id, db)
     if project.client_id != client.id:
@@ -178,6 +221,16 @@ def request_revision(project_id: UUID, data: ClientFeedback, client: User, db: S
     if project.status != ProjectStatus.delivered:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Project is not in delivered status")
     project.client_feedback = data.client_feedback
+    project.status = ProjectStatus.in_progress
+    project.delivery_submitted_at = None
+    if project.assigned_freelancer_id:
+        create_notification(
+            user_id=project.assigned_freelancer_id,
+            type=NotificationType.revision_requested,
+            title="Запрошена доработка",
+            message=f"Заказчик запросил доработку по проекту «{project.title}»: {data.client_feedback[:80]}",
+            db=db,
+        )
     db.commit()
     db.refresh(project)
     return project

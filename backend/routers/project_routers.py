@@ -2,11 +2,12 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 from database import get_db
-from projects.schemas import ProjectCreate, ProjectUpdate, ProjectResponse, DeliverySubmit, ClientFeedback
+from projects.schemas import ProjectCreate, ProjectUpdate, ProjectResponse, DeliverySubmit, ClientFeedback, ProgressUpdate
 from projects.views import (
     get_projects, create_project, get_my_projects, get_project,
     update_project, delete_project, deliver_project, request_revision,
-    accept_delivery, get_featured_projects, get_projects_by_category,
+    accept_delivery, get_featured_projects, get_projects_by_category, open_dispute,
+    update_project_progress,
 )
 from media.views import get_project_files
 from users.permissions import get_current_user, get_optional_user
@@ -92,6 +93,16 @@ def revision(project_id: UUID, data: ClientFeedback, db: Session = Depends(get_d
 @projects_router.put("/{project_id}/accept-delivery", response_model=ProjectResponse)
 def accept(project_id: UUID, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     return accept_delivery(project_id, current_user, db)
+
+
+@projects_router.patch("/{project_id}/progress", response_model=ProjectResponse)
+def progress(project_id: UUID, data: ProgressUpdate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    return update_project_progress(project_id, data, current_user, db)
+
+
+@projects_router.post("/{project_id}/dispute", response_model=ProjectResponse)
+def dispute(project_id: UUID, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    return open_dispute(project_id, current_user, db)
 
 
 @projects_router.get("/{project_id}/files", response_model=list[ProjectFileResponse])

@@ -25,5 +25,5 @@ async def ai_help_bid(data: HelpBidRequest, _: User = Depends(get_current_user))
 
 @ai_router.post("/chat", response_model=AIChatResponse)
 async def ai_chat_endpoint(data: AIChatRequest, _: User = Depends(get_current_user)):
-    text = await ai_chat(data.message, data.context)
+    text = await ai_chat(data.message, data.history, data.context)
     return AIChatResponse(text=text)
