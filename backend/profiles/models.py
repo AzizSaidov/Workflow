@@ -10,6 +10,7 @@ class FreelancerProfile(Base):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), unique=True, nullable=False)
+    category_id = Column(UUID(as_uuid=True), ForeignKey("categories.id"), nullable=True)
     # legacy fields (kept for backward compatibility)
     skills = Column(ARRAY(String), nullable=False, default=list)
     portfolio = Column(JSONB, nullable=True, default=list)

@@ -3,6 +3,7 @@ import os
 import redis as redis_lib
 from sqlalchemy.orm import Session
 from sqlalchemy import func
+from categories.models import Category
 from fastapi import HTTPException, status
 from profiles.models import FreelancerProfile, SkillToProfile, ProfileLanguage
 from profiles.schemas import ProfileUpdate, SkillAddRequest, LanguageAddRequest, SkillInProfile, LanguageInProfile
@@ -36,6 +37,8 @@ def _build_profile_response(profile: FreelancerProfile, db: Session) -> dict:
         for link, lang in lang_links
     ]
 
+    category = db.query(Category).filter(Category.id == profile.category_id).first() if profile.category_id else None
+
     return {
         "id": profile.id,
         "user_id": profile.user_id,
@@ -48,6 +51,8 @@ def _build_profile_response(profile: FreelancerProfile, db: Session) -> dict:
         "response_time": profile.response_time,
         "connects_balance": profile.connects_balance,
         "github_url": profile.github_url,
+        "category_id": profile.category_id,
+        "category_name": category.name if category else None,
         "skills": skills,
         "languages": languages,
         "is_online": bool(_redis.exists(f"online:{profile.user_id}")),
@@ -76,21 +81,14 @@ def update_my_profile(data: ProfileUpdate, current_user: User, db: Session) -> d
 
 
 def get_top_freelancers(db: Session, category_slug: str | None = None) -> list[dict]:
-    query = db.query(FreelancerProfile).filter(FreelancerProfile.rating > 0)
+    query = db.query(FreelancerProfile).filter(FreelancerProfile.total_jobs > 0)
     if category_slug:
-        from categories.models import Category
-        from skills.models import Skill
         category = db.query(Category).filter(Category.slug == category_slug).first()
         if category:
-            skill_ids = [s.id for s in db.query(Skill).filter(Skill.category_id == category.id).all()]
-            profile_ids = [
-                stp.profile_id for stp in
-                db.query(SkillToProfile).filter(SkillToProfile.skill_id.in_(skill_ids)).all()
-            ]
-            query = query.filter(FreelancerProfile.id.in_(profile_ids))
+            query = query.filter(FreelancerProfile.category_id == category.id)
     profiles = query.order_by(
         (FreelancerProfile.rating * func.ln(func.greatest(FreelancerProfile.total_jobs, 0) + 2)).desc()
-    ).limit(20).all()
+    ).limit(50).all()
     return [_build_profile_response(p, db) for p in profiles]
 
 
