@@ -19,35 +19,40 @@ export default function Favorites() {
   const { user } = useAuthStore()
   const toast = useToastStore(s => s.show)
 
-  const [tab, setTab] = useState('freelancers')
+  const isFreelancer = user?.role === 'freelancer'
+  const [tab, setTab] = useState('users')
   const [loading, setLoading] = useState(true)
 
-  const [freelancers, setFreelancers] = useState([]) // { fav, user, profile }
-  const [projects, setProjects] = useState([])       // { fav, project }
+  const [savedUsers, setSavedUsers] = useState([])   // { fav, user, profile }
+  const [savedProjects, setSavedProjects] = useState([]) // { fav, project }
 
   const load = async () => {
     setLoading(true)
     try {
       const { data: favs } = await favoritesApi.getAll()
-      const flFavs = (favs || []).filter(f => f.freelancer_id)
-      const prFavs = (favs || []).filter(f => f.project_id)
+      const userFavs    = (favs || []).filter(f => f.freelancer_id)
+      const projectFavs = (favs || []).filter(f => f.project_id)
 
-      const [flData, prData] = await Promise.all([
-        Promise.all(flFavs.map(f =>
-          Promise.all([
-            client.get(`/users/${f.freelancer_id}`),
-            profilesApi.get(f.freelancer_id).catch(() => ({ data: null })),
-          ]).then(([u, p]) => ({ fav: f, user: u.data, profile: p.data }))
-        )),
-        Promise.all(prFavs.map(f =>
-          projectsApi.getOne(f.project_id)
-            .then(r => ({ fav: f, project: r.data }))
-            .catch(() => null)
-        )),
+      const [usersData, projectsData] = await Promise.all([
+        Promise.all(
+          userFavs.map(f =>
+            Promise.all([
+              client.get(`/users/${f.freelancer_id}`),
+              profilesApi.get(f.freelancer_id).catch(() => ({ data: null })),
+            ]).then(([u, p]) => ({ fav: f, user: u.data, profile: p.data }))
+          )
+        ),
+        Promise.all(
+          projectFavs.map(f =>
+            projectsApi.getOne(f.project_id)
+              .then(r => ({ fav: f, project: r.data }))
+              .catch(() => null)
+          )
+        ),
       ])
 
-      setFreelancers(flData.filter(Boolean))
-      setProjects(prData.filter(Boolean))
+      setSavedUsers(usersData.filter(Boolean))
+      setSavedProjects(projectsData.filter(Boolean))
     } catch {} finally {
       setLoading(false)
     }
@@ -55,25 +60,29 @@ export default function Favorites() {
 
   useEffect(() => { load() }, [])
 
-  const removeFreelancer = async (favId, freelancerId) => {
-    try {
-      await favoritesApi.removeFreelancer(freelancerId)
-      setFreelancers(prev => prev.filter(f => f.fav.id !== favId))
-      toast('Удалено из избранного', 'info')
-    } catch (err) {
-      toast(err.response?.data?.detail || 'Не удалось удалить из избранного', 'error')
-    }
+  const removeUser = async (favId, userId) => {
+    const snap = savedUsers
+    setSavedUsers(prev => prev.filter(f => f.fav.id !== favId))
+    toast('Удалено из избранного', 'info')
+    try { await favoritesApi.removeFreelancer(userId) }
+    catch { setSavedUsers(snap); toast('Не удалось удалить', 'error') }
   }
 
   const removeProject = async (favId, projectId) => {
-    try {
-      await favoritesApi.removeProject(projectId)
-      setProjects(prev => prev.filter(p => p.fav.id !== favId))
-      toast('Удалено из избранного', 'info')
-    } catch (err) {
-      toast(err.response?.data?.detail || 'Не удалось удалить из избранного', 'error')
-    }
+    const snap = savedProjects
+    setSavedProjects(prev => prev.filter(p => p.fav.id !== favId))
+    toast('Удалено из избранного', 'info')
+    try { await favoritesApi.removeProject(projectId) }
+    catch { setSavedProjects(snap); toast('Не удалось удалить', 'error') }
   }
+
+  const userTabLabel = isFreelancer ? 'Заказчики' : 'Фрилансеры'
+  const userTabIcon  = isFreelancer ? 'building' : 'users'
+
+  const tabs = [
+    { key: 'users',    label: userTabLabel, icon: userTabIcon, count: savedUsers.length },
+    { key: 'projects', label: 'Проекты',    icon: 'briefcase', count: savedProjects.length },
+  ]
 
   return (
     <div className="page-wrapper" style={{ background: 'var(--bg)' }}>
@@ -89,16 +98,13 @@ export default function Favorites() {
               Избранное
             </h1>
             <p style={{ fontSize: 14, color: 'var(--text-muted)' }}>
-              Сохранённые фрилансеры и проекты
+              Сохранённые {isFreelancer ? 'заказчики' : 'фрилансеры'} и проекты
             </p>
           </div>
 
           {/* Tabs */}
           <div style={{ display: 'flex', gap: 4, marginBottom: 28, borderBottom: '0.5px solid var(--border)', paddingBottom: 0 }}>
-            {[
-              { key: 'freelancers', label: 'Фрилансеры', icon: 'users', count: freelancers.length },
-              { key: 'projects',    label: 'Проекты',    icon: 'briefcase', count: projects.length },
-            ].map(t => (
+            {tabs.map(t => (
               <button
                 key={t.key}
                 onClick={() => setTab(t.key)}
@@ -108,8 +114,7 @@ export default function Favorites() {
                   background: 'none', border: 'none', cursor: 'pointer',
                   color: tab === t.key ? 'var(--text-primary)' : 'var(--text-muted)',
                   borderBottom: tab === t.key ? '2px solid var(--accent)' : '2px solid transparent',
-                  marginBottom: -1,
-                  transition: 'all 0.15s',
+                  marginBottom: -1, transition: 'all 0.15s',
                 }}
               >
                 <i className={`ti ti-${t.icon}`} style={{ fontSize: 15, color: tab === t.key ? 'var(--accent)' : 'inherit' }} />
@@ -132,30 +137,33 @@ export default function Favorites() {
               <i className="ti ti-loader-2" style={{ fontSize: 32, color: 'var(--accent)', animation: 'spin 0.8s linear infinite', display: 'block', marginBottom: 12 }} />
               <div style={{ fontSize: 13, color: 'var(--text-muted)' }}>Загружаем…</div>
             </div>
-          ) : tab === 'freelancers' ? (
-            freelancers.length === 0 ? (
+          ) : tab === 'users' ? (
+            savedUsers.length === 0 ? (
               <EmptyState
-                icon="users"
-                text="Нет сохранённых фрилансеров"
-                sub="Добавляйте понравившихся специалистов в избранное"
-                linkTo="/freelancers"
-                linkLabel="Найти фрилансеров"
+                icon={userTabIcon}
+                text={isFreelancer ? 'Нет сохранённых заказчиков' : 'Нет сохранённых фрилансеров'}
+                sub={isFreelancer
+                  ? 'Добавляйте заказчиков в избранное на странице их профиля'
+                  : 'Добавляйте понравившихся специалистов в избранное'
+                }
+                linkTo={isFreelancer ? '/projects' : '/freelancers'}
+                linkLabel={isFreelancer ? 'Найти проекты' : 'Найти фрилансеров'}
               />
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                {freelancers.map(({ fav, user: u, profile: p }) => (
-                  <FreelancerFavCard
+                {savedUsers.map(({ fav, user: u, profile: p }) => (
+                  <SavedUserCard
                     key={fav.id}
                     user={u}
                     profile={p}
-                    isDark={isDark}
-                    onRemove={() => removeFreelancer(fav.id, fav.freelancer_id)}
+                    isFreelancer={isFreelancer}
+                    onRemove={() => removeUser(fav.id, fav.freelancer_id)}
                   />
                 ))}
               </div>
             )
           ) : (
-            projects.length === 0 ? (
+            savedProjects.length === 0 ? (
               <EmptyState
                 icon="briefcase"
                 text="Нет сохранённых проектов"
@@ -165,11 +173,10 @@ export default function Favorites() {
               />
             ) : (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16 }}>
-                {projects.map(({ fav, project: p }) => (
+                {savedProjects.map(({ fav, project: p }) => (
                   <ProjectFavCard
                     key={fav.id}
                     project={p}
-                    isDark={isDark}
                     onRemove={() => removeProject(fav.id, fav.project_id)}
                   />
                 ))}
@@ -184,14 +191,13 @@ export default function Favorites() {
   )
 }
 
-function FreelancerFavCard({ user, profile, isDark, onRemove }) {
+function SavedUserCard({ user, profile, isFreelancer, onRemove }) {
   if (!user) return null
   return (
     <div style={{
       display: 'flex', alignItems: 'center', gap: 16,
       background: 'var(--bg-card)', border: '0.5px solid var(--border)',
-      borderRadius: 16, padding: '18px 20px',
-      transition: 'border-color 0.2s',
+      borderRadius: 16, padding: '18px 20px', transition: 'border-color 0.2s',
     }}
       onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--border-hover)'}
       onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border)'}
@@ -201,6 +207,9 @@ function FreelancerFavCard({ user, profile, isDark, onRemove }) {
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 2 }}>
             {user.full_name}
+          </div>
+          <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 4 }}>
+            {isFreelancer ? 'Заказчик' : 'Фрилансер'}
           </div>
           {profile?.title && (
             <div style={{ fontSize: 13, color: 'var(--accent)', fontWeight: 500, marginBottom: 4 }}>
@@ -228,23 +237,22 @@ function FreelancerFavCard({ user, profile, isDark, onRemove }) {
         onClick={onRemove}
         title="Убрать из избранного"
         style={{
-          background: 'rgba(239,68,68,0.07)', border: '0.5px solid rgba(239,68,68,0.2)',
+          background: 'rgba(251,191,36,0.07)', border: '0.5px solid rgba(251,191,36,0.2)',
           borderRadius: 9, padding: '7px 10px', cursor: 'pointer',
-          color: '#F87171', display: 'flex', alignItems: 'center', gap: 5,
-          fontSize: 12, flexShrink: 0,
-          transition: 'all 0.15s',
+          color: '#FBBF24', display: 'flex', alignItems: 'center', gap: 5,
+          fontSize: 12, flexShrink: 0, transition: 'all 0.15s',
         }}
-        onMouseEnter={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.14)' }}
-        onMouseLeave={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.07)' }}
+        onMouseEnter={e => { e.currentTarget.style.background = 'rgba(251,191,36,0.14)' }}
+        onMouseLeave={e => { e.currentTarget.style.background = 'rgba(251,191,36,0.07)' }}
       >
-        <i className="ti ti-heart-off" style={{ fontSize: 14 }} />
+        <i className="ti ti-star-off" style={{ fontSize: 14 }} />
         Убрать
       </button>
     </div>
   )
 }
 
-function ProjectFavCard({ project, isDark, onRemove }) {
+function ProjectFavCard({ project, onRemove }) {
   if (!project) return null
   return (
     <div style={{
@@ -268,13 +276,12 @@ function ProjectFavCard({ project, isDark, onRemove }) {
             title="Убрать из избранного"
             style={{
               background: 'none', border: 'none', cursor: 'pointer', padding: 3,
-              color: '#F87171', display: 'flex', alignItems: 'center',
-              transition: 'opacity 0.15s',
+              color: '#FBBF24', display: 'flex', alignItems: 'center', transition: 'opacity 0.15s',
             }}
             onMouseEnter={e => e.currentTarget.style.opacity = '0.7'}
             onMouseLeave={e => e.currentTarget.style.opacity = '1'}
           >
-            <i className="ti ti-heart-filled" style={{ fontSize: 15 }} />
+            <i className="ti ti-star-filled" style={{ fontSize: 15 }} />
           </button>
         </div>
       </div>

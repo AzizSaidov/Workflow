@@ -11,225 +11,77 @@ import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
 import Avatar from '../components/Avatar'
 import Tag from '../components/Tag'
-import Rating from '../components/Rating'
 
-const MEDAL = {
-  1: { color: '#F5C518', glow: 'rgba(245,197,24,0.25)', label: '1 место' },
-  2: { color: '#B0B8C8', glow: 'rgba(176,184,200,0.2)', label: '2 место' },
-  3: { color: '#CD8B5A', glow: 'rgba(205,139,90,0.2)', label: '3 место' },
-}
-
-// Podium card — top 3
-function PodiumCard({ rank, user, profile, isFavorited, onFavoriteToggle, podiumOffset }) {
-  const medal = MEDAL[rank]
-  const isFirst = rank === 1
-
+function StarToggleBtn({ isFavorited, onToggle }) {
+  const [hov, setHov] = useState(false)
   return (
-    <Link to={`/profile/${user.id}`} style={{ textDecoration: 'none', flex: 1, display: 'flex', flexDirection: 'column' }}>
-      <div
-        style={{
-          background: 'var(--bg-card)',
-          border: `1.5px solid ${medal.color}55`,
-          borderRadius: isFirst ? 22 : 18,
-          padding: isFirst ? '32px 22px 24px' : '24px 18px 20px',
-          display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10,
-          marginTop: podiumOffset,
-          position: 'relative',
-          transition: 'transform 0.2s, border-color 0.2s, box-shadow 0.2s',
-          boxShadow: isFirst ? `0 8px 40px ${medal.glow}` : `0 4px 20px ${medal.glow}`,
-          cursor: 'pointer',
-        }}
-        onMouseEnter={e => {
-          e.currentTarget.style.transform = 'translateY(-4px)'
-          e.currentTarget.style.borderColor = `${medal.color}99`
-          e.currentTarget.style.boxShadow = `0 12px 50px ${medal.glow}`
-        }}
-        onMouseLeave={e => {
-          e.currentTarget.style.transform = 'translateY(0)'
-          e.currentTarget.style.borderColor = `${medal.color}55`
-          e.currentTarget.style.boxShadow = isFirst ? `0 8px 40px ${medal.glow}` : `0 4px 20px ${medal.glow}`
-        }}
-      >
-        {/* Crown for 1st */}
-        {isFirst && (
-          <div style={{ position: 'absolute', top: -28, left: '50%', transform: 'translateX(-50%)' }}>
-            <i className="ti ti-crown" style={{ fontSize: 24, color: medal.color }} />
-          </div>
-        )}
-
-        {/* Rank badge */}
-        <div style={{
-          position: 'absolute', top: -14, left: '50%', transform: 'translateX(-50%)',
-          minWidth: 28, height: 28, borderRadius: 14,
-          background: medal.color,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 13,
-          color: '#0a0a0a',
-          padding: '0 8px',
-          boxShadow: `0 4px 14px ${medal.glow}`,
-        }}>
-          #{rank}
-        </div>
-
-        {/* Avatar */}
-        <div style={{ position: 'relative', marginTop: 10 }}>
-          <Avatar src={user.avatar_url} name={user.full_name} size={isFirst ? 76 : 62} online={profile?.is_online ?? false} />
-          {profile?.is_verified && (
-            <div style={{
-              position: 'absolute', bottom: -2, right: -2, width: 18, height: 18, borderRadius: '50%',
-              background: 'var(--accent-teal)', display: 'flex', alignItems: 'center', justifyContent: 'center',
-              border: '2px solid var(--bg)',
-            }}>
-              <i className="ti ti-check" style={{ fontSize: 9, color: '#fff' }} />
-            </div>
-          )}
-        </div>
-
-        {/* Name & title */}
-        <div style={{ textAlign: 'center' }}>
-          <div style={{
-            fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: isFirst ? 16 : 14,
-            color: 'var(--text-primary)', marginBottom: 3,
-            whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 140,
-          }}>
-            {user.full_name}
-          </div>
-          {profile?.title && (
-            <div style={{ fontSize: 11, color: medal.color, fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 140 }}>
-              {profile.title}
-            </div>
-          )}
-        </div>
-
-        {/* Rating */}
-        {profile?.rating > 0 && (
-          <Rating value={profile.rating} size={10} />
-        )}
-
-        {/* Stats row */}
-        <div style={{ display: 'flex', gap: 16, marginTop: 4 }}>
-          {profile?.hourly_rate && (
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 15, color: 'var(--accent-green)' }}>
-                ${Number(profile.hourly_rate).toLocaleString()}
-              </div>
-              <div style={{ fontSize: 10, color: 'var(--text-muted)' }}>/ час</div>
-            </div>
-          )}
-          {profile?.total_jobs > 0 && (
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 15, color: 'var(--text-primary)' }}>
-                {profile.total_jobs}
-              </div>
-              <div style={{ fontSize: 10, color: 'var(--text-muted)' }}>работ</div>
-            </div>
-          )}
-          {profile?.review_count > 0 && (
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 15, color: 'var(--text-primary)' }}>
-                {profile.review_count}
-              </div>
-              <div style={{ fontSize: 10, color: 'var(--text-muted)' }}>отзывов</div>
-            </div>
-          )}
-        </div>
-
-        {/* Favorite button */}
-        {onFavoriteToggle && (
-          <button
-            onClick={e => { e.preventDefault(); e.stopPropagation(); onFavoriteToggle() }}
-            style={{
-              position: 'absolute', top: 10, right: 10,
-              background: 'none', border: 'none', cursor: 'pointer', padding: 4,
-              color: isFavorited ? '#F87171' : 'var(--text-muted)',
-              transition: 'color 0.15s',
-            }}
-            onMouseEnter={e => e.currentTarget.style.color = '#F87171'}
-            onMouseLeave={e => e.currentTarget.style.color = isFavorited ? '#F87171' : 'var(--text-muted)'}
-          >
-            <i className={`ti ti-heart${isFavorited ? '-filled' : ''}`} style={{ fontSize: 16 }} />
-          </button>
-        )}
-      </div>
-
-      {/* Podium step base */}
-      <div style={{
-        height: podiumOffset === 0 ? 56 : podiumOffset === 44 ? 36 : 18,
-        background: `linear-gradient(180deg, ${medal.color}22 0%, transparent 100%)`,
-        borderRadius: '0 0 12px 12px',
-        border: `1px solid ${medal.color}22`,
-        borderTop: 'none',
-        marginTop: -2,
-      }} />
-    </Link>
+    <button
+      onClick={e => { e.preventDefault(); e.stopPropagation(); onToggle() }}
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      title={isFavorited ? 'Убрать из избранного' : 'В избранное'}
+      style={{
+        background: isFavorited && hov ? 'rgba(251,191,36,0.1)' : 'none',
+        border: isFavorited && hov ? '0.5px solid rgba(251,191,36,0.3)' : 'none',
+        borderRadius: 8, cursor: 'pointer',
+        padding: isFavorited && hov ? '3px 8px' : '4px',
+        color: isFavorited ? '#FBBF24' : hov ? '#FBBF24' : 'var(--text-muted)',
+        display: 'flex', alignItems: 'center', gap: 4,
+        transition: 'all 0.15s', flexShrink: 0,
+      }}
+    >
+      <i className={`ti ti-${isFavorited ? (hov ? 'star-off' : 'star-filled') : 'star'}`} style={{ fontSize: 17 }} />
+      {isFavorited && hov && <span style={{ fontSize: 11, fontWeight: 600, whiteSpace: 'nowrap' }}>Убрать</span>}
+    </button>
   )
 }
 
-// Row for rank 4+
-function RankRow({ rank, user, profile, isFavorited, onFavoriteToggle }) {
-  const rankColor = rank <= 10 ? 'var(--accent)' : 'var(--text-muted)'
-
+function FreelancerRow({ user, profile, isFavorited, onFavoriteToggle }) {
   return (
     <Link to={`/profile/${user.id}`} style={{ textDecoration: 'none' }}>
       <div
         style={{
           display: 'flex', alignItems: 'center', gap: 16,
-          padding: '14px 18px', borderRadius: 14,
-          background: 'var(--bg-card)',
-          border: '0.5px solid var(--border)',
-          transition: 'border-color 0.15s, transform 0.15s',
-          cursor: 'pointer',
+          padding: '16px 20px', borderRadius: 14,
+          background: 'var(--bg-card)', border: '0.5px solid var(--border)',
+          transition: 'border-color 0.15s, transform 0.15s', cursor: 'pointer',
         }}
         onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--border-hover)'; e.currentTarget.style.transform = 'translateX(3px)' }}
         onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.transform = 'translateX(0)' }}
       >
-        {/* Rank number */}
-        <div style={{
-          width: 36, textAlign: 'center', flexShrink: 0,
-          fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 18,
-          color: rankColor, opacity: rank <= 10 ? 1 : 0.5,
-        }}>
-          {rank}
-        </div>
-
         {/* Avatar */}
         <div style={{ position: 'relative', flexShrink: 0 }}>
-          <Avatar src={user.avatar_url} name={user.full_name} size={44} online={profile?.is_online ?? false} />
+          <Avatar src={user.avatar_url} name={user.full_name} size={48} online={profile?.is_online ?? false} />
           {profile?.is_verified && (
             <div style={{
-              position: 'absolute', bottom: -2, right: -2, width: 14, height: 14, borderRadius: '50%',
+              position: 'absolute', bottom: -2, right: -2, width: 15, height: 15, borderRadius: '50%',
               background: 'var(--accent-teal)', display: 'flex', alignItems: 'center', justifyContent: 'center',
               border: '2px solid var(--bg)',
             }}>
-              <i className="ti ti-check" style={{ fontSize: 7, color: '#fff' }} />
+              <i className="ti ti-check" style={{ fontSize: 8, color: '#fff' }} />
             </div>
           )}
         </div>
 
-        {/* Name + title + skills */}
+        {/* Info */}
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 3 }}>
-            <span style={{ fontWeight: 600, fontSize: 14, color: 'var(--text-primary)' }}>{user.full_name}</span>
-            {profile?.rating > 0 && <Rating value={profile.rating} size={10} />}
+          <div style={{ fontWeight: 600, fontSize: 14, color: 'var(--text-primary)', marginBottom: 3 }}>
+            {user.full_name}
           </div>
           {profile?.title && (
-            <div style={{ fontSize: 12, color: 'var(--accent)', fontWeight: 500, marginBottom: 4 }}>{profile.title}</div>
+            <div style={{ fontSize: 12, color: 'var(--accent)', fontWeight: 500, marginBottom: 6 }}>
+              {profile.title}
+            </div>
           )}
-          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-            {(profile?.skills || []).slice(0, 3).map(s => (
+          <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
+            {(profile?.skills || []).slice(0, 4).map(s => (
               <Tag key={s.id} color="purple" style={{ fontSize: 10, padding: '1px 7px' }}>{s.name}</Tag>
             ))}
           </div>
         </div>
 
-        {/* Stats */}
+        {/* Rate + jobs */}
         <div style={{ display: 'flex', gap: 20, flexShrink: 0, alignItems: 'center' }}>
-          {profile?.total_jobs > 0 && (
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 14, color: 'var(--text-primary)' }}>{profile.total_jobs}</div>
-              <div style={{ fontSize: 10, color: 'var(--text-muted)' }}>работ</div>
-            </div>
-          )}
           {profile?.hourly_rate && (
             <div style={{ textAlign: 'right' }}>
               <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 15, color: 'var(--accent-green)' }}>
@@ -238,9 +90,19 @@ function RankRow({ rank, user, profile, isFavorited, onFavoriteToggle }) {
               <div style={{ fontSize: 10, color: 'var(--text-muted)' }}>/ час</div>
             </div>
           )}
+          {profile?.total_jobs > 0 && (
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 15, color: 'var(--text-primary)' }}>
+                {profile.total_jobs}
+              </div>
+              <div style={{ fontSize: 10, color: 'var(--text-muted)' }}>работ</div>
+            </div>
+          )}
           {profile?.experience_years > 0 && (
             <div style={{ textAlign: 'center' }}>
-              <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 14, color: 'var(--text-primary)' }}>{profile.experience_years}</div>
+              <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 15, color: 'var(--text-primary)' }}>
+                {profile.experience_years}
+              </div>
               <div style={{ fontSize: 10, color: 'var(--text-muted)' }}>
                 {profile.experience_years === 1 ? 'год' : profile.experience_years < 5 ? 'года' : 'лет'}
               </div>
@@ -250,19 +112,10 @@ function RankRow({ rank, user, profile, isFavorited, onFavoriteToggle }) {
 
         {/* Favorite */}
         {onFavoriteToggle && (
-          <button
-            onClick={e => { e.preventDefault(); e.stopPropagation(); onFavoriteToggle() }}
-            style={{
-              background: 'none', border: 'none', cursor: 'pointer', padding: 4, flexShrink: 0,
-              color: isFavorited ? '#F87171' : 'var(--text-muted)',
-              transition: 'color 0.15s',
-            }}
-            onMouseEnter={e => e.currentTarget.style.color = '#F87171'}
-            onMouseLeave={e => e.currentTarget.style.color = isFavorited ? '#F87171' : 'var(--text-muted)'}
-          >
-            <i className={`ti ti-heart${isFavorited ? '-filled' : ''}`} style={{ fontSize: 16 }} />
-          </button>
+          <StarToggleBtn isFavorited={isFavorited} onToggle={onFavoriteToggle} />
         )}
+
+        <i className="ti ti-chevron-right" style={{ fontSize: 15, color: 'var(--text-muted)', flexShrink: 0, opacity: 0.4 }} />
       </div>
     </Link>
   )
@@ -270,15 +123,16 @@ function RankRow({ rank, user, profile, isFavorited, onFavoriteToggle }) {
 
 export default function FreelancersPage() {
   const { isDark } = useThemeStore()
-  const { user } = useAuthStore()
-  const toast = useToastStore(s => s.show)
-  const [users, setUsers] = useState([])
-  const [profiles, setProfiles] = useState({})
+  const { user }   = useAuthStore()
+  const toast      = useToastStore(s => s.show)
+
+  const [users,      setUsers]      = useState([])
+  const [profiles,   setProfiles]   = useState({})
   const [categories, setCategories] = useState([])
-  const [catFilter, setCatFilter] = useState('')
-  const [search, setSearch] = useState('')
-  const [loading, setLoading] = useState(true)
-  const [favIds, setFavIds] = useState(new Set())
+  const [catFilter,  setCatFilter]  = useState('')
+  const [search,     setSearch]     = useState('')
+  const [loading,    setLoading]    = useState(true)
+  const [favIds,     setFavIds]     = useState(new Set())
 
   const load = useCallback(() => {
     setLoading(true)
@@ -305,41 +159,33 @@ export default function FreelancersPage() {
   }, [user?.id])
 
   const toggleFav = async (userId) => {
+    const removing = favIds.has(userId)
+    setFavIds(prev => { const s = new Set(prev); removing ? s.delete(userId) : s.add(userId); return s })
+    toast(removing ? 'Удалено из избранного' : 'Добавлено в избранное!', removing ? 'info' : 'success')
     try {
-      if (favIds.has(userId)) {
-        await favoritesApi.removeFreelancer(userId)
-        setFavIds(prev => { const s = new Set(prev); s.delete(userId); return s })
-        toast('Удалено из избранного', 'info')
-      } else {
-        await favoritesApi.addFreelancer(userId)
-        setFavIds(prev => new Set([...prev, userId]))
-        toast('Добавлено в избранное!', 'success')
-      }
-    } catch (err) {
-      toast(err.response?.data?.detail || 'Ошибка', 'error')
+      removing ? await favoritesApi.removeFreelancer(userId) : await favoritesApi.addFreelancer(userId)
+    } catch {
+      setFavIds(prev => { const s = new Set(prev); removing ? s.add(userId) : s.delete(userId); return s })
+      toast('Ошибка', 'error')
     }
   }
 
   useEffect(() => { load() }, [load])
 
   const filtered = users.filter(u => {
+    if (u.is_banned) return false
+    const p = profiles[u.id]
+    if (catFilter && !p) return false
     if (search) {
       const q = search.toLowerCase()
-      const p = profiles[u.id]
       if (!u.full_name?.toLowerCase().includes(q) &&
           !u.bio?.toLowerCase().includes(q) &&
           !p?.title?.toLowerCase().includes(q)) return false
     }
-    return !u.is_banned
+    return true
   })
 
-  const top3 = filtered.slice(0, 3)
-  const rest = filtered.slice(3)
-
-  // Podium order: 2nd | 1st | 3rd (Olympic style)
-  const podiumOrder = top3.length === 3
-    ? [{ u: top3[1], rank: 2, offset: 44 }, { u: top3[0], rank: 1, offset: 0 }, { u: top3[2], rank: 3, offset: 80 }]
-    : top3.map((u, i) => ({ u, rank: i + 1, offset: i * 44 }))
+  const activeCat = categories.find(c => c.slug === catFilter)
 
   return (
     <div className="page-wrapper" style={{ background: 'var(--bg)' }}>
@@ -348,7 +194,8 @@ export default function FreelancersPage() {
       <Navbar />
 
       <div style={{ paddingTop: 80, position: 'relative', zIndex: 2 }}>
-        {/* Hero */}
+
+        {/* ── Hero ── */}
         <div style={{
           padding: '48px 44px 36px',
           borderBottom: '0.5px solid var(--border)',
@@ -358,18 +205,20 @@ export default function FreelancersPage() {
             <div style={{ maxWidth: 640 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
                 <div style={{ width: 32, height: 32, borderRadius: 9, background: 'rgba(127,119,221,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <i className="ti ti-trophy" style={{ fontSize: 16, color: 'var(--accent)' }} />
+                  <i className="ti ti-users" style={{ fontSize: 16, color: 'var(--accent)' }} />
                 </div>
                 <span style={{ fontSize: 13, color: 'var(--accent)', fontWeight: 500 }}>
-                  {filtered.length} специалистов в рейтинге
+                  {filtered.length} специалистов
                 </span>
               </div>
-              <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 36, fontWeight: 800, letterSpacing: '-1.5px', color: 'var(--text-primary)', marginBottom: 12, lineHeight: 1.1 }}>
-                Таблица лидеров<br />
-                <span style={{ color: 'var(--accent)' }}>фрилансеров</span>
+              <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 36, fontWeight: 800, letterSpacing: '-1.5px', color: 'var(--text-primary)', marginBottom: 10, lineHeight: 1.1 }}>
+                Найди специалиста<br />
+                <span style={{ color: 'var(--accent)' }}>
+                  {activeCat ? `по ${activeCat.name.toLowerCase()}` : 'для своего проекта'}
+                </span>
               </h1>
               <p style={{ fontSize: 15, color: 'var(--text-secondary)', fontWeight: 300, lineHeight: 1.6 }}>
-                Рейтинг по оценкам заказчиков. Лучшие специалисты платформы.
+                Профессионалы со всего мира — фильтруй по специализации и находи нужного.
               </p>
             </div>
           </div>
@@ -378,8 +227,10 @@ export default function FreelancersPage() {
         <div className="container" style={{ paddingTop: 32, paddingBottom: 80 }}>
           <div style={{ display: 'grid', gridTemplateColumns: '240px 1fr', gap: 28, alignItems: 'start' }}>
 
-            {/* Sidebar */}
-            <div style={{ position: 'sticky', top: 80, display: 'flex', flexDirection: 'column', gap: 16 }}>
+            {/* ── Sidebar ── */}
+            <div style={{ position: 'sticky', top: 80, display: 'flex', flexDirection: 'column', gap: 14 }}>
+
+              {/* Search */}
               <div style={{ background: 'var(--bg-card)', border: '0.5px solid var(--border)', borderRadius: 16, padding: 18 }}>
                 <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.7, marginBottom: 12 }}>
                   Поиск
@@ -396,11 +247,12 @@ export default function FreelancersPage() {
                 </div>
               </div>
 
+              {/* Category filter */}
               <div style={{ background: 'var(--bg-card)', border: '0.5px solid var(--border)', borderRadius: 16, padding: 18 }}>
                 <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.7, marginBottom: 12 }}>
                   Категория
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                   <button
                     onClick={() => setCatFilter('')}
                     style={{
@@ -408,55 +260,46 @@ export default function FreelancersPage() {
                       background: !catFilter ? 'rgba(127,119,221,0.12)' : 'transparent',
                       border: 'none', cursor: 'pointer', fontSize: 13,
                       color: !catFilter ? 'var(--accent)' : 'var(--text-secondary)',
-                      fontWeight: !catFilter ? 500 : 400, transition: 'all 0.15s',
+                      fontWeight: !catFilter ? 600 : 400, transition: 'all 0.15s',
+                      display: 'flex', alignItems: 'center', gap: 8,
                     }}
                   >
-                    <i className="ti ti-list" style={{ marginRight: 8, fontSize: 13 }} />
-                    Все категории
+                    <i className="ti ti-layout-list" style={{ fontSize: 13 }} />
+                    Все специализации
                   </button>
-                  {categories.map(cat => (
-                    <button
-                      key={cat.id}
-                      onClick={() => setCatFilter(cat.slug)}
-                      style={{
-                        width: '100%', textAlign: 'left', padding: '8px 10px', borderRadius: 8,
-                        background: catFilter === cat.slug ? 'rgba(127,119,221,0.12)' : 'transparent',
-                        border: 'none', cursor: 'pointer', fontSize: 13,
-                        color: catFilter === cat.slug ? 'var(--accent)' : 'var(--text-secondary)',
-                        fontWeight: catFilter === cat.slug ? 500 : 400, transition: 'all 0.15s',
-                      }}
-                      onMouseEnter={e => { if (catFilter !== cat.slug) e.currentTarget.style.background = 'rgba(255,255,255,0.04)' }}
-                      onMouseLeave={e => { if (catFilter !== cat.slug) e.currentTarget.style.background = 'transparent' }}
-                    >
-                      <i className={`ti ${cat.icon}`} style={{ marginRight: 8, fontSize: 13 }} />
-                      {cat.name}
-                    </button>
-                  ))}
+                  {categories.map(cat => {
+                    const active = catFilter === cat.slug
+                    const iconClass = cat.icon?.startsWith('ti-') ? cat.icon : `ti-${cat.icon || 'briefcase'}`
+                    return (
+                      <button
+                        key={cat.id}
+                        onClick={() => setCatFilter(active ? '' : cat.slug)}
+                        style={{
+                          width: '100%', textAlign: 'left', padding: '8px 10px', borderRadius: 8,
+                          background: active ? 'rgba(127,119,221,0.12)' : 'transparent',
+                          border: 'none', cursor: 'pointer', fontSize: 13,
+                          color: active ? 'var(--accent)' : 'var(--text-secondary)',
+                          fontWeight: active ? 600 : 400, transition: 'all 0.15s',
+                          display: 'flex', alignItems: 'center', gap: 8,
+                        }}
+                        onMouseEnter={e => { if (!active) e.currentTarget.style.background = 'rgba(255,255,255,0.04)' }}
+                        onMouseLeave={e => { if (!active) e.currentTarget.style.background = 'transparent' }}
+                      >
+                        <i className={`ti ${iconClass}`} style={{ fontSize: 13 }} />
+                        {cat.name}
+                      </button>
+                    )
+                  })}
                 </div>
-              </div>
-
-              {/* Legend */}
-              <div style={{ background: 'rgba(127,119,221,0.06)', border: '0.5px solid rgba(127,119,221,0.15)', borderRadius: 14, padding: 16 }}>
-                <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.5 }}>Награды</div>
-                {[
-                  { color: MEDAL[1].color, icon: 'ti-crown', text: '1 место — Золото' },
-                  { color: MEDAL[2].color, icon: 'ti-medal', text: '2 место — Серебро' },
-                  { color: MEDAL[3].color, icon: 'ti-medal', text: '3 место — Бронза' },
-                ].map(item => (
-                  <div key={item.text} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 7 }}>
-                    <i className={`ti ${item.icon}`} style={{ fontSize: 14, color: item.color }} />
-                    <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{item.text}</span>
-                  </div>
-                ))}
               </div>
             </div>
 
-            {/* Main leaderboard */}
+            {/* ── List ── */}
             <div>
               {loading ? (
                 <div style={{ textAlign: 'center', padding: '80px 0' }}>
                   <i className="ti ti-loader-2" style={{ fontSize: 32, color: 'var(--accent)', animation: 'spin 0.8s linear infinite', display: 'block', marginBottom: 12 }} />
-                  <div style={{ fontSize: 13, color: 'var(--text-muted)' }}>Загружаем рейтинг…</div>
+                  <div style={{ fontSize: 13, color: 'var(--text-muted)' }}>Загружаем специалистов…</div>
                 </div>
               ) : filtered.length === 0 ? (
                 <div style={{ textAlign: 'center', padding: '80px 0' }}>
@@ -465,55 +308,20 @@ export default function FreelancersPage() {
                   <div style={{ fontSize: 13, color: 'var(--text-muted)' }}>Попробуй другую категорию или запрос</div>
                 </div>
               ) : (
-                <>
-                  {/* Podium top 3 */}
-                  {top3.length > 0 && (
-                    <div style={{ marginBottom: 40 }}>
-                      <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 32, display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <i className="ti ti-podium" style={{ fontSize: 14, color: 'var(--accent)' }} />
-                        Подиум
-                      </div>
-
-                      <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start', paddingTop: 30 }}>
-                        {podiumOrder.map(({ u, rank, offset }) => (
-                          <PodiumCard
-                            key={u.id}
-                            rank={rank}
-                            user={u}
-                            profile={profiles[u.id]}
-                            isFavorited={favIds.has(u.id)}
-                            onFavoriteToggle={user?.role === 'client' ? () => toggleFav(u.id) : undefined}
-                            podiumOffset={offset}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Ranked list 4+ */}
-                  {rest.length > 0 && (
-                    <div>
-                      <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <i className="ti ti-list-numbers" style={{ fontSize: 14, color: 'var(--accent)' }} />
-                        Остальные участники
-                      </div>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                        {rest.map((u, i) => (
-                          <RankRow
-                            key={u.id}
-                            rank={i + 4}
-                            user={u}
-                            profile={profiles[u.id]}
-                            isFavorited={favIds.has(u.id)}
-                            onFavoriteToggle={user?.role === 'client' ? () => toggleFav(u.id) : undefined}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {filtered.map(u => (
+                    <FreelancerRow
+                      key={u.id}
+                      user={u}
+                      profile={profiles[u.id]}
+                      isFavorited={favIds.has(u.id)}
+                      onFavoriteToggle={user?.role === 'client' ? () => toggleFav(u.id) : undefined}
+                    />
+                  ))}
+                </div>
               )}
             </div>
+
           </div>
         </div>
       </div>

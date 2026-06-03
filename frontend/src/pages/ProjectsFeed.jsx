@@ -26,6 +26,30 @@ function timeAgo(dateStr) {
   return new Date(dateStr).toLocaleDateString('ru-RU')
 }
 
+function StarToggleBtn({ isFavorited, onToggle }) {
+  const [hov, setHov] = useState(false)
+  return (
+    <button
+      onClick={onToggle}
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      title={isFavorited ? 'Убрать из избранного' : 'В избранное'}
+      style={{
+        background: isFavorited && hov ? 'rgba(251,191,36,0.1)' : 'none',
+        border: isFavorited && hov ? '0.5px solid rgba(251,191,36,0.3)' : 'none',
+        borderRadius: 8, cursor: 'pointer',
+        padding: isFavorited && hov ? '3px 8px' : '4px',
+        color: isFavorited ? '#FBBF24' : hov ? '#FBBF24' : 'var(--text-muted)',
+        display: 'flex', alignItems: 'center', gap: 4,
+        transition: 'all 0.15s', flexShrink: 0,
+      }}
+    >
+      <i className={`ti ti-${isFavorited ? (hov ? 'star-off' : 'star-filled') : 'star'}`} style={{ fontSize: 17 }} />
+      {isFavorited && hov && <span style={{ fontSize: 11, fontWeight: 600, whiteSpace: 'nowrap' }}>Убрать</span>}
+    </button>
+  )
+}
+
 function ProjectRow({ project, isFavorited, onFavoriteToggle, userId }) {
   const {
     id, title, description, budget_min, budget_max,
@@ -80,15 +104,7 @@ function ProjectRow({ project, isFavorited, onFavoriteToggle, userId }) {
             {budget_max && budget_max !== budget_min ? ` – $${Number(budget_max).toLocaleString()}` : ''}
           </span>
           {onFavoriteToggle && (
-            <button
-              onClick={onFavoriteToggle}
-              title={isFavorited ? 'Убрать из избранного' : 'В избранное'}
-              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, color: isFavorited ? '#F87171' : 'var(--text-muted)', display: 'flex', transition: 'color 0.15s' }}
-              onMouseEnter={e => e.currentTarget.style.color = '#F87171'}
-              onMouseLeave={e => e.currentTarget.style.color = isFavorited ? '#F87171' : 'var(--text-muted)'}
-            >
-              <i className={`ti ti-heart${isFavorited ? '-filled' : ''}`} style={{ fontSize: 18 }} />
-            </button>
+            <StarToggleBtn isFavorited={isFavorited} onToggle={onFavoriteToggle} />
           )}
         </div>
       </div>
@@ -207,6 +223,18 @@ export default function ProjectsFeed() {
       .catch(() => {})
   }, [user?.id])
 
+  const toggleFav = async (projectId) => {
+    const removing = favIds.has(projectId)
+    setFavIds(prev => { const s = new Set(prev); removing ? s.delete(projectId) : s.add(projectId); return s })
+    toast(removing ? 'Удалено из избранного' : 'Добавлено в избранное!', removing ? 'info' : 'success')
+    try {
+      removing ? await favoritesApi.removeProject(projectId) : await favoritesApi.addProject(projectId)
+    } catch {
+      setFavIds(prev => { const s = new Set(prev); removing ? s.add(projectId) : s.delete(projectId); return s })
+      toast('Ошибка', 'error')
+    }
+  }
+
   useEffect(() => {
     setLoading(true)
     const params = {}
@@ -228,18 +256,6 @@ export default function ProjectsFeed() {
     setSearch('')
     setFilters({ category_id: '', project_type: '', experience_level: '', budget_min: '', budget_max: '' })
     setApplied(empty)
-  }
-
-  const toggleFav = async (projectId) => {
-    if (favIds.has(projectId)) {
-      await favoritesApi.removeProject(projectId).catch(() => {})
-      setFavIds(prev => { const s = new Set(prev); s.delete(projectId); return s })
-      toast('Удалено из избранного', 'info')
-    } else {
-      await favoritesApi.addProject(projectId).catch(() => {})
-      setFavIds(prev => new Set([...prev, projectId]))
-      toast('Добавлено в избранное!', 'success')
-    }
   }
 
   const hasFilters = applied.search || applied.category_id || applied.project_type || applied.experience_level || applied.budget_min || applied.budget_max
@@ -416,7 +432,7 @@ export default function ProjectsFeed() {
                   key={p.id}
                   project={p}
                   isFavorited={favIds.has(p.id)}
-                  onFavoriteToggle={user?.role === 'freelancer' ? () => toggleFav(p.id) : undefined}
+                  onFavoriteToggle={user ? () => toggleFav(p.id) : undefined}
                   userId={user?.id}
                 />
               ))}

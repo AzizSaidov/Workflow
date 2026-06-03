@@ -464,8 +464,8 @@ export default function Home() {
                     })}
                   </div>
 
-                  {/* Rows 4–10 */}
-                  {top.slice(3).length > 0 && (
+                  {/* Rows 4–10: скрыты для заказчика — он видит только топ-3 */}
+                  {top.slice(3).length > 0 && user?.role !== 'client' && (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                       {top.slice(3).map((f, i) => (
                         <Link key={f.user_id} to={`/profile/${f.user_id}`} style={{ textDecoration: 'none' }}>

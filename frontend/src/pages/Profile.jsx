@@ -19,6 +19,7 @@ import LanguageSelector from '../components/LanguageSelector'
 import AchievementBadge from '../components/AchievementBadge'
 import { certificationsApi } from '../api/certifications'
 import { favoritesApi } from '../api/favorites'
+import { categoriesApi } from '../api/categories'
 import useToastStore from '../store/toastStore'
 
 const LEVEL_LABEL = { basic: 'Базовый', conversational: 'Разговорный', fluent: 'Свободный', native: 'Родной' }
@@ -95,10 +96,12 @@ export default function Profile() {
   const [loadError, setLoadError] = useState(false)
   const [isFavorited, setIsFavorited] = useState(false)
   const [favLoading, setFavLoading] = useState(false)
+  const [favHov, setFavHov] = useState(false)
   const [clientProjects, setClientProjects] = useState([])
   const [activeTab, setActiveTab] = useState('about')
   const [editMode, setEditMode] = useState(false)
-  const [editForm, setEditForm] = useState({ full_name: '', bio: '', title: '', experience_years: '', github_url: '' })
+  const [editForm, setEditForm] = useState({ full_name: '', bio: '', title: '', experience_years: '', github_url: '', category_id: '' })
+  const [categories, setCategories] = useState([])
   const [saving, setSaving] = useState(false)
   const [avatarUploading, setAvatarUploading] = useState(false)
 
@@ -131,13 +134,17 @@ export default function Profile() {
       setPortfolio(po.data || []); setReviews(rv.data || [])
       setAchievements(ua.data || []); setAllAchievements(aa.data || [])
       if (p.data) {
-        setEditForm({ full_name: u.data?.full_name || '', bio: u.data?.bio || '', title: p.data.title || '', experience_years: p.data.experience_years || '', github_url: p.data.github_url || '' })
+        setEditForm({ full_name: u.data?.full_name || '', bio: u.data?.bio || '', title: p.data.title || '', experience_years: p.data.experience_years || '', github_url: p.data.github_url || '', category_id: p.data.category_id || '' })
         certificationsApi.getByProfile(p.data.id).then(r => setCertifications(r.data || [])).catch(() => {})
       }
     }).catch(() => setLoadError(true)).finally(() => setLoading(false))
   }
 
   useEffect(() => { load() }, [id])
+
+  useEffect(() => {
+    categoriesApi.getAll().then(r => setCategories(r.data || [])).catch(() => {})
+  }, [])
 
   useEffect(() => {
     if (!me || me.id === id) return
@@ -163,6 +170,7 @@ export default function Profile() {
           title: editForm.title || undefined,
           experience_years: parseInt(editForm.experience_years) || undefined,
           github_url: editForm.github_url || null,
+          category_id: editForm.category_id || null,
         })
       }
       setEditMode(false); toast('Профиль сохранён', 'success'); load()
@@ -248,7 +256,7 @@ export default function Profile() {
     </div>
   )
 
-  const isFreelancer = userData?.role === 'freelancer'
+  const isFreelancer = userData?.role?.toLowerCase() === 'freelancer'
 
   const tabs = [
     { key: 'about', label: 'О себе', icon: 'user' },
@@ -353,26 +361,44 @@ export default function Profile() {
                         <i className="ti ti-pencil" style={{ fontSize: 14 }} />Редактировать
                       </button>
                     )}
-                    {!isOwnProfile && me && isFreelancer && (
+                    {!isOwnProfile && me && ((isFreelancer && me?.role === 'client') || (!isFreelancer && userData?.role !== 'admin' && me?.role === 'freelancer')) && (
                       <button
                         onClick={async () => {
+                          if (!me) { toast('Войдите чтобы добавить в избранное', 'info'); return }
+                          const removing = isFavorited
+                          setIsFavorited(!removing)
+                          toast(removing ? 'Удалено из избранного' : 'Добавлено в избранное!', removing ? 'info' : 'success')
                           setFavLoading(true)
                           try {
-                            if (isFavorited) { await favoritesApi.removeFreelancer(id); setIsFavorited(false); toast('Удалено из избранного', 'info') }
-                            else { await favoritesApi.addFreelancer(id); setIsFavorited(true); toast('Добавлено в избранное!', 'success') }
-                          } catch {} finally { setFavLoading(false) }
+                            removing ? await favoritesApi.removeFreelancer(id) : await favoritesApi.addFreelancer(id)
+                          } catch {
+                            setIsFavorited(removing)
+                            toast('Ошибка', 'error')
+                          } finally { setFavLoading(false) }
                         }}
                         disabled={favLoading}
+                        onMouseEnter={() => { if (!favLoading) setFavHov(true) }}
+                        onMouseLeave={() => setFavHov(false)}
                         style={{
-                          display: 'flex', alignItems: 'center', gap: 8, padding: '10px 18px', borderRadius: 11, fontSize: 13, fontWeight: 500,
+                          display: 'flex', alignItems: 'center', gap: 8,
+                          padding: '10px 20px', borderRadius: 11, fontSize: 13, fontWeight: 600,
                           cursor: favLoading ? 'not-allowed' : 'pointer',
-                          border: isFavorited ? '0.5px solid rgba(248,113,113,0.4)' : '0.5px solid var(--border)',
-                          background: isFavorited ? 'rgba(248,113,113,0.08)' : 'transparent',
-                          color: isFavorited ? '#F87171' : 'var(--text-secondary)',
+                          border: isFavorited && favHov
+                            ? '0.5px solid rgba(251,191,36,0.5)'
+                            : isFavorited
+                            ? '0.5px solid rgba(251,191,36,0.35)'
+                            : '0.5px solid var(--border)',
+                          background: isFavorited && favHov
+                            ? 'rgba(251,191,36,0.08)'
+                            : isFavorited
+                            ? 'rgba(251,191,36,0.06)'
+                            : 'var(--bg-card)',
+                          color: isFavorited ? '#FBBF24' : favHov ? 'var(--accent)' : 'var(--text-secondary)',
+                          transition: 'all 0.15s',
                         }}
                       >
-                        <i className={`ti ti-heart${isFavorited ? '-filled' : ''}`} style={{ fontSize: 15 }} />
-                        {favLoading ? '...' : isFavorited ? 'В избранном' : 'В избранное'}
+                        <i className={`ti ti-${isFavorited ? (favHov ? 'star-off' : 'star-filled') : 'star'}`} style={{ fontSize: 16 }} />
+                        {favLoading ? '...' : isFavorited ? (favHov ? 'Убрать' : 'В избранном') : 'В избранное'}
                       </button>
                     )}
                   </div>
@@ -381,10 +407,13 @@ export default function Profile() {
                 {/* Stats row */}
                 {isFreelancer && profile && (
                   <div style={{ display: 'flex', gap: 0, marginTop: 24, paddingTop: 24, borderTop: '0.5px solid var(--border)' }}>
+                    {profile.rating > 0 && (
+                      <StatNum value={`${Number(profile.rating).toFixed(1)}★`} label="Рейтинг" color="#EF9F27" />
+                    )}
                     <StatNum value={profile.total_jobs || 0} label="Выполнено" color="var(--accent-green)" />
                     <StatNum value={profile.experience_years ? `${profile.experience_years} лет` : '—'} label="Опыт" color="var(--accent)" />
-                    <StatNum value={reviews.length} label="Отзывов" color="#EF9F27" />
-                    <StatNum value={portfolio.length} label="Работ" color="var(--accent-teal)" />
+                    <StatNum value={reviews.length} label="Отзывов" color="var(--accent-teal)" />
+                    <StatNum value={portfolio.length} label="Работ" color="var(--text-secondary)" />
                   </div>
                 )}
                 {!isFreelancer && (
@@ -501,6 +530,22 @@ export default function Profile() {
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
                               <Input label="Опыт (лет)" type="number" value={editForm.experience_years} onChange={e => setEditForm(f => ({ ...f, experience_years: e.target.value }))} />
                               <Input label="GitHub URL" placeholder="https://github.com/username" value={editForm.github_url} onChange={e => setEditForm(f => ({ ...f, github_url: e.target.value }))} icon="brand-github" />
+                            </div>
+                            <div>
+                              <label style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)', display: 'block', marginBottom: 6 }}>
+                                Категория специализации
+                              </label>
+                              <select
+                                value={editForm.category_id}
+                                onChange={e => setEditForm(f => ({ ...f, category_id: e.target.value }))}
+                                className="input"
+                                style={{ fontSize: 13 }}
+                              >
+                                <option value="">— не выбрана —</option>
+                                {categories.map(cat => (
+                                  <option key={cat.id} value={cat.id}>{cat.name}</option>
+                                ))}
+                              </select>
                             </div>
                           </>
                         )}

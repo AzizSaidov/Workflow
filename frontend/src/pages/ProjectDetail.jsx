@@ -4,6 +4,7 @@ import useToastStore from '../store/toastStore'
 import useThemeStore from '../store/themeStore'
 import useAuthStore from '../store/authStore'
 import { projectsApi } from '../api/projects'
+import { favoritesApi } from '../api/favorites'
 import { reviewsApi } from '../api/reviews'
 import { bidsApi } from '../api/bids'
 import { contractsApi } from '../api/contracts'
@@ -138,6 +139,10 @@ export default function ProjectDetail() {
   const [freezeLoading, setFreezeLoading] = useState(false)
   const [progressLoading, setProgressLoading] = useState(false)
 
+  const [isFavorited, setIsFavorited] = useState(false)
+  const [favHov, setFavHov] = useState(false)
+  const [favLoading, setFavLoading] = useState(false)
+
   const [showDisputeConfirm, setShowDisputeConfirm] = useState(false)
   const [disputeLoading, setDisputeLoading] = useState(false)
 
@@ -162,6 +167,27 @@ export default function ProjectDetail() {
   }
 
   useEffect(() => { load() }, [id])
+
+  useEffect(() => {
+    if (!user) return
+    favoritesApi.getAll()
+      .then(r => setIsFavorited((r.data || []).some(f => f.project_id === id)))
+      .catch(() => {})
+  }, [id, user?.id])
+
+  const toggleFav = async () => {
+    if (favLoading) return
+    const removing = isFavorited
+    setIsFavorited(!removing)
+    setFavLoading(true)
+    toast(removing ? 'Удалено из избранного' : 'Добавлено в избранное!', removing ? 'info' : 'success')
+    try {
+      removing ? await favoritesApi.removeProject(id) : await favoritesApi.addProject(id)
+    } catch {
+      setIsFavorited(removing)
+      toast('Ошибка', 'error')
+    } finally { setFavLoading(false) }
+  }
 
   useEffect(() => {
     if (!user || user.role !== 'freelancer') { setMyBid(null); return }
@@ -448,8 +474,36 @@ export default function ProjectDetail() {
                     {project.experience_level && <Tag color="amber">{LEVEL_LABEL[project.experience_level]}</Tag>}
                     {project.category && <Tag color="green">{project.category}</Tag>}
                     {project.duration && <Tag color="muted">{project.duration}</Tag>}
-                    <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 5, fontSize: 12, color: 'var(--text-muted)' }}>
-                      <i className="ti ti-users" style={{ fontSize: 13 }} />{bids.length} заявок
+                    <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 10 }}>
+                      <span style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 12, color: 'var(--text-muted)' }}>
+                        <i className="ti ti-users" style={{ fontSize: 13 }} />{bids.length} заявок
+                      </span>
+                      {user && (
+                        <button
+                          onClick={toggleFav}
+                          disabled={favLoading}
+                          onMouseEnter={() => { if (!favLoading) setFavHov(true) }}
+                          onMouseLeave={() => setFavHov(false)}
+                          title={isFavorited ? 'Убрать из избранного' : 'В избранное'}
+                          style={{
+                            display: 'flex', alignItems: 'center', gap: 6,
+                            padding: isFavorited && favHov ? '6px 12px' : '6px 10px',
+                            borderRadius: 9, cursor: favLoading ? 'not-allowed' : 'pointer',
+                            border: isFavorited
+                              ? `0.5px solid ${favHov ? 'rgba(251,191,36,0.5)' : 'rgba(251,191,36,0.35)'}`
+                              : '0.5px solid var(--border)',
+                            background: isFavorited
+                              ? (favHov ? 'rgba(251,191,36,0.12)' : 'rgba(251,191,36,0.07)')
+                              : (favHov ? 'rgba(251,191,36,0.07)' : 'transparent'),
+                            color: isFavorited ? '#FBBF24' : favHov ? '#FBBF24' : 'var(--text-muted)',
+                            fontSize: 12, fontWeight: 600,
+                            transition: 'all 0.15s',
+                          }}
+                        >
+                          <i className={`ti ti-${isFavorited ? (favHov ? 'star-off' : 'star-filled') : 'star'}`} style={{ fontSize: 15 }} />
+                          {isFavorited ? (favHov ? 'Убрать' : 'В избранном') : 'В избранное'}
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>
