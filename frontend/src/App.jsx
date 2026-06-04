@@ -1,6 +1,11 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { useEffect } from 'react'
 import ProtectedRoute from './components/ProtectedRoute'
 import Toast from './components/Toast'
+import Snowflakes from './components/Snowflakes'
+import useSiteStore from './store/siteStore'
+import useThemeStore from './store/themeStore'
+import { siteSettingsApi } from './api/siteSettings'
 import Home from './pages/Home'
 import RoleSelect from './pages/RoleSelect'
 import Register from './pages/Register'
@@ -22,9 +27,38 @@ import Achievements from './pages/Achievements'
 import ClientProfile from './pages/ClientProfile'
 
 export default function App() {
+  const setHolidayMode = useSiteStore(s => s.setHolidayMode)
+  const holidayMode    = useSiteStore(s => s.holidayMode)
+  const isDark         = useThemeStore(s => s.isDark)
+
+  useEffect(() => {
+    siteSettingsApi.getPublic()
+      .then(r => setHolidayMode(r.data.holiday_mode))
+      .catch(() => {})
+  }, [])
+
+  // Winter color palette override
+  useEffect(() => {
+    const root = document.documentElement
+    if (holidayMode) {
+      root.style.setProperty('--accent',       isDark ? '#4BAECF' : '#1A8BB3')
+      root.style.setProperty('--accent-green', '#48C9B0')
+      root.style.setProperty('--accent-teal',  '#7DE8E0')
+      root.style.setProperty('--border',       isDark ? 'rgba(74,174,207,0.1)'  : 'rgba(26,139,179,0.12)')
+      root.style.setProperty('--border-hover', isDark ? 'rgba(74,174,207,0.45)' : 'rgba(26,139,179,0.45)')
+    } else {
+      root.style.removeProperty('--accent')
+      root.style.removeProperty('--accent-green')
+      root.style.removeProperty('--accent-teal')
+      root.style.removeProperty('--border')
+      root.style.removeProperty('--border-hover')
+    }
+  }, [holidayMode, isDark])
+
   return (
     <BrowserRouter>
       <Toast />
+      {holidayMode && <Snowflakes />}
       <Routes>
         {/* Public */}
         <Route path="/" element={<Home />} />

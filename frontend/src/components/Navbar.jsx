@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import useAuthStore from '../store/authStore'
 import useThemeStore from '../store/themeStore'
+import useSiteStore from '../store/siteStore'
 import ThemeToggle from './ThemeToggle'
 import Avatar from './Avatar'
 import NotificationBell from './NotificationBell'
@@ -47,6 +48,7 @@ function getNavLinks(user) {
 export default function Navbar() {
   const { user, logout, isAuthenticated } = useAuthStore()
   const { isDark } = useThemeStore()
+  const winter = useSiteStore(s => s.holidayMode)
   const location = useLocation()
   const navigate = useNavigate()
   const [scrolled, setScrolled] = useState(false)
@@ -89,7 +91,17 @@ export default function Navbar() {
       transition: 'background 0.3s, border-color 0.3s',
     }}>
       {/* Logo */}
-      <Logo size="sm" />
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <Logo size="sm" />
+        {winter && (
+          <span style={{
+            fontSize: 16, lineHeight: 1,
+            animation: 'snowfall 4s 0s linear infinite',
+            display: 'inline-block',
+            opacity: 0.85,
+          }}>❄</span>
+        )}
+      </div>
 
       {/* Center nav */}
       <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>

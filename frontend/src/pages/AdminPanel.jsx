@@ -2,6 +2,8 @@ import { useEffect, useState, useCallback, useRef } from 'react'
 import useAuthStore from '../store/authStore'
 import useThemeStore from '../store/themeStore'
 import { adminApi } from '../api/admin'
+import { siteSettingsApi } from '../api/siteSettings'
+import useSiteStore from '../store/siteStore'
 import useToastStore from '../store/toastStore'
 import StarBackground from '../components/StarBackground'
 import Navbar from '../components/Navbar'
@@ -11,10 +13,11 @@ import Button from '../components/Button'
 
 const NAV_ITEMS = [
   { key: 'stats',    icon: 'chart-bar',       label: 'Обзор' },
-  { key: 'users',    icon: 'users',            label: 'Пользователи' },
-  { key: 'wallets',  icon: 'wallet',           label: 'Кошельки' },
-  { key: 'disputes', icon: 'alert-triangle',   label: 'Споры' },
-  { key: 'reports',  icon: 'flag',             label: 'Жалобы' },
+  { key: 'users',    icon: 'users',           label: 'Пользователи' },
+  { key: 'wallets',  icon: 'wallet',          label: 'Кошельки' },
+  { key: 'disputes', icon: 'alert-triangle',  label: 'Споры' },
+  { key: 'reports',  icon: 'flag',            label: 'Жалобы' },
+  { key: 'settings', icon: 'settings',        label: 'Настройки' },
 ]
 
 const ROLE_COLORS = { client: 'var(--accent)', freelancer: 'var(--accent-green)', admin: '#F87171' }
@@ -54,6 +57,7 @@ export default function AdminPanel() {
     wallets:  <WalletsSection />,
     disputes: <DisputesSection />,
     reports:  <ReportsSection />,
+    settings: <SettingsSection />,
   }
 
   return (
@@ -892,6 +896,112 @@ function ReportsSection() {
           ))}
         </div>
       )}
+    </div>
+  )
+}
+
+/* ─────────────────────────── SETTINGS ─────────────────────────────── */
+
+function SettingsSection() {
+  const toast           = useToastStore(s => s.show)
+  const holidayMode     = useSiteStore(s => s.holidayMode)
+  const setHolidayMode  = useSiteStore(s => s.setHolidayMode)
+  const [loading, setLoading] = useState(false)
+
+  const toggle = async () => {
+    setLoading(true)
+    try {
+      const { data } = await siteSettingsApi.toggleHoliday()
+      setHolidayMode(data.holiday_mode)
+      toast(data.holiday_mode ? '❄ Новогодний режим включён' : 'Новогодний режим выключен', 'success')
+    } catch {
+      toast('Ошибка', 'error')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <div>
+      <SectionHeader icon="settings" title="Настройки сайта" sub="Глобальные параметры для всех пользователей" />
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 16, maxWidth: 560 }}>
+
+        {/* Holiday mode card */}
+        <div style={{
+          background: holidayMode
+            ? 'linear-gradient(135deg, rgba(127,119,221,0.1) 0%, rgba(93,202,165,0.08) 100%)'
+            : 'var(--bg-card)',
+          border: `0.5px solid ${holidayMode ? 'rgba(127,119,221,0.35)' : 'var(--border)'}`,
+          borderRadius: 18, padding: '24px 28px',
+          transition: 'all 0.3s',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 20 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+              <div style={{
+                width: 52, height: 52, borderRadius: 15, fontSize: 26,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                background: holidayMode ? 'rgba(127,119,221,0.15)' : 'rgba(255,255,255,0.04)',
+                border: '0.5px solid var(--border)',
+                transition: 'all 0.3s',
+              }}>
+                {holidayMode ? '❄' : '🎄'}
+              </div>
+              <div>
+                <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 16, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 4 }}>
+                  Новогодний режим
+                </div>
+                <div style={{ fontSize: 13, color: 'var(--text-muted)', lineHeight: 1.5 }}>
+                  {holidayMode
+                    ? 'Включён — снежинки падают у всех пользователей'
+                    : 'Выключен — праздничные эффекты не отображаются'}
+                </div>
+              </div>
+            </div>
+
+            {/* Toggle switch */}
+            <button
+              onClick={toggle}
+              disabled={loading}
+              style={{
+                position: 'relative', width: 52, height: 28, borderRadius: 14,
+                background: holidayMode ? 'var(--accent)' : 'rgba(255,255,255,0.1)',
+                border: `0.5px solid ${holidayMode ? 'var(--accent)' : 'var(--border)'}`,
+                cursor: loading ? 'not-allowed' : 'pointer',
+                transition: 'all 0.25s', flexShrink: 0, padding: 0,
+              }}
+            >
+              <div style={{
+                position: 'absolute', top: 3,
+                left: holidayMode ? 26 : 3,
+                width: 20, height: 20, borderRadius: '50%',
+                background: '#fff',
+                transition: 'left 0.25s',
+                boxShadow: '0 1px 4px rgba(0,0,0,0.3)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: 10,
+              }}>
+                {loading && <i className="ti ti-loader-2" style={{ color: 'var(--accent)', animation: 'spin 0.8s linear infinite' }} />}
+              </div>
+            </button>
+          </div>
+
+          {holidayMode && (
+            <div style={{
+              marginTop: 18, paddingTop: 16, borderTop: '0.5px solid rgba(127,119,221,0.2)',
+              display: 'flex', gap: 8, flexWrap: 'wrap',
+            }}>
+              {['❄', '❅', '❆', '✦'].map(f => (
+                <span key={f} style={{ fontSize: 20, opacity: 0.7 }}>{f}</span>
+              ))}
+              <span style={{ fontSize: 12, color: 'var(--text-muted)', alignSelf: 'center', marginLeft: 4 }}>
+                30 снежинок активны для всех пользователей
+              </span>
+            </div>
+          )}
+        </div>
+
+      </div>
     </div>
   )
 }

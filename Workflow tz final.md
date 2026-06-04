@@ -1,5 +1,5 @@
 # Workflow — ТЗ
-### Версия 6.3 | Обновлено 2026-06-04
+### Версия 7.0 | Обновлено 2026-06-05
 
 > Единственный актуальный документ.
 > Правило: когда делаем новую версию страницы — старую удаляем.
@@ -26,7 +26,7 @@
 | AIAssistant | AIAssistant.jsx | ✅ Готово | Sidebar 268px + split layout, empty state |
 | NotificationBell | NotificationBell.jsx | ⏳ Нужен редизайн | Grouped by date, иконки по типу, skeleton |
 | Wallet | Wallet.jsx | ✅ Готово | Баланс 56px, stats row, группировка по дате, фильтр-табы |
-| ClientProfile | — | 🆕 Создать | Профиль заказчика (новая страница) |
+| ClientProfile | ClientProfile.jsx | ✅ Готово | Профиль заказчика: sidebar + проекты + отзывы + флаг |
 | Achievements | Achievements.jsx | ✅ Готово | Сетка достижений, прогресс, фильтры по категориям |
 
 ---
@@ -76,6 +76,16 @@
 - [x] Геолокация — красная точка на глобусе, per-user localStorage key
 - [x] Страница /my-work (фрилансер: В работе / На проверке / Завершённые)
 - [x] Online-статус через Redis (SETEX на каждый HTTP-запрос)
+- [x] ReportModal — переиспользуемый компонент жалоб (reason dropdown + описание)
+- [x] Кнопка "Пожаловаться" — FreelancerCard, Profile, ProjectDetail (флаг-иконка, e.stopPropagation)
+- [x] useSEO хук — `frontend/src/hooks/useSEO.js` (title, description, og:title, og:description)
+- [x] SEO применён на: Home, ProjectsFeed, Freelancers, Profile, ProjectDetail
+- [x] ClientProfile — страница `/client/:id`, публичная, sidebar + вкладки Проекты/Отзывы
+- [x] История доработок — таблица `project_revisions`, счётчик "Доработок: N", раскрываемый список
+- [x] Категории фрилансера — M2M таблица `profile_categories`, редактор в Profile, фильтр на /freelancers
+- [x] Celery deadline-задача — `check_deadlines()` ежедневно в 09:00 Душанбе
+- [x] Alembic — настроен `env.py`, миграция `045713092286` (profile_categories + project_revisions)
+- [x] Lifespan FastAPI — подавляет WindowsError при CTRL+C в uvicorn
 
 ### Редизайн
 - [x] Home — персонализация CTA по роли, глобус, категории, skills marquee
@@ -161,7 +171,7 @@ credential_url: str | null
 ```
 API уже готов: `certificationsApi.create/update/delete` в `frontend/src/api/certifications.js`
 
-**6. Client Profile — профиль заказчика**
+**6. Client Profile — профиль заказчика** ✅ Сделано
 
 Сейчас: у заказчиков нет публичного профиля. Фрилансер не может посмотреть на кого работает.
 Нужно: страница `/client/:id` или расширение `/profile/:id` для role=client.
@@ -180,7 +190,7 @@ API уже готов: `certificationsApi.create/update/delete` в `frontend/src
 
 Диалог спора: обмен сообщениями с ответом от admin через `/api/disputes/{tx_id}/messages`.
 
-**8. Кнопка "Пожаловаться" (Report)**
+**8. Кнопка "Пожаловаться" (Report)** ✅ Сделано
 
 Сейчас: нет нигде.
 Нужно: иконка `ti-flag` на:
@@ -212,7 +222,7 @@ Backend: эндпоинт `POST /api/ai/rank-bids` принимает `project_i
 
 Смысл: заказчик видит объективный рейтинг на основе реального опыта фрилансера, а не просто красивых слов в заявке.
 
-**11. История доработок (Revision History)**
+**11. История доработок (Revision History)** ✅ Сделано
 
 Сейчас: "Запросить доработку" просто переводит проект обратно в `in_progress`. История теряется.
 Нужно:
@@ -245,7 +255,7 @@ created_at: datetime
 PK: (user_id, liker_id)
 ```
 
-**18. Категории в профиле фрилансера**
+**18. Категории в профиле фрилансера** ✅ Сделано
 
 Сейчас: у фрилансера нет поля "категории". На /freelancers нет фильтра по специализации.
 Нужно:
@@ -306,7 +316,7 @@ Backend: если M2M — новая таблица `freelancer_profile_categori
 
 Это осознанное решение — для демо/портфолио достаточно визуального различия типов.
 
-**17. Дедлайн — реальная логика**
+**17. Дедлайн — реальная логика** ✅ Сделано
 
 Сейчас: `deadline: Date` — только отображается на карточке, никакой реакции системы нет.
 Нужно:
@@ -456,19 +466,17 @@ WebSocket `/ws/chat/{project_id}` проверяет: `user_id == project.client
   ⏳ NotificationBell, ClientProfile (новая)
 
 ПРИОРИТЕТ 2 — Пропущенные фичи:
+  ✅ Client Profile страница (#6)
+  ✅ Report кнопка — FreelancerCard + ProjectDetail (#8)
+  ✅ История доработок — таблица + счётчик (#11)
+  ✅ Дедлайн — реальная логика + Celery (#17)
+  ✅ Категории в профиле фрилансера (#18)
   1. AI Rank ТОП-3 в ProjectDetail (#10)
-  2. История доработок — таблица + счётчик (#11)
-  3. Лайки профиля (#12)
-  4. Toggle Избранное + Лайки (#13)
-  5. Админка — UI пополнения баланса (#14)
-  6. Админка — блокировка пользователей (#15)
-  7. Client Profile страница (#6)
-  8. Report кнопка — FreelancerCard + ProjectDetail (#8)
-  9. Certifications CRUD в профиле (#5)
-  10. Dispute кнопка для пользователей (#7)
-  11. Contracts секция в ProjectDetail (#9)
-  12. Почасовая оплата — реальная логика (#16)
-  13. Дедлайн — реальная логика + Celery (#17)
+  2. Лайки профиля (#12)
+  3. Toggle Избранное + Лайки (#13)
+  4. Certifications CRUD в профиле (#5)
+  5. Dispute кнопка для пользователей (#7)
+  6. Contracts секция в ProjectDetail (#9)
 
 ПРИОРИТЕТ 3 — UX улучшения:
   12. Freelancers (поиск + фильтры включая категорию)
@@ -477,9 +485,16 @@ WebSocket `/ws/chat/{project_id}` проверяет: `user_id == project.client
   15. Убрать лупу из Navbar (#20)
 
 ПРИОРИТЕТ 4 — Техническое:
-  15. useSEO хук + применить на 5 страницах
-  16. Alembic check (проверить что миграции в порядке)
-  17. Async бэкенд (если есть время)
+  ✅ useSEO хук + применён на 5 страницах
+  ✅ Alembic — настроен, миграции применены
+  ✅ Lifespan FastAPI (Windows CTRL+C fix)
+  → celery в requirements.txt (A1)
+  → favicon + og:image (A2, A3)
+  → 404 страница (A4)
+  → Защита от двойного сабмита (A5)
+  → Ачивки на все события (A7)
+  → Nginx конфиг для сервера
+  → Async бэкенд (если есть время)
 
 ФИНАЛ:
   18. git pull + npm run build на сервере
@@ -517,6 +532,167 @@ WebSocket `/ws/chat/{project_id}` проверяет: `user_id == project.client
 
 ---
 
+## АУДИТ — ЧЕКЛИСТ ПЕРЕД ПРЕЗЕНТАЦИЕЙ / ДЕПЛОЕМ (2026-06-04)
+
+> Результат полной проверки кодовой базы. Ничего не сломано — это список того, что надо закрыть.
+
+---
+
+### 🔴 Критические (сломается при деплое на сервер)
+
+**A1. `celery` отсутствует в `requirements.txt`**
+
+Файлы `tasks/celery_app.py` и `tasks/notification_tasks.py` существуют и работают локально,
+но `pip install -r requirements.txt` на сервере не установит celery.
+
+Исправление:
+```
+# backend/requirements.txt — добавить:
+celery[redis]
+```
+
+**A2. `og:image` не задан нигде**
+
+`useSEO` выставляет `og:title` / `og:description`, но не `og:image`.
+В `index.html` нет дефолтного `og:image`. При шаринге в мессенджерах превью без картинки.
+
+Исправление: в `frontend/public/` добавить `og-image.jpg` (1200×630) и прописать в `index.html`:
+```html
+<meta property="og:image" content="/og-image.jpg" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://test.softclub.tj" />
+```
+
+---
+
+### 🟡 Важные (плохо выглядят на презентации)
+
+**A3. Нет favicon**
+
+`index.html` не содержит `<link rel="icon">`. Браузер показывает пустую вкладку.
+
+Исправление: добавить `frontend/public/favicon.ico` (или SVG) и в `index.html`:
+```html
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+```
+
+**A4. Нет страницы 404**
+
+`path="*"` в App.jsx редиректит на `/`. Если судья вводит несуществующий URL — просто Home без объяснений.
+
+Исправление: создать простую страницу `NotFound.jsx` и добавить в App.jsx:
+```jsx
+<Route path="*" element={<NotFound />} />
+```
+Содержимое: большая цифра "404", текст "Страница не найдена", кнопка "На главную".
+
+**A5. Двойной сабмит на логине и регистрации**
+
+Кнопка не блокируется во время запроса. Быстрый двойной клик отправляет 2 одинаковых запроса.
+
+Исправление: добавить `const [submitting, setSubmitting] = useState(false)` и
+`disabled={submitting}` на кнопку в `Login.jsx` и `Register.jsx`.
+
+**A6. Мобильная вёрстка не адаптирована**
+
+Гриды используют `repeat(3, 1fr)` с фиксированными `maxWidth`. На телефоне
+карточки DashboardClient, ProjectsFeed и Freelancers обрезаются или сжимаются до нечитаемого вида.
+
+Примечание: в "ЧТО НЕ ДЕЛАЕМ" было прописано "Мобильная адаптация (desktop-first)" — значит это осознанное
+решение. Закрывать только если решили изменить политику.
+
+---
+
+### 🟢 Минорное (не блокирует, но стоит отметить)
+
+**A7. Ачивки проверяются только при создании проекта**
+
+`check_and_grant()` вызывается только в `create_project()` (`projects/views.py:71`).
+Большинство ачивок (первая заявка, первый completed, первый отзыв) никогда не выдаются.
+
+Исправление: добавить вызов `check_and_grant(user, db)` в:
+- `accept_bid()` — для клиента (принял заявку) и фрилансера (заявку приняли)
+- `accept_delivery()` — для клиента (завершил проект) и фрилансера (проект closed)
+- `create_review()` — для пользователя оставившего отзыв
+
+**A8. Email-уведомления — заглушка**
+
+`send_email_notification()` в `tasks/notification_tasks.py` делает только `print(...)`.
+Для продакшена нужно заменить на реальный SMTP или SendGrid.
+На демо некритично, но при просмотре кода выглядит незаконченным.
+
+**A9. Нет `robots.txt`**
+
+Для SEO на продакшене нужен. Достаточно добавить `frontend/public/robots.txt`:
+```
+User-agent: *
+Allow: /
+Sitemap: https://test.softclub.tj/sitemap.xml
+```
+
+**A10. Forgot password отсутствует**
+
+Известный gap (отложен в ТЗ). Минимальное решение для демо: на Login.jsx добавить текст
+"Забыли пароль? Обратитесь к администратору: admin@workflow.com".
+
+---
+
+### Nginx-конфиг для сервера (нужен при деплое)
+
+Для production на `test.softclub.tj` нужен nginx-конфиг с:
+- `location /api/` → proxy к gunicorn на `localhost:8000`
+- `location /ws/` → proxy с `upgrade websocket`
+- `location /` → serve собранного фронтенда из `frontend/dist/`
+
+Без этого конфига сервер не будет принимать запросы правильно.
+
+Шаблон-конфиг:
+```nginx
+server {
+    listen 80;
+    server_name test.softclub.tj;
+
+    root /home/students/azizsaidov/Workflow/frontend/dist;
+    index index.html;
+
+    location /api/ {
+        proxy_pass http://127.0.0.1:8000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+
+    location /ws/ {
+        proxy_pass http://127.0.0.1:8000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+    }
+
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+}
+```
+
+---
+
+### Итоговый статус
+
+| | Для презентации | Для продакшена |
+|---|---|---|
+| Backend API | ✅ Готов | ✅ Готов |
+| Frontend | ✅ Готов | ✅ Готов |
+| WS URLs | ✅ VITE_API_URL | ✅ VITE_API_URL |
+| Celery в requirements | ❌ Отсутствует | ❌ **Добавить** |
+| Favicon | ❌ Нет | ❌ **Добавить** |
+| og:image | ❌ Нет | ❌ **Добавить** |
+| 404 страница | ⚠️ Редирект на / | ⚠️ **Сделать** |
+| Nginx конфиг | — | ❌ **Написать** |
+| Email (SMTP) | ⚠️ Заглушка | ❌ **Подключить** |
+| Мобилка | ⚠️ Desktop-only | ⚠️ Договорились не делать |
+
+---
+
 ## ЧТО НЕ ДЕЛАЕМ (отложено)
 
 - Реальные платежи
@@ -538,4 +714,4 @@ WebSocket `/ws/chat/{project_id}` проверяет: `user_id == project.client
 
 ---
 
-*Workflow TZ v6.1 | 2026-06-03 | AzizSaidov*
+*Workflow TZ v7.0 | 2026-06-05 | AzizSaidov*

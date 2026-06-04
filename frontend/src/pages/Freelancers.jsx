@@ -89,11 +89,6 @@ function FreelancerRow({ user, profile }) {
           )}
         </div>
 
-        {/* Favorite */}
-        {onFavoriteToggle && (
-          <StarToggleBtn isFavorited={isFavorited} onToggle={onFavoriteToggle} />
-        )}
-
         <i className="ti ti-chevron-right" style={{ fontSize: 15, color: 'var(--text-muted)', flexShrink: 0, opacity: 0.4 }} />
       </div>
     </Link>

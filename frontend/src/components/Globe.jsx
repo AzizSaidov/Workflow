@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useMemo, useCallback } from 'react'
 import GlobeGL from 'react-globe.gl'
 import useThemeStore from '../store/themeStore'
+import useSiteStore from '../store/siteStore'
 
 
 export default function Globe({
@@ -9,8 +10,9 @@ export default function Globe({
   height = 480,
   showLegend = true,
 }) {
-  const globeRef = useRef()
+  const globeRef   = useRef()
   const { isDark } = useThemeStore()
+  const winter     = useSiteStore(s => s.holidayMode)
   const [loaded, setLoaded] = useState(false)
   const [textureFading, setTextureFading] = useState(false)
 
@@ -38,6 +40,32 @@ export default function Globe({
       size: l.role === 'me' ? 1.05 : 0.6,
       label: l.role === 'me' ? 'Вы' : l.role === 'client' ? 'Заказчик' : 'Фрилансер',
     })), [locations])
+
+  // Snow particles scattered across the globe in winter mode
+  const SNOW_SEED = useMemo(() => {
+    const pts = []
+    // Polar caps — concentrated near 80–90°
+    for (let i = 0; i < 18; i++) {
+      pts.push({ lat:  (80 + Math.random() * 10),       lng: Math.random() * 360 - 180 })
+      pts.push({ lat: -(80 + Math.random() * 10),       lng: Math.random() * 360 - 180 })
+    }
+    // Mid-latitude snow
+    for (let i = 0; i < 20; i++) {
+      pts.push({ lat: Math.random() * 120 - 60, lng: Math.random() * 360 - 180 })
+    }
+    return pts
+  }, [])
+
+  const allPoints = useMemo(() => {
+    if (!winter) return points
+    const snowPts = SNOW_SEED.map(p => ({
+      ...p, role: 'snow',
+      color: `rgba(${200 + Math.floor(Math.random()*55)},${230 + Math.floor(Math.random()*25)},255,0.75)`,
+      size: 0.18 + Math.random() * 0.28,
+      label: '',
+    }))
+    return [...points, ...snowPts]
+  }, [points, winter, SNOW_SEED])
 
   const arcs = useMemo(() => {
     const clients = points.filter(p => p.role === 'client')
@@ -74,8 +102,25 @@ export default function Globe({
     setTimeout(() => { c.autoRotate = true }, 2000)
   }, [])
 
-  const earthTexture = isDark ? '/earth-night.jpg' : '/earth-blue-marble.jpg'
-  const fadeRgb = isDark ? '7,7,14' : '248,247,255'
+  const earthTexture = winter ? '/earth-blue-marble.jpg' : (isDark ? '/earth-night.jpg' : '/earth-blue-marble.jpg')
+  const fadeRgb      = isDark ? '7,7,14' : '248,247,255'
+
+  const atmoColor  = winter ? '#8ACFEA'  : (isDark ? '#9B93F0' : '#6096E8')
+  const atmoAlt    = winter ? 0.35       : (isDark ? 0.26 : 0.15)
+  const ring1Color = winter ? 'rgba(91,184,212,0.25)'  : 'rgba(127,119,221,0.2)'
+  const ring1Dot   = winter ? '#5BB8D4'  : '#7F77DD'
+  const ring1Glow  = winter ? '91,184,212' : '127,119,221'
+  const ring2Color = winter ? 'rgba(72,201,176,0.18)'  : 'rgba(29,158,117,0.14)'
+  const ring2Dot   = winter ? '#48C9B0'  : '#1D9E75'
+  const ring2Glow  = winter ? '72,201,176' : '29,158,117'
+  const arcColors  = winter
+    ? () => ['rgba(91,184,212,0.85)', 'rgba(72,201,176,0.85)']
+    : () => ['rgba(127,119,221,0.85)', 'rgba(29,158,117,0.85)']
+  const spaceGlow  = winter
+    ? 'radial-gradient(circle, rgba(91,184,212,0.15) 0%, rgba(72,201,176,0.06) 50%, transparent 70%)'
+    : (isDark
+      ? 'radial-gradient(circle, rgba(127,119,221,0.13) 0%, rgba(29,158,117,0.05) 50%, transparent 70%)'
+      : 'radial-gradient(circle, rgba(59,91,219,0.10) 0%, transparent 65%)')
 
   return (
     <div style={{ position: 'relative', width, height }}>
@@ -100,47 +145,45 @@ export default function Globe({
       {/* Deep space glow */}
       <div style={{
         position: 'absolute', inset: '-12%', borderRadius: '50%',
-        background: isDark
-          ? 'radial-gradient(circle, rgba(127,119,221,0.13) 0%, rgba(29,158,117,0.05) 50%, transparent 70%)'
-          : 'radial-gradient(circle, rgba(59,91,219,0.10) 0%, transparent 65%)',
+        background: spaceGlow,
         pointerEvents: 'none', zIndex: 0,
       }} />
 
-      {/* Orbital ring 1 — purple */}
+      {/* Orbital ring 1 */}
       {loaded && (
         <div style={{
           position: 'absolute', top: '50%', left: '50%',
           width: width * 1.09, height: width * 1.09,
           borderRadius: '50%',
-          border: '1px solid rgba(127,119,221,0.2)',
-          boxShadow: '0 0 10px rgba(127,119,221,0.06) inset',
+          border: `1px solid ${ring1Color}`,
+          boxShadow: `0 0 10px rgba(${ring1Glow},0.06) inset`,
           animation: 'orbitSpin1 16s linear infinite',
           pointerEvents: 'none', zIndex: 0,
         }}>
           <div style={{
             position: 'absolute', top: -4, left: '50%', transform: 'translateX(-50%)',
             width: 7, height: 7, borderRadius: '50%',
-            background: '#7F77DD',
-            boxShadow: '0 0 10px #7F77DD, 0 0 20px rgba(127,119,221,0.5)',
+            background: ring1Dot,
+            boxShadow: `0 0 10px ${ring1Dot}, 0 0 20px rgba(${ring1Glow},0.5)`,
           }} />
         </div>
       )}
 
-      {/* Orbital ring 2 — green */}
+      {/* Orbital ring 2 */}
       {loaded && (
         <div style={{
           position: 'absolute', top: '50%', left: '50%',
           width: width * 1.17, height: width * 1.17,
           borderRadius: '50%',
-          border: '0.5px solid rgba(29,158,117,0.14)',
+          border: `0.5px solid ${ring2Color}`,
           animation: 'orbitSpin2 26s linear infinite',
           pointerEvents: 'none', zIndex: 0,
         }}>
           <div style={{
             position: 'absolute', top: -3, left: '50%', transform: 'translateX(-50%)',
             width: 5, height: 5, borderRadius: '50%',
-            background: '#1D9E75',
-            boxShadow: '0 0 8px #1D9E75, 0 0 16px rgba(29,158,117,0.4)',
+            background: ring2Dot,
+            boxShadow: `0 0 8px ${ring2Dot}, 0 0 16px rgba(${ring2Glow},0.4)`,
           }} />
         </div>
       )}
@@ -168,14 +211,14 @@ export default function Globe({
           height={height}
           backgroundColor="rgba(0,0,0,0)"
           globeImageUrl={earthTexture}
-          atmosphereColor={isDark ? '#9B93F0' : '#6096E8'}
-          atmosphereAltitude={isDark ? 0.26 : 0.15}
+          atmosphereColor={atmoColor}
+          atmosphereAltitude={atmoAlt}
 
-          pointsData={points}
+          pointsData={allPoints}
           pointColor="color"
           pointAltitude={0.03}
           pointRadius="size"
-          pointLabel={p =>
+          pointLabel={p => p.role === 'snow' ? '' :
             `<div style="background:rgba(10,10,20,0.93);border:0.5px solid rgba(255,255,255,0.13);` +
             `border-radius:8px;padding:5px 11px;font-size:12px;color:#fff;pointer-events:none;` +
             `box-shadow:0 2px 12px rgba(0,0,0,0.5);">${p.label}</div>`
@@ -187,7 +230,7 @@ export default function Globe({
           arcStartLng="startLng"
           arcEndLat="endLat"
           arcEndLng="endLng"
-          arcColor={() => ['rgba(127,119,221,0.85)', 'rgba(29,158,117,0.85)']}
+          arcColor={arcColors}
           arcAltitudeAutoScale={0.4}
           arcStroke={0.45}
           arcDashLength={0.5}
@@ -219,6 +262,46 @@ export default function Globe({
           borderRadius: '50%',
           overflow: 'hidden',
         }} />
+      )}
+
+      {/* ── Winter frost overlay ── */}
+      {winter && loaded && (
+        <div style={{
+          position: 'absolute', inset: 0, zIndex: 3,
+          borderRadius: '50%', pointerEvents: 'none',
+          background: [
+            // North pole white cap
+            'radial-gradient(ellipse 70% 28% at 50% 2%, rgba(220,245,255,0.55) 0%, rgba(200,235,255,0.2) 50%, transparent 100%)',
+            // South pole white cap
+            'radial-gradient(ellipse 70% 22% at 50% 98%, rgba(220,245,255,0.45) 0%, rgba(200,235,255,0.15) 50%, transparent 100%)',
+            // Frost creeping from edges
+            'radial-gradient(circle, transparent 42%, rgba(180,225,255,0.07) 58%, rgba(200,235,255,0.18) 74%, rgba(215,240,255,0.38) 88%, rgba(230,248,255,0.6) 100%)',
+            // Overall icy blue tint
+            'radial-gradient(circle, rgba(91,184,212,0.06) 0%, transparent 65%)',
+          ].join(','),
+        }} />
+      )}
+
+      {/* Winter polar glow rings */}
+      {winter && loaded && (
+        <>
+          <div style={{
+            position: 'absolute', left: '50%', top: '6%',
+            transform: 'translateX(-50%)',
+            width: width * 0.38, height: width * 0.1,
+            borderRadius: '50%',
+            background: 'radial-gradient(ellipse, rgba(200,240,255,0.35) 0%, transparent 70%)',
+            pointerEvents: 'none', zIndex: 4, filter: 'blur(6px)',
+          }} />
+          <div style={{
+            position: 'absolute', left: '50%', bottom: '6%',
+            transform: 'translateX(-50%)',
+            width: width * 0.3, height: width * 0.08,
+            borderRadius: '50%',
+            background: 'radial-gradient(ellipse, rgba(200,240,255,0.28) 0%, transparent 70%)',
+            pointerEvents: 'none', zIndex: 4, filter: 'blur(5px)',
+          }} />
+        </>
       )}
 
 

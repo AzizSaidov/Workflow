@@ -1,11 +1,16 @@
 import { useEffect, useRef } from 'react'
+import useSiteStore from '../store/siteStore'
 
 export default function StarBackground({ isDark = true, intensity = 'full' }) {
-  const canvasRef = useRef(null)
-  const animRef = useRef(null)
-  const isDarkRef = useRef(isDark)
+  const canvasRef     = useRef(null)
+  const animRef       = useRef(null)
+  const isDarkRef     = useRef(isDark)
   const canvasAlphaRef = useRef(1)
-  const fadingRef = useRef(false)
+  const fadingRef     = useRef(false)
+  const winter        = useSiteStore(s => s.holidayMode)
+  const winterRef     = useRef(winter)
+
+  useEffect(() => { winterRef.current = winter }, [winter])
 
   useEffect(() => {
     if (isDarkRef.current === isDark) return
@@ -43,7 +48,7 @@ export default function StarBackground({ isDark = true, intensity = 'full' }) {
     resize()
     window.addEventListener('resize', resize)
 
-    // Stars (dark)
+    // Stars (dark) — palIdx: 0=accent, 1=teal, 2=white
     const count = intensity === 'full' ? 220 : 110
     const darkStars = []
     for (let i = 0; i < count; i++) {
@@ -58,9 +63,13 @@ export default function StarBackground({ isDark = true, intensity = 'full' }) {
         to: Math.random() * Math.PI * 2,
         vx: (Math.random() - 0.5) * 0.05,
         vy: (Math.random() - 0.5) * 0.035,
-        col: r > 0.86 ? '#7F77DD' : r > 0.73 ? '#5DCAA5' : '#ffffff',
+        palIdx: r > 0.86 ? 0 : r > 0.73 ? 1 : 2,
       })
     }
+    const DEFAULT_PAL = ['#7F77DD', '#5DCAA5', '#ffffff']
+    const WINTER_PAL  = ['#4BAECF', '#7DE8E0', '#E8F4FD']
+    const DEFAULT_GLOW = ['rgba(127,119,221,', 'rgba(93,202,165,']
+    const WINTER_GLOW  = ['rgba(75,174,207,',  'rgba(125,232,224,']
 
     const shooterCount = intensity === 'full' ? 5 : 2
     const shooters = []
@@ -131,16 +140,21 @@ export default function StarBackground({ isDark = true, intensity = 'full' }) {
       ctx.globalAlpha = masterAlpha
 
       if (isDarkRef.current) {
+        const isWinter = winterRef.current
+        const pal  = isWinter ? WINTER_PAL  : DEFAULT_PAL
+        const glow = isWinter ? WINTER_GLOW : DEFAULT_GLOW
+
         for (let i = 0; i < darkStars.length; i++) {
           const s = darkStars[i]
           s.x += s.vx; s.y += s.vy
           if (s.x < 0) s.x = canvas.width; if (s.x > canvas.width) s.x = 0
           if (s.y < 0) s.y = canvas.height; if (s.y > canvas.height) s.y = 0
           s.a = s.ba * (0.4 + 0.6 * Math.sin(tt * s.ts * 60 + s.to))
+          const col = pal[s.palIdx]
           ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2)
-          ctx.fillStyle = s.col; ctx.globalAlpha = s.a; ctx.fill()
+          ctx.fillStyle = col; ctx.globalAlpha = s.a; ctx.fill()
           if (s.r > 1.0 && s.a > 0.3) {
-            const gc = s.col === '#7F77DD' ? 'rgba(127,119,221,' : 'rgba(93,202,165,'
+            const gc = s.palIdx < 2 ? glow[s.palIdx] : (isWinter ? 'rgba(232,244,253,' : 'rgba(255,255,255,')
             const g = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, s.r * 3.2)
             g.addColorStop(0, gc + '0.28)'); g.addColorStop(1, 'transparent')
             ctx.beginPath(); ctx.arc(s.x, s.y, s.r * 3.2, 0, Math.PI * 2)
@@ -153,9 +167,10 @@ export default function StarBackground({ isDark = true, intensity = 'full' }) {
           s.x += s.vx; s.y += s.vy; s.p++
           s.a = Math.max(0, 1 - s.p / 60)
           const tx = s.x - s.vx * 9, ty = s.y - s.vy * 9
+          const midCol = isWinter ? `rgba(168,216,234,${s.a * 0.5})` : `rgba(210,206,255,${s.a * 0.5})`
           const gr = ctx.createLinearGradient(tx, ty, s.x, s.y)
           gr.addColorStop(0, 'rgba(255,255,255,0)')
-          gr.addColorStop(0.5, `rgba(210,206,255,${s.a * 0.5})`)
+          gr.addColorStop(0.5, midCol)
           gr.addColorStop(1, `rgba(255,255,255,${s.a})`)
           ctx.beginPath(); ctx.moveTo(tx, ty); ctx.lineTo(s.x, s.y)
           ctx.strokeStyle = gr; ctx.globalAlpha = s.a; ctx.lineWidth = 1.8; ctx.stroke()

@@ -28,6 +28,7 @@ from routers.dispute_routers import disputes_router
 from routers.admin_routers import admin_router
 from routers.achievement_routers import achievements_router
 from routers.skill_routers import skills_router
+from routers.settings_routers import settings_router, admin_settings_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -77,3 +78,5 @@ app.include_router(disputes_router)
 app.include_router(admin_router)
 app.include_router(achievements_router)
 app.include_router(skills_router)
+app.include_router(settings_router)
+app.include_router(admin_settings_router)
