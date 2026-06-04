@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, useNavigate, useLocation } from 'react-router-dom'
+import { Link, useNavigate, useLocation, useSearchParams } from 'react-router-dom'
 import useThemeStore from '../store/themeStore'
 import useAuthStore from '../store/authStore'
 import { authApi } from '../api/auth'
@@ -28,6 +28,8 @@ export default function Login() {
   const { login, setUser } = useAuthStore()
   const navigate = useNavigate()
   const location = useLocation()
+  const [searchParams] = useSearchParams()
+  const isBlocked = searchParams.get('blocked') === '1'
   const from = location.state?.from?.pathname || '/'
 
   const [form, setForm] = useState({ email: '', password: '' })
@@ -73,6 +75,22 @@ export default function Login() {
               Войдите в свой аккаунт Workflow
             </p>
           </div>
+
+          {isBlocked && (
+            <div style={{
+              display: 'flex', alignItems: 'flex-start', gap: 10,
+              padding: '14px 16px', borderRadius: 12, marginBottom: 20,
+              background: 'rgba(239,68,68,0.08)', border: '0.5px solid rgba(239,68,68,0.3)',
+            }}>
+              <i className="ti ti-lock" style={{ color: '#F87171', fontSize: 18, flexShrink: 0, marginTop: 1 }} />
+              <div>
+                <div style={{ fontSize: 13, fontWeight: 600, color: '#F87171', marginBottom: 2 }}>Аккаунт заблокирован</div>
+                <div style={{ fontSize: 12, color: 'var(--text-muted)', lineHeight: 1.5 }}>
+                  Ваш аккаунт был заблокирован администратором. Свяжитесь с поддержкой для уточнения деталей.
+                </div>
+              </div>
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             <Input label="Email" type="email" placeholder="you@example.com" icon="mail" value={form.email} onChange={set('email')} required />

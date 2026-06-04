@@ -78,7 +78,7 @@ def delete_me(db: Session = Depends(get_db), current_user: User = Depends(get_cu
 def list_users(
     role: UserRole | None = Query(default=None),
     db: Session = Depends(get_db),
-    _: User = Depends(get_current_user),
+    _: User | None = Depends(get_optional_user),
 ):
     return get_all_users(db, role)
 

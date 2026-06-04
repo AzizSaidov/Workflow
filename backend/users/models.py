@@ -25,4 +25,5 @@ class User(Base):
     latitude = Column(Float, nullable=True)
     longitude = Column(Float, nullable=True)
     is_banned = Column(Boolean, nullable=False, default=False)
+    is_admin  = Column(Boolean, nullable=False, server_default='false', default=False)
     created_at = Column(DateTime(timezone=True), default=get_dushanbe_time)

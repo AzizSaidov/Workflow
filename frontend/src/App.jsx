@@ -18,6 +18,7 @@ import ChatsPage from './pages/ChatsPage'
 import Favorites from './pages/Favorites'
 import AIAssistant from './pages/AIAssistant'
 import MyWork from './pages/MyWork'
+import Achievements from './pages/Achievements'
 
 export default function App() {
   return (
@@ -29,10 +30,11 @@ export default function App() {
         <Route path="/role" element={<RoleSelect />} />
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/freelancers" element={<ProtectedRoute><Freelancers /></ProtectedRoute>} />
+        <Route path="/freelancers" element={<Freelancers />} />
         <Route path="/projects" element={<ProjectsFeed />} />
         <Route path="/projects/:id" element={<ProjectDetail />} />
         <Route path="/profile/:id" element={<Profile />} />
+        <Route path="/achievements" element={<Achievements />} />
 
         {/* Protected */}
         <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />

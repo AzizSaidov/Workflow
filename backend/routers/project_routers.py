@@ -12,6 +12,7 @@ from projects.views import (
 from media.views import get_project_files
 from users.permissions import get_current_user, get_optional_user
 from users.models import User
+from achievements.views import check_and_grant
 from pydantic import BaseModel
 
 
@@ -92,7 +93,13 @@ def revision(project_id: UUID, data: ClientFeedback, db: Session = Depends(get_d
 
 @projects_router.put("/{project_id}/accept-delivery", response_model=ProjectResponse)
 def accept(project_id: UUID, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    return accept_delivery(project_id, current_user, db)
+    project = accept_delivery(project_id, current_user, db)
+    check_and_grant(current_user, db)
+    if project.assigned_freelancer_id:
+        freelancer = db.query(User).filter(User.id == project.assigned_freelancer_id).first()
+        if freelancer:
+            check_and_grant(freelancer, db)
+    return project
 
 
 @projects_router.patch("/{project_id}/progress", response_model=ProjectResponse)

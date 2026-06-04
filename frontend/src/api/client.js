@@ -51,7 +51,10 @@ client.interceptors.response.use(
         const { state } = JSON.parse(raw || '{}')
         const refreshToken = state?.refreshToken
 
-        if (!refreshToken) throw new Error('No refresh token')
+        if (!refreshToken) {
+          isRefreshing = false
+          return Promise.reject(error)
+        }
 
         const { data } = await axios.post(
           `${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/users/refresh`,
@@ -75,6 +78,12 @@ client.interceptors.response.use(
       } finally {
         isRefreshing = false
       }
+    }
+
+    if (error.response?.status === 403 && error.response?.data?.detail === 'Аккаунт заблокирован') {
+      localStorage.removeItem('workflow-auth')
+      window.location.href = '/login?blocked=1'
+      return Promise.reject(error)
     }
 
     return Promise.reject(error)

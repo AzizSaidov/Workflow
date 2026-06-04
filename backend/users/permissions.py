@@ -23,6 +23,9 @@ def get_current_user(
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found")
+    _is_admin = user.is_admin or user.role.value == "admin"
+    if user.is_banned and not _is_admin:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Аккаунт заблокирован")
     try:
         _redis.setex(f"online:{user.id}", 300, 1)
     except Exception:
@@ -43,6 +46,6 @@ def get_optional_user(
 
 
 def check_admin(current_user: User = Depends(get_current_user)) -> User:
-    if current_user.role.value != "admin":
+    if not current_user.is_admin and current_user.role.value != "admin":
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin access required")
     return current_user

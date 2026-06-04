@@ -47,7 +47,7 @@ ALL_SKILLS = {
     "web-dev": [
         ("React", "react"), ("Vue.js", "vuejs"), ("FastAPI", "fastapi"),
         ("Node.js", "nodejs"), ("PostgreSQL", "postgresql"), ("TypeScript", "typescript"),
-        ("JavaScript", "javascript"), ("Python", "python-web"), ("C#", "csharp"),
+        ("JavaScript", "javascript"), ("C#", "csharp"),
         ("C++", "cpp"), ("C", "c"), ("Java", "java"), ("Go", "go"),
         ("Rust", "rust"), ("PHP", "php"), ("Ruby", "ruby"),
         ("Next.js", "nextjs"), ("Nuxt.js", "nuxtjs"), ("Django", "django"),
@@ -209,10 +209,11 @@ def seed():
 
         # ── ADMIN ───────────────────────────────────────────────────────────
         admin, admin_w = make_user(
-            "admin@workflow.com", "admin123", UserRole.admin,
+            "admin@workflow.com", "admin123", UserRole.client,
             "Admin", "Workflow platform administrator.", 38.56, 68.77,
             "https://i.pravatar.cc/150?u=admin@workflow.com",
         )
+        admin.is_admin = True
         admin_w.balance = Decimal("50000")
 
         # ── CLIENTS (6) ─────────────────────────────────────────────────────

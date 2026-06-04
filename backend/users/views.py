@@ -34,6 +34,8 @@ def login_user(data: LoginRequest, db: Session) -> tuple[User, str, str]:
     user = db.query(User).filter(User.email == data.email).first()
     if not user or not verify_password(data.password, user.password):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid email or password")
+    if user.is_banned:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Аккаунт заблокирован администратором")
     return user, create_access_token(str(user.id)), create_refresh_token(str(user.id))
 
 

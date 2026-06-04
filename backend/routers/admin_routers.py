@@ -7,6 +7,7 @@ from admin.views import (
     get_all_reports, resolve_report, get_all_disputes,
     admin_release, admin_refund, get_all_users, ban_user, unban_user,
     verify_user, topup_wallet, get_platform_stats, change_user_role,
+    grant_admin, revoke_admin,
 )
 from reports.schemas import ReportResponse
 from escrow.schemas import TransactionResponse
@@ -66,6 +67,16 @@ def verify(user_id: UUID, db: Session = Depends(get_db), _: User = Depends(check
 @admin_router.put("/users/{user_id}/role", response_model=UserResponse)
 def set_role(user_id: UUID, new_role: str = Body(..., embed=True), db: Session = Depends(get_db), _: User = Depends(check_admin)):
     return change_user_role(user_id, new_role, db)
+
+
+@admin_router.put("/users/{user_id}/grant-admin", response_model=UserResponse)
+def make_admin(user_id: UUID, db: Session = Depends(get_db), _: User = Depends(check_admin)):
+    return grant_admin(user_id, db)
+
+
+@admin_router.put("/users/{user_id}/revoke-admin", response_model=UserResponse)
+def remove_admin(user_id: UUID, db: Session = Depends(get_db), _: User = Depends(check_admin)):
+    return revoke_admin(user_id, db)
 
 
 @admin_router.post("/wallet/topup")

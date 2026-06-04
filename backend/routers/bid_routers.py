@@ -6,13 +6,16 @@ from bids.schemas import BidCreate, BidResponse, BidEnrichedResponse
 from bids.views import create_bid, get_project_bids, get_my_bids, accept_bid, reject_bid, get_my_bid_for_project
 from users.permissions import get_current_user
 from users.models import User
+from achievements.views import check_and_grant
 
 bids_router = APIRouter(prefix="/api/bids", tags=["bids"])
 
 
 @bids_router.post("/project/{project_id}", response_model=BidResponse, status_code=201)
 def submit_bid(project_id: UUID, data: BidCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    return create_bid(project_id, data, current_user, db)
+    bid = create_bid(project_id, data, current_user, db)
+    check_and_grant(current_user, db)
+    return bid
 
 
 @bids_router.get("/project/{project_id}", response_model=list[BidEnrichedResponse])

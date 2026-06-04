@@ -12,6 +12,7 @@ from reviews.models import Review
 from portfolio.models import PortfolioItem
 from certifications.models import Certification
 from profiles.models import SkillToProfile
+from notifications.models import Notification, NotificationType
 
 
 ACHIEVEMENT_DEFINITIONS = [
@@ -120,6 +121,13 @@ def _grant(user_id, key: str, db: Session) -> bool:
         return False
     try:
         db.add(UserAchievement(user_id=user_id, achievement_id=ach.id))
+        db.flush()
+        db.add(Notification(
+            user_id=user_id,
+            type=NotificationType.achievement,
+            title=f"Новое достижение: {ach.name}",
+            message=ach.description,
+        ))
         db.flush()
         return True
     except IntegrityError:

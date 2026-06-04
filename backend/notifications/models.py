@@ -14,6 +14,7 @@ class NotificationType(str, enum.Enum):
     new_review = "new_review"
     project_disputed = "project_disputed"
     revision_requested = "revision_requested"
+    achievement = "achievement"
 
 
 class Notification(Base):

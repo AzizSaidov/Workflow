@@ -11,6 +11,8 @@ export const adminApi = {
   unbanUser: (id) => client.put(`/admin/users/${id}/unban`),
   verifyUser: (id) => client.put(`/admin/users/${id}/verify`),
   changeRole: (id, new_role) => client.put(`/admin/users/${id}/role`, { new_role }),
+  grantAdmin: (id) => client.put(`/admin/users/${id}/grant-admin`),
+  revokeAdmin: (id) => client.put(`/admin/users/${id}/revoke-admin`),
   getStats: () => client.get('/admin/stats'),
   topupWallet: (user_id, amount, reason) => client.post('/admin/wallet/topup', { user_id, amount, reason }),
 }

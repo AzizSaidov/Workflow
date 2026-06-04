@@ -104,6 +104,8 @@ def ban_user(user_id: UUID, db: Session) -> User:
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    if user.is_admin or user.role.value == "admin":
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Нельзя заблокировать администратора")
     user.is_banned = True
     db.commit()
     db.refresh(user)
@@ -115,6 +117,38 @@ def unban_user(user_id: UUID, db: Session) -> User:
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
     user.is_banned = False
+    db.commit()
+    db.refresh(user)
+    return user
+
+
+def grant_admin(user_id: UUID, db: Session) -> User:
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    user.is_admin = True
+    db.commit()
+    db.refresh(user)
+    return user
+
+
+def revoke_admin(user_id: UUID, db: Session) -> User:
+    from sqlalchemy import or_
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    admin_count = db.query(User).filter(
+        or_(User.is_admin == True, User.role == "admin")
+    ).count()
+    if admin_count <= 1:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Нельзя снять последнего администратора"
+        )
+    user.is_admin = False
+    if user.role.value == "admin":
+        from users.models import UserRole
+        user.role = UserRole.client
     db.commit()
     db.refresh(user)
     return user

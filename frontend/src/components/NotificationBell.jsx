@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import useAuthStore from '../store/authStore'
 import useThemeStore from '../store/themeStore'
 import { notificationsApi, createNotifWS } from '../api/notifications'
+import AchievementToast from './AchievementToast'
 
 export default function NotificationBell() {
   const { user, accessToken } = useAuthStore()
@@ -9,6 +10,7 @@ export default function NotificationBell() {
   const [open, setOpen] = useState(false)
   const [notifs, setNotifs] = useState([])
   const [unread, setUnread] = useState(0)
+  const [achievementToast, setAchievementToast] = useState(null)
   const wsRef = useRef(null)
   const panelRef = useRef(null)
 
@@ -28,6 +30,15 @@ export default function NotificationBell() {
     ws.onmessage = (e) => {
       try {
         const n = JSON.parse(e.data)
+        if (n.type === 'achievement' || n.notification_type === 'achievement') {
+          setAchievementToast({
+            name: n.title?.replace('Новое достижение: ', '') || n.title,
+            description: n.message,
+            icon: n.icon || 'trophy',
+            color: n.color || '#7F77DD',
+            points: n.points || 0,
+          })
+        }
         setNotifs(prev => {
           if (prev.find(x => x.id === n.id)) return prev
           return [n, ...prev]
@@ -67,6 +78,12 @@ export default function NotificationBell() {
 
   return (
     <div ref={panelRef} style={{ position: 'relative' }}>
+      {achievementToast && (
+        <AchievementToast
+          achievement={achievementToast}
+          onClose={() => setAchievementToast(null)}
+        />
+      )}
       <button
         onClick={() => setOpen(v => !v)}
         style={{

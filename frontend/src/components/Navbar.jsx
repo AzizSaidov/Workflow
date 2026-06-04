@@ -14,6 +14,15 @@ function getNavLinks(user) {
       { to: '/freelancers', label: 'Найти таланты', icon: 'users' },
     ]
   }
+  const isAdmin = user.is_admin || user.role === 'admin'
+  if (isAdmin) {
+    return [
+      { to: '/', label: 'Главная', icon: 'home' },
+      { to: '/admin', label: 'Панель', icon: 'shield-lock' },
+      { to: '/projects', label: 'Проекты', icon: 'briefcase' },
+      { to: '/freelancers', label: 'Пользователи', icon: 'users' },
+    ]
+  }
   if (user.role === 'client') {
     return [
       { to: '/', label: 'Главная', icon: 'home' },
@@ -29,14 +38,6 @@ function getNavLinks(user) {
       { to: '/my-work', label: 'Мои работы', icon: 'briefcase' },
       { to: '/dashboard', label: 'Мои заявки', icon: 'layout-dashboard' },
       { to: '/chats', label: 'Чаты', icon: 'messages' },
-    ]
-  }
-  if (user.role === 'admin') {
-    return [
-      { to: '/', label: 'Главная', icon: 'home' },
-      { to: '/admin', label: 'Панель', icon: 'shield-lock' },
-      { to: '/projects', label: 'Проекты', icon: 'briefcase' },
-      { to: '/freelancers', label: 'Пользователи', icon: 'users' },
     ]
   }
   return []
@@ -214,7 +215,7 @@ export default function Navbar() {
                           {user?.full_name}
                         </div>
                         <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 2 }}>
-                          {user?.role === 'client' ? 'Заказчик' : user?.role === 'freelancer' ? 'Фрилансер' : 'Администратор'}
+                          {user?.role === 'client' ? 'Заказчик' : user?.role === 'freelancer' ? 'Фрилансер' : 'Пользователь'}{(user?.is_admin || user?.role === 'admin') ? ' · Администратор' : ''}
                         </div>
                       </div>
                     </div>
@@ -222,12 +223,13 @@ export default function Navbar() {
 
                   {/* Menu items */}
                   {[
-                    user?.role !== 'admin' && { to: `/profile/${user?.id}`, icon: 'user', label: 'Профиль' },
+                    !(user?.is_admin || user?.role === 'admin') && { to: `/profile/${user?.id}`, icon: 'user', label: 'Профиль' },
                     { to: '/dashboard', icon: 'layout-dashboard', label: 'Дашборд' },
                     { to: '/wallet', icon: 'wallet', label: 'Кошелёк' },
                     { to: '/favorites', icon: 'heart', label: 'Избранное' },
                     { to: '/ai', icon: 'robot', label: 'AI-ассистент' },
-                    user?.role === 'admin' && { to: '/admin', icon: 'shield-lock', label: 'Панель админа' },
+                    { to: '/achievements', icon: 'trophy', label: 'Достижения' },
+                    (user?.is_admin || user?.role === 'admin') && { to: '/admin', icon: 'shield-lock', label: 'Панель админа' },
                   ].filter(Boolean).map(({ to, icon, label }) => (
                     <Link key={to} to={to} onClick={() => setMenuOpen(false)} style={{
                       display: 'flex', alignItems: 'center', gap: 10,

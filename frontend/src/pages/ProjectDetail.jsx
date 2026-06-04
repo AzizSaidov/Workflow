@@ -10,6 +10,7 @@ import { bidsApi } from '../api/bids'
 import { contractsApi } from '../api/contracts'
 import { escrowApi } from '../api/escrow'
 import { walletApi } from '../api/wallet'
+import { profilesApi } from '../api/profiles'
 import client from '../api/client'
 import StarBackground from '../components/StarBackground'
 import Navbar from '../components/Navbar'
@@ -120,6 +121,8 @@ export default function ProjectDetail() {
 
   const [aiRank, setAiRank] = useState(null)
   const [aiRankLoading, setAiRankLoading] = useState(false)
+  const [aiRankedOrder, setAiRankedOrder] = useState(null)
+  const [showAllBids, setShowAllBids] = useState(false)
 
   const [deliveryForm, setDeliveryForm] = useState({ delivery_description: '', delivery_github_url: '', delivery_pr_url: '', delivery_demo_url: '' })
   const [deliveryLoading, setDeliveryLoading] = useState(false)
@@ -403,6 +406,7 @@ export default function ProjectDetail() {
 
   const tabs = [
     { key: 'bids', label: 'Заявки', icon: 'files', badge: isOwner && bids.length > 0 ? bids.length : null },
+    ...(hasChatAccess ? [{ key: 'chat', label: 'Чат', icon: 'messages', badge: null }] : []),
     { key: 'files', label: 'Файлы', icon: 'paperclip', badge: projectFiles.length > 0 ? projectFiles.length : null },
   ]
 
@@ -1006,30 +1010,122 @@ export default function ProjectDetail() {
                               </h3>
                               {bids.length >= 2 && (
                                 <button onClick={async () => {
-                                  setAiRankLoading(true); setAiRank(null)
+                                  setAiRankLoading(true); setAiRank(null); setAiRankedOrder(null); setShowAllBids(false)
                                   try {
-                                    const bidsSummary = bids.map((b, i) => `${i + 1}. ${b.freelancer_name} — $${b.price} — Rating: ${b.rating || 'N/A'}\nLetter: ${b.cover_letter || 'No letter'}`).join('\n\n')
-                                    const { data } = await aiApi.chat(`Rank these ${bids.length} freelancer bids from best to worst. 1 sentence per bid. Be concise.\n\nProject: ${project.title}\n\nBids:\n${bidsSummary}`, '')
-                                    setAiRank(data.text)
-                                  } catch {} finally { setAiRankLoading(false) }
+                                    // Fetch real profiles for all bidders in parallel
+                                    const profileResults = await Promise.allSettled(
+                                      bids.map(b => profilesApi.get(b.freelancer_id).catch(() => null))
+                                    )
+                                    const profiles = profileResults.map(r => r.status === 'fulfilled' ? r.value?.data : null)
+
+                                    const bidsSummary = bids.map((b, i) => {
+                                      const p = profiles[i]
+                                      const skills = p?.skills?.map(s => s.name).join(', ') || 'не указаны'
+                                      return `Bid #${i}: ${b.freelancer_name || 'Freelancer'} | Rating: ${p?.rating ?? b.rating ?? 'N/A'}/5 | Completed: ${p?.completed_count ?? '?'} projects | Rate: $${p?.hourly_rate ?? '?'}/hr | Skills: ${skills}\nProposal: ${b.cover_letter || '(no letter)'}`
+                                    }).join('\n\n')
+
+                                    const prompt = `You are ranking freelancer bids for a client. Analyze each bid based on the freelancer's REAL profile data and proposal quality.
+
+Project: "${project.title}"
+Budget: $${project.budget_min}–$${project.budget_max}
+Description: ${project.description?.slice(0, 300)}
+
+Bids:
+${bidsSummary}
+
+Return ONLY a valid JSON object in this exact format (no other text):
+{"order":[0,1,2],"reasons":{"0":"one sentence","1":"one sentence","2":"one sentence"}}
+
+Where "order" is bid indices from best to worst.`
+
+                                    const { data } = await aiApi.chat(prompt, '')
+                                    const text = data.text || ''
+                                    const jsonMatch = text.match(/\{[\s\S]*\}/)
+                                    if (jsonMatch) {
+                                      const parsed = JSON.parse(jsonMatch[0])
+                                      setAiRankedOrder({ order: parsed.order, reasons: parsed.reasons || {} })
+                                    } else {
+                                      setAiRank(text)
+                                    }
+                                  } catch (err) {
+                                    setAiRank('Не удалось проанализировать заявки. Попробуйте ещё раз.')
+                                  } finally { setAiRankLoading(false) }
                                 }}
-                                  style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 13px', borderRadius: 9, fontSize: 12, fontWeight: 500, border: '0.5px solid rgba(127,119,221,0.35)', background: 'rgba(127,119,221,0.08)', color: 'var(--accent)', cursor: aiRankLoading ? 'not-allowed' : 'pointer' }}
+                                  style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 13px', borderRadius: 9, fontSize: 12, fontWeight: 500, border: '0.5px solid rgba(127,119,221,0.35)', background: aiRankedOrder ? 'rgba(127,119,221,0.15)' : 'rgba(127,119,221,0.08)', color: 'var(--accent)', cursor: aiRankLoading ? 'not-allowed' : 'pointer' }}
                                   disabled={aiRankLoading}>
                                   {aiRankLoading ? <i className="ti ti-loader-2" style={{ fontSize: 12, animation: 'spin 0.8s linear infinite' }} /> : <i className="ti ti-sparkles" style={{ fontSize: 12 }} />}
-                                  {aiRankLoading ? 'Анализирую...' : '✨ AI Rank'}
+                                  {aiRankLoading ? 'Анализирую профили...' : aiRankedOrder ? '✨ ТОП-3 готов' : '✨ AI Rank'}
                                 </button>
                               )}
                             </div>
-                            {aiRank && (
+
+                            {/* AI fallback text */}
+                            {aiRank && !aiRankedOrder && (
                               <div style={{ marginBottom: 14, padding: '12px 14px', borderRadius: 11, background: 'rgba(127,119,221,0.06)', border: '0.5px solid rgba(127,119,221,0.22)' }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8, fontSize: 11, fontWeight: 600, color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: 0.5 }}><i className="ti ti-sparkles" />AI Анализ</div>
                                 <div style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.7, whiteSpace: 'pre-wrap' }}>{aiRank}</div>
                                 <button onClick={() => setAiRank(null)} style={{ marginTop: 7, fontSize: 11, color: 'var(--text-muted)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>Закрыть</button>
                               </div>
                             )}
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                              {bids.map(bid => <BidCard key={bid.id} bid={bid} isOwner={isOwner} onAccepted={load} />)}
-                            </div>
+
+                            {/* AI TOP-3 ranked list */}
+                            {aiRankedOrder ? (() => {
+                              const MEDALS = ['🥇', '🥈', '🥉']
+                              const rankedBids = aiRankedOrder.order.map(idx => bids[idx]).filter(Boolean)
+                              const top3 = rankedBids.slice(0, 3)
+                              const rest = rankedBids.slice(3)
+                              return (
+                                <div>
+                                  <div style={{ marginBottom: 12, padding: '8px 13px', borderRadius: 9, background: 'rgba(127,119,221,0.06)', border: '0.5px solid rgba(127,119,221,0.2)', display: 'flex', alignItems: 'center', gap: 7, fontSize: 12, color: 'var(--accent)' }}>
+                                    <i className="ti ti-sparkles" style={{ fontSize: 13 }} />
+                                    AI отобрал лучших кандидатов на основе реальных профилей
+                                    <button onClick={() => { setAiRankedOrder(null); setAiRank(null); setShowAllBids(false) }} style={{ marginLeft: 'auto', fontSize: 11, color: 'var(--text-muted)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>Сбросить</button>
+                                  </div>
+                                  <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                                    {top3.map((bid, rankIdx) => {
+                                      const originalIdx = aiRankedOrder.order[rankIdx]
+                                      const reason = aiRankedOrder.reasons?.[String(originalIdx)]
+                                      return (
+                                        <div key={bid.id}>
+                                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+                                            <span style={{ fontSize: 18 }}>{MEDALS[rankIdx]}</span>
+                                            <span style={{ fontSize: 12, fontWeight: 600, color: rankIdx === 0 ? '#EF9F27' : rankIdx === 1 ? '#9CA3AF' : '#CD7F32' }}>
+                                              {rankIdx === 0 ? 'Лучший кандидат' : rankIdx === 1 ? 'Второй' : 'Третий'}
+                                            </span>
+                                            {reason && <span style={{ fontSize: 11, color: 'var(--text-muted)', fontStyle: 'italic', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>— {reason}</span>}
+                                          </div>
+                                          <BidCard bid={bid} isOwner={isOwner} onAccepted={load} />
+                                        </div>
+                                      )
+                                    })}
+                                  </div>
+                                  {rest.length > 0 && (
+                                    <div style={{ marginTop: 14 }}>
+                                      {!showAllBids ? (
+                                        <button onClick={() => setShowAllBids(true)} style={{ width: '100%', padding: '10px', borderRadius: 10, border: '0.5px solid var(--border)', background: 'rgba(255,255,255,0.03)', color: 'var(--text-muted)', fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
+                                          onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.06)'}
+                                          onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.03)'}>
+                                          <i className="ti ti-chevron-down" style={{ fontSize: 14 }} />
+                                          Показать остальных ({rest.length})
+                                        </button>
+                                      ) : (
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                                          <div style={{ fontSize: 11, color: 'var(--text-muted)', textAlign: 'center', padding: '6px 0' }}>Остальные кандидаты</div>
+                                          {rest.map(bid => <BidCard key={bid.id} bid={bid} isOwner={isOwner} onAccepted={load} />)}
+                                          <button onClick={() => setShowAllBids(false)} style={{ width: '100%', padding: '8px', borderRadius: 10, border: '0.5px solid var(--border)', background: 'transparent', color: 'var(--text-muted)', fontSize: 12, cursor: 'pointer' }}>
+                                            Свернуть
+                                          </button>
+                                        </div>
+                                      )}
+                                    </div>
+                                  )}
+                                </div>
+                              )
+                            })() : (
+                              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                                {bids.map(bid => <BidCard key={bid.id} bid={bid} isOwner={isOwner} onAccepted={load} />)}
+                              </div>
+                            )}
                           </div>
                         )}
                         {bids.length === 0 && (
@@ -1043,6 +1139,29 @@ export default function ProjectDetail() {
                         )}
                       </>
                     )}
+                  </div>
+                )}
+
+                {/* ── ЧАТ TAB ── */}
+                {activeTab === 'chat' && (
+                  <div style={{ background: 'var(--bg-card)', border: '0.5px solid rgba(127,119,221,0.25)', borderRadius: 18, padding: 32, textAlign: 'center' }}>
+                    <div style={{ width: 56, height: 56, borderRadius: 16, background: 'rgba(127,119,221,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
+                      <i className="ti ti-messages" style={{ fontSize: 26, color: 'var(--accent)' }} />
+                    </div>
+                    <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 17, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 8 }}>
+                      Чат с {isOwner ? 'фрилансером' : 'заказчиком'}
+                    </div>
+                    <p style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 22, lineHeight: 1.6 }}>
+                      Общайтесь, обменивайтесь файлами и уточняйте детали проекта
+                    </p>
+                    <Link to={`/chats?project=${id}`} style={{ textDecoration: 'none' }}>
+                      <button style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '10px 24px', borderRadius: 11, background: 'var(--accent)', border: 'none', color: '#fff', fontSize: 14, fontWeight: 600, cursor: 'pointer', transition: 'opacity 0.15s' }}
+                        onMouseEnter={e => e.currentTarget.style.opacity = '0.85'}
+                        onMouseLeave={e => e.currentTarget.style.opacity = '1'}>
+                        <i className="ti ti-messages" style={{ fontSize: 16 }} />
+                        Открыть чат
+                      </button>
+                    </Link>
                   </div>
                 )}
 

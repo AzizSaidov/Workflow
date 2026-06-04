@@ -4,14 +4,15 @@ from sqlalchemy.orm import Session
 from database import get_db
 from achievements.views import get_user_achievements, get_all_achievements, ensure_achievements_exist
 from achievements.schemas import AchievementOut, UserAchievementOut
-from users.permissions import get_current_user
+from users.permissions import get_current_user, get_optional_user
 from users.models import User
+from typing import Optional
 
 achievements_router = APIRouter(prefix="/api/achievements", tags=["achievements"])
 
 
 @achievements_router.get("/", response_model=list[AchievementOut])
-def all_achievements(db: Session = Depends(get_db), _: User = Depends(get_current_user)):
+def all_achievements(db: Session = Depends(get_db), _: Optional[User] = Depends(get_optional_user)):
     ensure_achievements_exist(db)
     return get_all_achievements(db)
 
