@@ -447,7 +447,7 @@ export default function ProjectDetail() {
                 <div style={{
                   background: isDark
                     ? 'linear-gradient(135deg, rgba(127,119,221,0.14) 0%, rgba(13,13,24,0.6) 100%)'
-                    : 'linear-gradient(135deg, rgba(80,72,213,0.08) 0%, var(--bg-card) 100%)',
+                    : 'linear-gradient(135deg, rgba(59,91,219,0.08) 0%, var(--bg-card) 100%)',
                   padding: '22px 26px 20px',
                   borderBottom: '0.5px solid var(--border)',
                   position: 'relative', overflow: 'hidden',
@@ -513,7 +513,7 @@ export default function ProjectDetail() {
                             transition: 'all 0.15s',
                           }}
                         >
-                          <i className={`ti ti-${isFavorited ? (favHov ? 'star-off' : 'star-filled') : 'star'}`} style={{ fontSize: 15 }} />
+                          <span style={{ fontSize: 15, lineHeight: 1 }}>{isFavorited ? (favHov ? '☆' : '★') : '☆'}</span>
                           {isFavorited ? (favHov ? 'Убрать' : 'В избранном') : 'В избранное'}
                         </button>
                       )}
@@ -788,7 +788,7 @@ export default function ProjectDetail() {
                       display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
                       boxShadow: myReview ? '0 0 16px rgba(239,159,39,0.2)' : 'none',
                     }}>
-                      <i className={`ti ti-star${myReview ? '-filled' : ''}`} style={{ fontSize: 22, color: '#EF9F27' }} />
+                      <span style={{ fontSize: 22, color: '#EF9F27', lineHeight: 1 }}>{myReview ? '★' : '☆'}</span>
                     </div>
                     <div>
                       <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 17, fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.3px' }}>
@@ -802,7 +802,7 @@ export default function ProjectDetail() {
                     </div>
                     {myReview && (
                       <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 5, background: 'rgba(239,159,39,0.12)', border: '0.5px solid rgba(239,159,39,0.3)', borderRadius: 10, padding: '6px 12px' }}>
-                        <i className="ti ti-star-filled" style={{ fontSize: 15, color: '#EF9F27' }} />
+                        <span style={{ fontSize: 15, color: '#EF9F27', lineHeight: 1 }}>★</span>
                         <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 18, color: '#EF9F27', letterSpacing: '-0.5px' }}>{myReview.rating}</span>
                         <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>/ 5</span>
                       </div>
@@ -909,7 +909,7 @@ export default function ProjectDetail() {
                         padding: '8px 18px', borderRadius: 9, fontSize: 13,
                         fontWeight: active ? 600 : 400,
                         border: 'none', cursor: 'pointer',
-                        background: active ? (isDark ? 'rgba(127,119,221,0.2)' : 'rgba(80,72,213,0.1)') : 'transparent',
+                        background: active ? (isDark ? 'rgba(127,119,221,0.2)' : 'rgba(59,91,219,0.1)') : 'transparent',
                         color: active ? 'var(--accent)' : 'var(--text-muted)',
                         transition: 'all 0.15s',
                       }}>
@@ -944,7 +944,7 @@ export default function ProjectDetail() {
                     {isFreelancer && !isOwner && (
                       <>
                         {canBid && (
-                          <div style={{ background: 'var(--bg-card)', border: `0.5px solid ${isDark ? 'rgba(127,119,221,0.25)' : 'rgba(80,72,213,0.2)'}`, borderRadius: 16, padding: 22 }}>
+                          <div style={{ background: 'var(--bg-card)', border: `0.5px solid ${isDark ? 'rgba(127,119,221,0.25)' : 'rgba(59,91,219,0.2)'}`, borderRadius: 16, padding: 22 }}>
                             <h3 style={{ fontFamily: 'Syne, sans-serif', fontSize: 16, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 18 }}>Подать заявку</h3>
                             <form onSubmit={submitBid} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                               <Input label={`Ваша стоимость ($${Number(project.budget_min).toLocaleString()} – $${Number(project.budget_max).toLocaleString()})`} type="number" placeholder={`${project.budget_min} – ${project.budget_max}`} min={project.budget_min} max={project.budget_max} value={bidForm.price} onChange={e => setBidForm(f => ({ ...f, price: e.target.value }))} icon="currency-dollar" required />
@@ -1228,12 +1228,12 @@ Where "order" is bid indices from best to worst.`
                   <div style={{
                     display: 'flex', alignItems: 'center', gap: 12, padding: '14px 18px',
                     borderRadius: 16, cursor: 'pointer',
-                    background: isDark ? 'rgba(127,119,221,0.15)' : 'rgba(80,72,213,0.1)',
+                    background: isDark ? 'rgba(127,119,221,0.15)' : 'rgba(59,91,219,0.1)',
                     border: '0.5px solid rgba(127,119,221,0.35)',
                     transition: 'all 0.15s',
                   }}
-                    onMouseEnter={e => { e.currentTarget.style.background = isDark ? 'rgba(127,119,221,0.24)' : 'rgba(80,72,213,0.16)'; e.currentTarget.style.borderColor = 'rgba(127,119,221,0.6)' }}
-                    onMouseLeave={e => { e.currentTarget.style.background = isDark ? 'rgba(127,119,221,0.15)' : 'rgba(80,72,213,0.1)'; e.currentTarget.style.borderColor = 'rgba(127,119,221,0.35)' }}
+                    onMouseEnter={e => { e.currentTarget.style.background = isDark ? 'rgba(127,119,221,0.24)' : 'rgba(59,91,219,0.16)'; e.currentTarget.style.borderColor = 'rgba(127,119,221,0.6)' }}
+                    onMouseLeave={e => { e.currentTarget.style.background = isDark ? 'rgba(127,119,221,0.15)' : 'rgba(59,91,219,0.1)'; e.currentTarget.style.borderColor = 'rgba(127,119,221,0.35)' }}
                   >
                     <div style={{ width: 38, height: 38, borderRadius: 10, background: 'rgba(127,119,221,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                       <i className="ti ti-messages" style={{ fontSize: 19, color: 'var(--accent)' }} />
@@ -1259,7 +1259,7 @@ Where "order" is bid indices from best to worst.`
                   <div>
                     <div style={{ fontSize: 10, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 7 }}>Заказчик</div>
                     <Link to={`/profile/${project.client_id}`} style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none', padding: '6px 8px', borderRadius: 9, margin: '-6px -8px', transition: 'background 0.15s' }}
-                      onMouseEnter={e => e.currentTarget.style.background = isDark ? 'rgba(255,255,255,0.04)' : 'rgba(80,72,213,0.04)'}
+                      onMouseEnter={e => e.currentTarget.style.background = isDark ? 'rgba(255,255,255,0.04)' : 'rgba(59,91,219,0.04)'}
                       onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
                       <div style={{ position: 'relative', flexShrink: 0 }}>
                         <Avatar src={clientData?.avatar_url} name={clientData?.full_name || 'Client'} size={36} />
@@ -1278,7 +1278,7 @@ Where "order" is bid indices from best to worst.`
                       <div>
                         <div style={{ fontSize: 10, fontWeight: 600, color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 7 }}>Исполнитель</div>
                         <Link to={`/profile/${project.assigned_freelancer_id}`} style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none', padding: '6px 8px', borderRadius: 9, margin: '-6px -8px', transition: 'background 0.15s' }}
-                          onMouseEnter={e => e.currentTarget.style.background = isDark ? 'rgba(127,119,221,0.07)' : 'rgba(80,72,213,0.04)'}
+                          onMouseEnter={e => e.currentTarget.style.background = isDark ? 'rgba(127,119,221,0.07)' : 'rgba(59,91,219,0.04)'}
                           onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
                           <div style={{ position: 'relative', flexShrink: 0 }}>
                             <Avatar src={assignedUser.avatar_url} name={assignedUser.full_name} size={36} />

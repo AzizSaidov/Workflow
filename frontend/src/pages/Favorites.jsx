@@ -245,7 +245,7 @@ function SavedUserCard({ user, profile, isFreelancer, onRemove }) {
         onMouseEnter={e => { e.currentTarget.style.background = 'rgba(251,191,36,0.14)' }}
         onMouseLeave={e => { e.currentTarget.style.background = 'rgba(251,191,36,0.07)' }}
       >
-        <i className="ti ti-star-off" style={{ fontSize: 14 }} />
+        <span style={{ fontSize: 14, lineHeight: 1 }}>☆</span>
         Убрать
       </button>
     </div>
@@ -281,7 +281,7 @@ function ProjectFavCard({ project, onRemove }) {
             onMouseEnter={e => e.currentTarget.style.opacity = '0.7'}
             onMouseLeave={e => e.currentTarget.style.opacity = '1'}
           >
-            <i className="ti ti-star-filled" style={{ fontSize: 15 }} />
+            <span style={{ fontSize: 15, lineHeight: 1 }}>★</span>
           </button>
         </div>
       </div>

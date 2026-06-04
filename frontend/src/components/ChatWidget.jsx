@@ -83,10 +83,10 @@ export default function ChatWidget({ projectId }) {
                 padding: '10px 14px',
                 borderRadius: isOwn ? '16px 16px 4px 16px' : '16px 16px 16px 4px',
                 background: isOwn
-                  ? isDark ? 'rgba(127,119,221,0.25)' : 'rgba(80,72,213,0.15)'
+                  ? isDark ? 'rgba(127,119,221,0.25)' : 'rgba(59,91,219,0.15)'
                   : isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)',
                 border: isOwn
-                  ? `0.5px solid ${isDark ? 'rgba(127,119,221,0.3)' : 'rgba(80,72,213,0.2)'}`
+                  ? `0.5px solid ${isDark ? 'rgba(127,119,221,0.3)' : 'rgba(59,91,219,0.2)'}`
                   : '0.5px solid var(--border)',
               }}>
                 <p style={{ fontSize: 14, color: 'var(--text-primary)', lineHeight: 1.5, margin: 0 }}>{msg.content}</p>

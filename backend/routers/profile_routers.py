@@ -6,6 +6,7 @@ from profiles.schemas import ProfileUpdate, ProfileResponse, SkillAddRequest, La
 from profiles.views import (
     get_profile, update_my_profile, get_top_freelancers,
     add_skill, remove_skill, add_language, remove_language,
+    toggle_like, get_likes,
 )
 from users.permissions import get_current_user, get_optional_user
 from users.models import User
@@ -50,3 +51,13 @@ def add_language_to_profile(data: LanguageAddRequest, db: Session = Depends(get_
 @profiles_router.delete("/me/languages/{language_id}", response_model=ProfileResponse)
 def remove_language_from_profile(language_id: UUID, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     return remove_language(language_id, current_user, db)
+
+
+@profiles_router.post("/{user_id}/like")
+def like_profile(user_id: UUID, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    return toggle_like(user_id, current_user, db)
+
+
+@profiles_router.get("/{user_id}/likes")
+def profile_likes(user_id: UUID, db: Session = Depends(get_db), current_user: User | None = Depends(get_optional_user)):
+    return get_likes(user_id, current_user.id if current_user else None, db)

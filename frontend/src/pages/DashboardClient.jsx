@@ -212,7 +212,7 @@ export default function DashboardClient() {
               display: 'flex', alignItems: 'center', justifyContent: 'space-between',
               background: isDark
                 ? 'linear-gradient(135deg, rgba(127,119,221,0.08) 0%, rgba(29,158,117,0.05) 100%)'
-                : 'linear-gradient(135deg, rgba(80,72,213,0.06) 0%, rgba(13,146,104,0.04) 100%)',
+                : 'linear-gradient(135deg, rgba(59,91,219,0.06) 0%, rgba(13,146,104,0.04) 100%)',
               border: '0.5px solid rgba(127,119,221,0.15)',
             }}>
               <div>

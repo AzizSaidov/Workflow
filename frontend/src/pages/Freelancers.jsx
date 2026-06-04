@@ -4,7 +4,6 @@ import useThemeStore from '../store/themeStore'
 import useAuthStore from '../store/authStore'
 import { profilesApi, usersApi } from '../api/profiles'
 import { categoriesApi } from '../api/categories'
-import { favoritesApi } from '../api/favorites'
 import useToastStore from '../store/toastStore'
 import StarBackground from '../components/StarBackground'
 import Navbar from '../components/Navbar'
@@ -12,31 +11,7 @@ import Footer from '../components/Footer'
 import Avatar from '../components/Avatar'
 import Tag from '../components/Tag'
 
-function StarToggleBtn({ isFavorited, onToggle }) {
-  const [hov, setHov] = useState(false)
-  return (
-    <button
-      onClick={e => { e.preventDefault(); e.stopPropagation(); onToggle() }}
-      onMouseEnter={() => setHov(true)}
-      onMouseLeave={() => setHov(false)}
-      title={isFavorited ? 'Убрать из избранного' : 'В избранное'}
-      style={{
-        background: isFavorited && hov ? 'rgba(251,191,36,0.1)' : 'none',
-        border: isFavorited && hov ? '0.5px solid rgba(251,191,36,0.3)' : 'none',
-        borderRadius: 8, cursor: 'pointer',
-        padding: isFavorited && hov ? '3px 8px' : '4px',
-        color: isFavorited ? '#FBBF24' : hov ? '#FBBF24' : 'var(--text-muted)',
-        display: 'flex', alignItems: 'center', gap: 4,
-        transition: 'all 0.15s', flexShrink: 0,
-      }}
-    >
-      <i className={`ti ti-${isFavorited ? (hov ? 'star-off' : 'star-filled') : 'star'}`} style={{ fontSize: 17 }} />
-      {isFavorited && hov && <span style={{ fontSize: 11, fontWeight: 600, whiteSpace: 'nowrap' }}>Убрать</span>}
-    </button>
-  )
-}
-
-function FreelancerRow({ user, profile, isFavorited, onFavoriteToggle }) {
+function FreelancerRow({ user, profile }) {
   return (
     <Link to={`/profile/${user.id}`} style={{ textDecoration: 'none' }}>
       <div
@@ -132,7 +107,6 @@ export default function FreelancersPage() {
   const [catFilter,  setCatFilter]  = useState('')
   const [search,     setSearch]     = useState('')
   const [loading,    setLoading]    = useState(true)
-  const [favIds,     setFavIds]     = useState(new Set())
 
   const load = useCallback(() => {
     setLoading(true)
@@ -150,25 +124,6 @@ export default function FreelancersPage() {
   useEffect(() => {
     categoriesApi.getAll().then(r => setCategories(r.data || [])).catch(() => {})
   }, [])
-
-  useEffect(() => {
-    if (!user) return
-    favoritesApi.getAll()
-      .then(r => setFavIds(new Set((r.data || []).filter(f => f.freelancer_id).map(f => f.freelancer_id))))
-      .catch(() => {})
-  }, [user?.id])
-
-  const toggleFav = async (userId) => {
-    const removing = favIds.has(userId)
-    setFavIds(prev => { const s = new Set(prev); removing ? s.delete(userId) : s.add(userId); return s })
-    toast(removing ? 'Удалено из избранного' : 'Добавлено в избранное!', removing ? 'info' : 'success')
-    try {
-      removing ? await favoritesApi.removeFreelancer(userId) : await favoritesApi.addFreelancer(userId)
-    } catch {
-      setFavIds(prev => { const s = new Set(prev); removing ? s.add(userId) : s.delete(userId); return s })
-      toast('Ошибка', 'error')
-    }
-  }
 
   useEffect(() => { load() }, [load])
 
@@ -199,7 +154,7 @@ export default function FreelancersPage() {
         <div style={{
           padding: '48px 44px 36px',
           borderBottom: '0.5px solid var(--border)',
-          background: isDark ? 'rgba(127,119,221,0.04)' : 'rgba(80,72,213,0.03)',
+          background: isDark ? 'rgba(127,119,221,0.04)' : 'rgba(59,91,219,0.03)',
         }}>
           <div className="container" style={{ padding: 0 }}>
             <div style={{ maxWidth: 640 }}>
@@ -314,8 +269,6 @@ export default function FreelancersPage() {
                       key={u.id}
                       user={u}
                       profile={profiles[u.id]}
-                      isFavorited={favIds.has(u.id)}
-                      onFavoriteToggle={user?.role === 'client' ? () => toggleFav(u.id) : undefined}
                     />
                   ))}
                 </div>

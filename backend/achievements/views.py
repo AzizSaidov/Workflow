@@ -22,9 +22,9 @@ ACHIEVEMENT_DEFINITIONS = [
     dict(key="first_win",        name="Первая победа",        description="Заявка принята впервые",
          icon="trophy",           color="#EF9F27", points=25,  category="freelancer"),
     dict(key="ten_bids",         name="Настойчивый",          description="Подал 10 заявок",
-         icon="stack-2",          color="#AFA9EC", points=20,  category="freelancer"),
+         icon="list-check",       color="#AFA9EC", points=20,  category="freelancer"),
     dict(key="fifty_bids",       name="Охотник за проектами", description="Подал 50 заявок",
-         icon="stack-3",          color="#7F77DD", points=40,  category="freelancer"),
+         icon="layers",           color="#7F77DD", points=40,  category="freelancer"),
 
     # ── Freelancer: проекты ───────────────────────────────────────────────────
     dict(key="three_jobs",       name="На старте",            description="Завершил 3 проекта",
@@ -32,7 +32,7 @@ ACHIEVEMENT_DEFINITIONS = [
     dict(key="five_jobs",        name="Профессионал",         description="Завершил 5 проектов",
          icon="briefcase",        color="#5DCAA5", points=50,  category="freelancer"),
     dict(key="ten_jobs",         name="Десятка",              description="Завершил 10 проектов",
-         icon="numbers",          color="#5DCAA5", points=75,  category="freelancer"),
+         icon="hash",             color="#5DCAA5", points=75,  category="freelancer"),
     dict(key="twenty_jobs",      name="Эксперт",              description="Завершил 20 проектов",
          icon="award",            color="#1D9E75", points=100, category="freelancer"),
     dict(key="fifty_jobs",       name="Ветеран",              description="Завершил 50 проектов",
@@ -42,13 +42,13 @@ ACHIEVEMENT_DEFINITIONS = [
 
     # ── Freelancer: рейтинг и отзывы ─────────────────────────────────────────
     dict(key="top_rated",        name="Высокий рейтинг",      description="Рейтинг 4.8 и выше",
-         icon="star-filled",      color="#EF9F27", points=75,  category="freelancer"),
+         icon="star",             color="#EF9F27", points=75,  category="freelancer"),
     dict(key="perfect_score",    name="Перфекционист",        description="Рейтинг ровно 5.0",
-         icon="star-half-filled", color="#EF9F27", points=100, category="freelancer"),
+         icon="sparkles",         color="#EF9F27", points=100, category="freelancer"),
     dict(key="five_reviews",     name="Популярный",           description="Получил 5 отзывов",
          icon="message-star",     color="#EF9F27", points=40,  category="freelancer"),
     dict(key="twenty_reviews",   name="Авторитет",            description="Получил 20 отзывов",
-         icon="messages-star",    color="#EF9F27", points=80,  category="freelancer"),
+         icon="message-star",     color="#EF9F27", points=80,  category="freelancer"),
 
     # ── Freelancer: заработок ─────────────────────────────────────────────────
     dict(key="earner_1k",        name="Первая тысяча",        description="Заработал $1,000",
@@ -92,7 +92,7 @@ ACHIEVEMENT_DEFINITIONS = [
 
     # ── Client: команда ───────────────────────────────────────────────────────
     dict(key="loyal_client",     name="Постоянный клиент",    description="Работал с 3 и более разными фрилансерами",
-         icon="heart",            color="#F87171", points=50,  category="client"),
+         icon="thumb-up",         color="#F87171", points=50,  category="client"),
     dict(key="team_builder",     name="Строитель команды",    description="Работал с 10 разными фрилансерами",
          icon="users",            color="#F87171", points=100, category="client"),
     dict(key="good_reviewer",    name="Честный отзыв",        description="Оставил первый отзыв о фрилансере",
@@ -110,7 +110,13 @@ ACHIEVEMENT_DEFINITIONS = [
 
 def ensure_achievements_exist(db: Session):
     for d in ACHIEVEMENT_DEFINITIONS:
-        if not db.query(Achievement).filter(Achievement.key == d["key"]).first():
+        existing = db.query(Achievement).filter(Achievement.key == d["key"]).first()
+        if existing:
+            existing.icon = d["icon"]
+            existing.color = d["color"]
+            existing.name = d["name"]
+            existing.points = d["points"]
+        else:
             db.add(Achievement(**d))
     db.commit()
 

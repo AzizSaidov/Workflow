@@ -27,31 +27,7 @@ function timeAgo(dateStr) {
   return new Date(dateStr).toLocaleDateString('ru-RU')
 }
 
-function StarToggleBtn({ isFavorited, onToggle }) {
-  const [hov, setHov] = useState(false)
-  return (
-    <button
-      onClick={onToggle}
-      onMouseEnter={() => setHov(true)}
-      onMouseLeave={() => setHov(false)}
-      title={isFavorited ? 'Убрать из избранного' : 'В избранное'}
-      style={{
-        background: isFavorited && hov ? 'rgba(251,191,36,0.1)' : 'none',
-        border: isFavorited && hov ? '0.5px solid rgba(251,191,36,0.3)' : 'none',
-        borderRadius: 8, cursor: 'pointer',
-        padding: isFavorited && hov ? '3px 8px' : '4px',
-        color: isFavorited ? '#FBBF24' : hov ? '#FBBF24' : 'var(--text-muted)',
-        display: 'flex', alignItems: 'center', gap: 4,
-        transition: 'all 0.15s', flexShrink: 0,
-      }}
-    >
-      <i className={`ti ti-${isFavorited ? (hov ? 'star-off' : 'star-filled') : 'star'}`} style={{ fontSize: 16 }} />
-      {isFavorited && hov && <span style={{ fontSize: 11, fontWeight: 600, whiteSpace: 'nowrap' }}>Убрать</span>}
-    </button>
-  )
-}
-
-function ProjectRow({ project, isFavorited, onFavoriteToggle, userId }) {
+function ProjectRow({ project, userId }) {
   const { id, title, description, budget_min, budget_max, status, project_type, experience_level, category, created_at, client_id, assigned_freelancer_id } = project
   const isMyChat = status === 'in_progress' && (String(client_id) === String(userId) || String(assigned_freelancer_id) === String(userId))
   const statusConfig = {
@@ -82,7 +58,6 @@ function ProjectRow({ project, isFavorited, onFavoriteToggle, userId }) {
           <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 16, color: 'var(--accent-green)' }}>
             ${Number(budget_min).toLocaleString()}{budget_max && budget_max !== budget_min ? `–$${Number(budget_max).toLocaleString()}` : ''}
           </span>
-          {onFavoriteToggle && <StarToggleBtn isFavorited={isFavorited} onToggle={onFavoriteToggle} />}
         </div>
       </div>
 
@@ -127,7 +102,6 @@ export default function ProjectsFeed() {
   const [allProjects, setAllProjects] = useState([])
   const [categories,  setCategories]  = useState([])
   const [loading,     setLoading]     = useState(true)
-  const [favIds,      setFavIds]      = useState(new Set())
   const [page,        setPage]        = useState(1)
 
   // filters — synced with URL
@@ -151,13 +125,6 @@ export default function ProjectsFeed() {
   useEffect(() => {
     categoriesApi.getAll().then(r => setCategories(r.data || [])).catch(() => {})
   }, [])
-
-  useEffect(() => {
-    if (!user) return
-    favoritesApi.getAll()
-      .then(r => setFavIds(new Set((r.data || []).filter(f => f.project_id).map(f => f.project_id))))
-      .catch(() => {})
-  }, [user?.id])
 
   useEffect(() => {
     setLoading(true)
@@ -195,18 +162,6 @@ export default function ProjectsFeed() {
     setApplied({ search: '', category_id: '', project_type: '', experience_level: '', budget_min: '', budget_max: '' })
   }
 
-  const toggleFav = async (projectId) => {
-    const removing = favIds.has(projectId)
-    setFavIds(prev => { const s = new Set(prev); removing ? s.delete(projectId) : s.add(projectId); return s })
-    toast(removing ? 'Удалено из избранного' : 'Добавлено в избранное!', removing ? 'info' : 'success')
-    try {
-      removing ? await favoritesApi.removeProject(projectId) : await favoritesApi.addProject(projectId)
-    } catch {
-      setFavIds(prev => { const s = new Set(prev); removing ? s.add(projectId) : s.delete(projectId); return s })
-      toast('Ошибка', 'error')
-    }
-  }
-
   const hasFilters = applied.search || applied.category_id || applied.project_type || applied.experience_level || applied.budget_min || applied.budget_max
   const visible    = allProjects.slice(0, page * PAGE_SIZE)
   const hasMore    = visible.length < allProjects.length
@@ -220,7 +175,7 @@ export default function ProjectsFeed() {
       <div style={{ paddingTop: 80, position: 'relative', zIndex: 2 }}>
 
         {/* ── Hero ── */}
-        <div style={{ padding: '40px 44px 32px', borderBottom: '0.5px solid var(--border)', background: isDark ? 'rgba(127,119,221,0.04)' : 'rgba(80,72,213,0.02)' }}>
+        <div style={{ padding: '40px 44px 32px', borderBottom: '0.5px solid var(--border)', background: isDark ? 'rgba(127,119,221,0.04)' : 'rgba(59,91,219,0.02)' }}>
           <div className="container" style={{ padding: 0 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
               <div style={{ maxWidth: 560 }}>
@@ -382,8 +337,6 @@ export default function ProjectsFeed() {
                       <ProjectRow
                         key={p.id}
                         project={p}
-                        isFavorited={favIds.has(p.id)}
-                        onFavoriteToggle={user ? () => toggleFav(p.id) : undefined}
                         userId={user?.id}
                       />
                     ))}

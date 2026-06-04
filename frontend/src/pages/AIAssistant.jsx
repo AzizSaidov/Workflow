@@ -187,7 +187,7 @@ export default function AIAssistant() {
             display: 'flex',
             flexDirection: 'column',
             overflow: 'hidden',
-            background: isDark ? 'rgba(13,13,24,0.6)' : 'rgba(248,247,255,0.7)',
+            background: isDark ? 'rgba(13,13,24,0.6)' : 'rgba(240,245,255,0.7)',
           }}>
 
             {/* Branding */}
@@ -228,7 +228,7 @@ export default function AIAssistant() {
                     border: active ? '0.5px solid rgba(127,119,221,0.35)' : '0.5px solid transparent',
                     cursor: 'pointer', textAlign: 'left',
                     background: active
-                      ? isDark ? 'rgba(127,119,221,0.12)' : 'rgba(80,72,213,0.07)'
+                      ? isDark ? 'rgba(127,119,221,0.12)' : 'rgba(59,91,219,0.07)'
                       : 'transparent',
                     transition: 'all 0.15s',
                   }}

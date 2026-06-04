@@ -42,10 +42,10 @@ export default function Register() {
   const isClient = form.role === 'client'
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--bg)' }}>
+    <div style={{ display: 'flex', minHeight: '100vh', background: isDark ? 'var(--bg)' : '#F5F8FF' }}>
       <AuthLeft isDark={isDark} />
 
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 48px', position: 'relative', overflowY: 'auto' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 48px', position: 'relative', overflowY: 'auto', background: isDark ? 'transparent' : 'linear-gradient(160deg, #F5F8FF 0%, #FEFCF5 100%)' }}>
         <div style={{ position: 'absolute', top: 24, right: 24 }}>
           <ThemeToggle />
         </div>
@@ -61,7 +61,7 @@ export default function Register() {
           </div>
 
           {/* Role toggle */}
-          <div style={{ display: 'flex', gap: 0, marginBottom: 24, background: isDark ? 'rgba(255,255,255,0.04)' : 'rgba(80,72,213,0.06)', borderRadius: 12, padding: 4 }}>
+          <div style={{ display: 'flex', gap: 0, marginBottom: 24, background: isDark ? 'rgba(255,255,255,0.04)' : 'rgba(59,91,219,0.06)', borderRadius: 12, padding: 4 }}>
             {[
               { value: 'client', icon: 'briefcase', label: 'Заказчик' },
               { value: 'freelancer', icon: 'code', label: 'Фрилансер' },
@@ -72,7 +72,7 @@ export default function Register() {
                 fontSize: 14, fontWeight: 500, cursor: 'pointer',
                 background: form.role === value ? 'var(--bg-card)' : 'transparent',
                 color: form.role === value ? 'var(--text-primary)' : 'var(--text-muted)',
-                boxShadow: form.role === value ? (isDark ? '0 2px 10px rgba(0,0,0,0.4)' : '0 2px 10px rgba(80,72,213,0.1)') : 'none',
+                boxShadow: form.role === value ? (isDark ? '0 2px 10px rgba(0,0,0,0.4)' : '0 2px 10px rgba(59,91,219,0.1)') : 'none',
                 transition: 'all 0.2s',
               }}>
                 <i className={`ti ti-${icon}`} style={{ fontSize: 15, color: form.role === value ? 'var(--accent)' : 'inherit' }} />

@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import Avatar from './Avatar'
 import Rating from './Rating'
 
-export default function FreelancerCard({ freelancer, isFavorited, onFavoriteToggle }) {
+export default function FreelancerCard({ freelancer }) {
   const { user_id, full_name, avatar_url, title, rating, reviews_count, skills, hourly_rate, total_jobs } = freelancer
 
   return (
@@ -28,24 +28,6 @@ export default function FreelancerCard({ freelancer, isFavorited, onFavoriteTogg
           e.currentTarget.style.boxShadow = 'none'
         }}
       >
-        {/* Heart button */}
-        {onFavoriteToggle && (
-          <button
-            onClick={e => { e.preventDefault(); e.stopPropagation(); onFavoriteToggle() }}
-            style={{
-              position: 'absolute', top: 16, right: 16,
-              background: 'none', border: 'none', cursor: 'pointer', padding: 4,
-              color: isFavorited ? '#F87171' : 'var(--text-muted)',
-              display: 'flex', alignItems: 'center', transition: 'color 0.15s',
-              zIndex: 1,
-            }}
-            onMouseEnter={e => e.currentTarget.style.color = '#F87171'}
-            onMouseLeave={e => e.currentTarget.style.color = isFavorited ? '#F87171' : 'var(--text-muted)'}
-          >
-            <i className={`ti ti-heart${isFavorited ? '-filled' : ''}`} style={{ fontSize: 17 }} />
-          </button>
-        )}
-
         {/* Avatar + name */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
           <Avatar src={avatar_url} name={full_name} size={52} online={freelancer.is_online ?? false} />

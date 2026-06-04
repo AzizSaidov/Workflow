@@ -240,7 +240,7 @@ export default function DashboardFreelancer() {
                   borderRadius: 16, padding: '20px 18px', overflow: 'hidden', position: 'relative',
                   background: isDark
                     ? 'linear-gradient(135deg, rgba(127,119,221,0.18) 0%, rgba(93,202,165,0.1) 100%)'
-                    : 'linear-gradient(135deg, rgba(80,72,213,0.12) 0%, rgba(29,158,117,0.08) 100%)',
+                    : 'linear-gradient(135deg, rgba(59,91,219,0.12) 0%, rgba(29,158,117,0.08) 100%)',
                   border: '0.5px solid rgba(127,119,221,0.25)',
                   cursor: 'pointer',
                   transition: 'border-color 0.2s, transform 0.2s',

@@ -21,7 +21,7 @@ from wallet.models import Wallet
 from categories.models import Category
 from skills.models import Skill
 from languages.models import Language
-from profiles.models import FreelancerProfile, SkillToProfile, ProfileLanguage, LanguageLevel
+from profiles.models import FreelancerProfile, SkillToProfile, ProfileLanguage, LanguageLevel, ProfileLike
 from client_profiles.models import ClientProfile
 from projects.models import Project, ProjectStatus
 from bids.models import Bid, BidStatus
@@ -211,7 +211,7 @@ def seed():
         admin, admin_w = make_user(
             "admin@workflow.com", "admin123", UserRole.client,
             "Admin", "Workflow platform administrator.", 38.56, 68.77,
-            "https://randomuser.me/api/portraits/men/1.jpg",
+            "https://randomuser.me/api/portraits/men/52.jpg",
         )
         admin.is_admin = True
         admin_w.balance = Decimal("50000")
@@ -223,25 +223,25 @@ def seed():
                 "name": "Timur Rashidov",
                 "bio": "Founder of TechCorp. Building IT products for emerging markets in Central Asia.",
                 "lat": 38.56, "lng": 68.77,
-                "avatar": "https://randomuser.me/api/portraits/men/15.jpg",
+                "avatar": "https://randomuser.me/api/portraits/men/36.jpg",
                 "company": "TechCorp", "website": "https://techcorp.tj",
-                "location": "Dushanbe, Tajikistan", "balance": Decimal("9500"),
+                "location": "Dushanbe, Tajikistan", "balance": Decimal("10000"),
             },
             {
                 "email": "amina@greenleaf.com", "pw": "pass123",
                 "name": "Amina Usupova",
                 "bio": "Owner of GreenLeaf Digital. We help regional businesses grow online.",
                 "lat": 41.30, "lng": 69.24,
-                "avatar": "https://randomuser.me/api/portraits/women/44.jpg",
+                "avatar": "https://randomuser.me/api/portraits/women/52.jpg",
                 "company": "GreenLeaf Digital", "website": "https://greenleaf.com",
-                "location": "Tashkent, Uzbekistan", "balance": Decimal("4200"),
+                "location": "Tashkent, Uzbekistan", "balance": Decimal("4000"),
             },
             {
                 "email": "damir@fintech.kz", "pw": "pass123",
                 "name": "Damir Seitkali",
                 "bio": "CTO of PayEasy — building next-gen payment infrastructure for Kazakhstan.",
                 "lat": 43.22, "lng": 76.85,
-                "avatar": "https://randomuser.me/api/portraits/men/32.jpg",
+                "avatar": "https://randomuser.me/api/portraits/men/72.jpg",
                 "company": "PayEasy", "website": "https://payeasy.kz",
                 "location": "Almaty, Kazakhstan", "balance": Decimal("11000"),
             },
@@ -250,16 +250,16 @@ def seed():
                 "name": "Sofia Muller",
                 "bio": "Art Director at Muller Design Studio. Partnering with European SaaS brands.",
                 "lat": 52.52, "lng": 13.40,
-                "avatar": "https://randomuser.me/api/portraits/women/47.jpg",
+                "avatar": "https://randomuser.me/api/portraits/women/22.jpg",
                 "company": "Muller Design Studio", "website": "https://muller.design",
-                "location": "Berlin, Germany", "balance": Decimal("7800"),
+                "location": "Berlin, Germany", "balance": Decimal("8000"),
             },
             {
                 "email": "chen@aiventures.cn", "pw": "pass123",
                 "name": "Chen Wei",
                 "bio": "CEO of AI Ventures. Investing in and building AI-first products for Asian markets.",
                 "lat": 31.23, "lng": 121.47,
-                "avatar": "https://randomuser.me/api/portraits/men/33.jpg",
+                "avatar": "https://randomuser.me/api/portraits/men/57.jpg",
                 "company": "AI Ventures", "website": "https://aiventures.cn",
                 "location": "Shanghai, China", "balance": Decimal("15000"),
             },
@@ -268,9 +268,9 @@ def seed():
                 "name": "Carlos Mendez",
                 "bio": "Founder of Agencia Digital. Full-service digital agency serving Latin American brands.",
                 "lat": 19.43, "lng": -99.13,
-                "avatar": "https://randomuser.me/api/portraits/men/11.jpg",
+                "avatar": "https://randomuser.me/api/portraits/men/43.jpg",
                 "company": "Agencia Digital", "website": "https://agencia.mx",
-                "location": "Mexico City, Mexico", "balance": Decimal("6300"),
+                "location": "Mexico City, Mexico", "balance": Decimal("6000"),
             },
         ]
 
@@ -293,10 +293,10 @@ def seed():
             {
                 "email": "alexei@dev.ru", "pw": "pass123",
                 "name": "Alexei Voronov", "lat": 55.75, "lng": 37.62,
-                "avatar": "https://randomuser.me/api/portraits/men/3.jpg",
+                "avatar": "https://randomuser.me/api/portraits/men/20.jpg",
                 "bio": "Full-stack developer, 7 years. React + FastAPI + PostgreSQL. 47 projects delivered on time.",
                 "title": "Senior Full-Stack Developer", "cat": "web-dev",
-                "rate": 55, "exp": 7, "rating": "4.80", "jobs": 47, "balance": "3200",
+                "rate": 55, "exp": 7, "rating": "4.80", "jobs": 50, "balance": "3000",
                 "verified": True, "resp": "within 1 hour",
                 "skills": ["react", "fastapi", "typescript", "postgresql", "docker", "redis"],
                 "langs": [("ru", "native"), ("en", "fluent")],
@@ -315,10 +315,10 @@ def seed():
             {
                 "email": "zara@flutter.dev", "pw": "pass123",
                 "name": "Zara Ismailova", "lat": 41.30, "lng": 69.24,
-                "avatar": "https://randomuser.me/api/portraits/women/56.jpg",
+                "avatar": "https://randomuser.me/api/portraits/women/57.jpg",
                 "bio": "Mobile developer specializing in Flutter (iOS+Android) + Firebase backend. 31 shipped apps.",
                 "title": "Flutter / Mobile Developer", "cat": "mobile-dev",
-                "rate": 45, "exp": 4, "rating": "5.00", "jobs": 31, "balance": "1950",
+                "rate": 45, "exp": 4, "rating": "5.00", "jobs": 30, "balance": "2000",
                 "verified": True, "resp": "within 2 hours",
                 "skills": ["flutter", "react-native", "kotlin", "swift"],
                 "langs": [("ru", "native"), ("en", "conversational"), ("uz", "native")],
@@ -334,10 +334,10 @@ def seed():
             {
                 "email": "marco@design.it", "pw": "pass123",
                 "name": "Marco Ferrari", "lat": 41.90, "lng": 12.50,
-                "avatar": "https://randomuser.me/api/portraits/men/7.jpg",
+                "avatar": "https://randomuser.me/api/portraits/men/30.jpg",
                 "bio": "Senior UI/UX Designer & Brand Identity specialist. 9 years. Working with European and US startups.",
                 "title": "Senior UI/UX Designer", "cat": "design",
-                "rate": 75, "exp": 9, "rating": "4.83", "jobs": 89, "balance": "6800",
+                "rate": 75, "exp": 9, "rating": "4.83", "jobs": 90, "balance": "7000",
                 "verified": True, "resp": "within 30 minutes",
                 "skills": ["figma", "adobe-xd", "illustrator", "photoshop", "blender", "sketch"],
                 "langs": [("en", "native"), ("de", "fluent")],
@@ -357,10 +357,10 @@ def seed():
             {
                 "email": "aisha@ailab.kz", "pw": "pass123",
                 "name": "Aisha Bekova", "lat": 43.22, "lng": 76.85,
-                "avatar": "https://randomuser.me/api/portraits/women/49.jpg",
+                "avatar": "https://randomuser.me/api/portraits/women/40.jpg",
                 "bio": "Data Scientist & ML Engineer. NLP, computer vision, MLOps pipelines. PhD in Applied Math.",
                 "title": "Data Scientist & ML Engineer", "cat": "data-ai",
-                "rate": 65, "exp": 5, "rating": "4.80", "jobs": 22, "balance": "3600",
+                "rate": 65, "exp": 5, "rating": "4.80", "jobs": 20, "balance": "3500",
                 "verified": True, "resp": "within 3 hours",
                 "skills": ["python", "tensorflow", "pytorch", "pandas", "sql", "sklearn", "langchain"],
                 "langs": [("ru", "native"), ("en", "fluent"), ("kk", "native")],
@@ -379,10 +379,10 @@ def seed():
             {
                 "email": "bekzod@devops.uz", "pw": "pass123",
                 "name": "Bekzod Yusupov", "lat": 41.30, "lng": 69.24,
-                "avatar": "https://randomuser.me/api/portraits/men/14.jpg",
+                "avatar": "https://randomuser.me/api/portraits/men/10.jpg",
                 "bio": "Senior DevOps Engineer. Kubernetes, AWS/GCP, Terraform, CI/CD. 6 years in production infra.",
                 "title": "Senior DevOps / Cloud Engineer", "cat": "devops",
-                "rate": 60, "exp": 6, "rating": "4.00", "jobs": 38, "balance": "2200",
+                "rate": 60, "exp": 6, "rating": "4.00", "jobs": 40, "balance": "2000",
                 "verified": True, "resp": "within 1 hour",
                 "skills": ["docker", "kubernetes", "aws", "github-actions", "terraform", "linux", "grafana", "prometheus"],
                 "langs": [("ru", "fluent"), ("en", "fluent"), ("uz", "native")],
@@ -400,10 +400,10 @@ def seed():
             {
                 "email": "diana@content.ru", "pw": "pass123",
                 "name": "Diana Petrova", "lat": 55.75, "lng": 37.62,
-                "avatar": "https://randomuser.me/api/portraits/women/28.jpg",
+                "avatar": "https://randomuser.me/api/portraits/women/32.jpg",
                 "bio": "Content strategist & copywriter. IT, fintech, e-commerce. 74 projects. Ex-editor at TechCrunch Russia.",
                 "title": "Content Strategist & Copywriter", "cat": "writing",
-                "rate": 32, "exp": 5, "rating": "4.00", "jobs": 74, "balance": "2400",
+                "rate": 30, "exp": 5, "rating": "4.00", "jobs": 75, "balance": "2500",
                 "verified": True, "resp": "within 30 minutes",
                 "skills": ["copywriting", "tech-writing", "translation-ru-en", "editing", "seo"],
                 "langs": [("ru", "native"), ("en", "fluent"), ("de", "conversational")],
@@ -418,10 +418,10 @@ def seed():
             {
                 "email": "ryan@security.io", "pw": "pass123",
                 "name": "Ryan Clarke", "lat": 51.51, "lng": -0.13,
-                "avatar": "https://randomuser.me/api/portraits/men/61.jpg",
+                "avatar": "https://randomuser.me/api/portraits/men/77.jpg",
                 "bio": "Offensive security specialist. OSCP certified. 8 years of pentesting for banks and SaaS companies.",
                 "title": "Penetration Tester / Security Consultant", "cat": "security",
-                "rate": 90, "exp": 8, "rating": "4.88", "jobs": 34, "balance": "4500",
+                "rate": 90, "exp": 8, "rating": "4.88", "jobs": 35, "balance": "4500",
                 "verified": True, "resp": "within 2 hours",
                 "skills": ["pentest", "owasp", "burp-suite", "metasploit", "network-security", "bug-bounty"],
                 "langs": [("en", "native")],
@@ -440,10 +440,10 @@ def seed():
             {
                 "email": "lena@video.de", "pw": "pass123",
                 "name": "Lena Braun", "lat": 48.14, "lng": 11.58,
-                "avatar": "https://randomuser.me/api/portraits/women/60.jpg",
+                "avatar": "https://randomuser.me/api/portraits/women/63.jpg",
                 "bio": "Motion designer & video editor. After Effects, Premiere Pro, Cinema 4D. 120+ videos for YouTube and ads.",
                 "title": "Motion Designer & Video Editor", "cat": "video",
-                "rate": 48, "exp": 6, "rating": "4.56", "jobs": 57, "balance": "1700",
+                "rate": 50, "exp": 6, "rating": "4.56", "jobs": 60, "balance": "1800",
                 "verified": True, "resp": "within 1 hour",
                 "skills": ["premiere", "after-effects", "cinema4d", "davinci", "motion-graphics"],
                 "langs": [("de", "native"), ("en", "fluent")],
@@ -461,10 +461,10 @@ def seed():
             {
                 "email": "arjun@backend.in", "pw": "pass123",
                 "name": "Arjun Sharma", "lat": 12.97, "lng": 77.59,
-                "avatar": "https://randomuser.me/api/portraits/men/25.jpg",
+                "avatar": "https://randomuser.me/api/portraits/men/68.jpg",
                 "bio": "Backend engineer specializing in Java/Spring Boot and Go microservices. 9 years, ex-Google engineer.",
                 "title": "Senior Backend Engineer (Java/Go)", "cat": "web-dev",
-                "rate": 70, "exp": 9, "rating": "4.79", "jobs": 41, "balance": "3900",
+                "rate": 70, "exp": 9, "rating": "4.79", "jobs": 40, "balance": "4000",
                 "verified": True, "resp": "within 2 hours",
                 "skills": ["java", "go", "spring", "postgresql", "redis", "docker", "kubernetes", "rest-api"],
                 "langs": [("en", "fluent"), ("ru", "conversational")],
@@ -482,10 +482,10 @@ def seed():
             {
                 "email": "natasha@finance.ru", "pw": "pass123",
                 "name": "Natasha Volkova", "lat": 59.93, "lng": 30.32,
-                "avatar": "https://randomuser.me/api/portraits/women/53.jpg",
+                "avatar": "https://randomuser.me/api/portraits/women/80.jpg",
                 "bio": "Financial analyst & accountant. IFRS, tax consulting, financial modeling for startups and enterprises.",
                 "title": "Financial Analyst & CPA", "cat": "finance",
-                "rate": 40, "exp": 10, "rating": "5.00", "jobs": 63, "balance": "2900",
+                "rate": 40, "exp": 10, "rating": "5.00", "jobs": 65, "balance": "3000",
                 "verified": True, "resp": "within 3 hours",
                 "skills": ["ifrs", "excel-vba", "financial-analysis", "1c", "gaap"],
                 "langs": [("ru", "native"), ("en", "fluent")],
@@ -557,35 +557,35 @@ def seed():
         projects_data = [
 
             # ─── COMPLETED (6) ───────────────────────────────────────────────
-            dict(client=cl[0], freelancer=fr[0], status="completed", bid_price=3200, feat=True,
+            dict(client=cl[0], freelancer=fr[0], status="completed", bid_price=3000, feat=True,
                  title="CRM System for Sales Agency",
                  desc="CRM for managing clients, tasks, pipeline and analytics. Telegram integration, email notifications, dashboard with charts. 30+ custom fields.",
                  cat="web-dev", bmin=2500, bmax=4000, ptype="fixed", level="expert", dur="2-3 months"),
 
-            dict(client=cl[2], freelancer=fr[3], status="completed", bid_price=4800, feat=True,
+            dict(client=cl[2], freelancer=fr[3], status="completed", bid_price=5000, feat=True,
                  title="ML Model: Customer Churn Prediction",
                  desc="Bank with 200k clients. Churn prediction model with 94% precision. Python + PostgreSQL + AWS Lambda. Realtime scoring API.",
                  cat="data-ai", bmin=3500, bmax=6000, ptype="fixed", level="expert", dur="1-2 months"),
 
-            dict(client=cl[3], freelancer=fr[2], status="completed", bid_price=2200, feat=True,
+            dict(client=cl[3], freelancer=fr[2], status="completed", bid_price=2000, feat=True,
                  title="SaaS Rebranding & Design System",
                  desc="Full rebranding: logo, color palette, typography, Figma UI kit with 80+ components. Dark and light themes. Handoff to developers.",
-                 cat="design", bmin=1500, bmax=2800, ptype="fixed", level="expert", dur="6 weeks"),
+                 cat="design", bmin=1500, bmax=3000, ptype="fixed", level="expert", dur="6 weeks"),
 
-            dict(client=cl[1], freelancer=fr[6], status="completed", bid_price=2800, feat=True,
+            dict(client=cl[1], freelancer=fr[6], status="completed", bid_price=3000, feat=True,
                  title="Web App Security Audit (OWASP)",
                  desc="Full security audit of REST API and React frontend. Pentest with Burp Suite. Detailed report: 22 findings, remediation roadmap.",
                  cat="security", bmin=2000, bmax=3500, ptype="fixed", level="expert", dur="3 weeks"),
 
-            dict(client=cl[4], freelancer=fr[8], status="completed", bid_price=6500, feat=True,
+            dict(client=cl[4], freelancer=fr[8], status="completed", bid_price=7000, feat=True,
                  title="High-Load Payment Microservices (Go)",
                  desc="Greenfield microservices system processing 10k TPS. Go + Kafka + PostgreSQL. API Gateway, rate limiting, idempotency keys.",
                  cat="web-dev", bmin=5000, bmax=9000, ptype="fixed", level="expert", dur="3 months"),
 
-            dict(client=cl[5], freelancer=fr[7], status="completed", bid_price=1800, feat=False,
+            dict(client=cl[5], freelancer=fr[7], status="completed", bid_price=2000, feat=False,
                  title="Product Explainer Video + Motion Graphics",
                  desc="90-second animated explainer for SaaS product launch. After Effects + Cinema 4D. 3 revision rounds included. Final delivery in 4K.",
-                 cat="video", bmin=1200, bmax=2500, ptype="fixed", level="expert", dur="3 weeks"),
+                 cat="video", bmin=1000, bmax=2500, ptype="fixed", level="expert", dur="3 weeks"),
 
             # ─── IN_PROGRESS (5) ─────────────────────────────────────────────
             dict(client=cl[0], freelancer=fr[1], status="in_progress", bid_price=5500, feat=True,
@@ -593,33 +593,33 @@ def seed():
                  desc="iOS + Android app for food delivery. Restaurant catalog, cart, Stripe payments, Apple Pay, real-time courier tracking. Firebase backend.",
                  cat="mobile-dev", bmin=4000, bmax=7000, ptype="fixed", level="expert", dur="3 months"),
 
-            dict(client=cl[1], freelancer=fr[4], status="in_progress", bid_price=2800, feat=False,
+            dict(client=cl[1], freelancer=fr[4], status="in_progress", bid_price=3000, feat=False,
                  title="DevOps: Kubernetes + CI/CD for E-Commerce",
                  desc="K8s cluster setup on AWS EKS, GitLab CI/CD, autoscaling policies, Prometheus/Grafana monitoring, HA PostgreSQL with replication.",
                  cat="devops", bmin=2000, bmax=3500, ptype="fixed", level="expert", dur="1 month"),
 
-            dict(client=cl[3], freelancer=fr[3], status="in_progress", bid_price=3900, feat=False,
+            dict(client=cl[3], freelancer=fr[3], status="in_progress", bid_price=4000, feat=False,
                  title="AI Recommendation Engine for E-Commerce",
                  desc="Collaborative filtering + content-based hybrid model. Real-time scoring via FastAPI. A/B testing framework. AWS SageMaker deployment.",
                  cat="data-ai", bmin=3000, bmax=5000, ptype="fixed", level="expert", dur="2 months"),
 
-            dict(client=cl[2], freelancer=fr[9], status="in_progress", bid_price=2200, feat=False,
+            dict(client=cl[2], freelancer=fr[9], status="in_progress", bid_price=2000, feat=False,
                  title="IFRS Financial Reporting Automation",
                  desc="Excel VBA + Python automation of monthly IFRS financial statements for 3 legal entities. Integration with 1C accounting system.",
                  cat="finance", bmin=1800, bmax=3000, ptype="fixed", level="expert", dur="6 weeks"),
 
-            dict(client=cl[5], freelancer=fr[0], status="in_progress", bid_price=4100, feat=True,
+            dict(client=cl[5], freelancer=fr[0], status="in_progress", bid_price=4000, feat=True,
                  title="Multi-Tenant SaaS Platform (Next.js + FastAPI)",
                  desc="Multi-tenant architecture with per-tenant databases, custom domains, billing via Stripe. Admin panel. REST + GraphQL APIs.",
                  cat="web-dev", bmin=3500, bmax=5500, ptype="fixed", level="expert", dur="2-3 months"),
 
             # ─── DELIVERED (2) ───────────────────────────────────────────────
-            dict(client=cl[2], freelancer=fr[2], status="delivered", bid_price=1400, feat=False,
+            dict(client=cl[2], freelancer=fr[2], status="delivered", bid_price=1500, feat=False,
                  title="Landing Page Redesign + A/B Testing",
                  desc="UX audit of existing landing page, new design in Figma, pixel-perfect HTML/CSS. A/B test setup via Google Optimize. Mobile-first.",
-                 cat="design", bmin=900, bmax=1800, ptype="fixed", level="intermediate", dur="3 weeks"),
+                 cat="design", bmin=1000, bmax=2000, ptype="fixed", level="intermediate", dur="3 weeks"),
 
-            dict(client=cl[4], freelancer=fr[7], status="delivered", bid_price=2400, feat=False,
+            dict(client=cl[4], freelancer=fr[7], status="delivered", bid_price=2500, feat=False,
                  title="Brand Video Series (6 episodes)",
                  desc="6-episode brand story video series for LinkedIn + YouTube. DaVinci Resolve editing, custom motion graphics, subtitles in EN/ZH.",
                  cat="video", bmin=1800, bmax=3000, ptype="fixed", level="expert", dur="5 weeks"),
@@ -638,7 +638,7 @@ def seed():
             dict(client=cl[0], freelancer=None, status="open", bid_price=None, feat=False,
                  title="SEO Articles for Tech Blog (20 pieces)",
                  desc="20 SEO articles on fintech/API topics. 1500-2000 words each. English. Keyword research included. Deadline: 1 month.",
-                 cat="writing", bmin=400, bmax=900, ptype="fixed", level="intermediate", dur="1 month"),
+                 cat="writing", bmin=500, bmax=1000, ptype="fixed", level="intermediate", dur="1 month"),
 
             dict(client=cl[2], freelancer=None, status="open", bid_price=None, feat=False,
                  title="Web App Pentest (OWASP Top 10)",
@@ -653,7 +653,7 @@ def seed():
             dict(client=cl[5], freelancer=None, status="open", bid_price=None, feat=False,
                  title="Social Media Video Ads (10 creatives)",
                  desc="10 short-form video ads for TikTok, Instagram Reels, YouTube Shorts. 15–30 sec each. Hook in first 3 sec. Spanish + English versions.",
-                 cat="video", bmin=800, bmax=1800, ptype="fixed", level="intermediate", dur="3 weeks"),
+                 cat="video", bmin=1000, bmax=2000, ptype="fixed", level="intermediate", dur="3 weeks"),
 
             dict(client=cl[0], freelancer=None, status="open", bid_price=None, feat=True,
                  title="iOS App: Personal Finance Tracker (Swift)",
@@ -663,7 +663,7 @@ def seed():
             dict(client=cl[1], freelancer=None, status="open", bid_price=None, feat=False,
                  title="Google Ads Campaign Management (3 months)",
                  desc="Setup and management of Google Search + Display campaigns for SaaS product. Monthly budget $5k. Target: CPA under $30. Weekly reports.",
-                 cat="marketing", bmin=900, bmax=1800, ptype="hourly", level="intermediate", dur="3 months"),
+                 cat="marketing", bmin=1000, bmax=2000, ptype="hourly", level="intermediate", dur="3 months"),
 
             dict(client=cl[2], freelancer=None, status="open", bid_price=None, feat=False,
                  title="Corporate Financial Model (3-Year Forecast)",
@@ -678,63 +678,63 @@ def seed():
             dict(client=cl[3], freelancer=None, status="open", bid_price=None, feat=False,
                  title="Brand Identity Design (Logo + Style Guide)",
                  desc="Logo, color palette, typography, brand voice. Deliverables: AI/EPS + PNG/SVG files, brand guidelines PDF, Figma style guide. 3 initial concepts.",
-                 cat="design", bmin=800, bmax=1800, ptype="fixed", level="intermediate", dur="4 weeks"),
+                 cat="design", bmin=1000, bmax=2000, ptype="fixed", level="intermediate", dur="4 weeks"),
 
             dict(client=cl[4], freelancer=None, status="open", bid_price=None, feat=False,
                  title="NLP Text Classification Pipeline",
                  desc="Multi-label text classifier for customer support tickets (10 categories, Chinese + English). BERT fine-tuning. REST API deployment on AWS.",
-                 cat="data-ai", bmin=2500, bmax=4500, ptype="fixed", level="expert", dur="6 weeks"),
+                 cat="data-ai", bmin=2500, bmax=5000, ptype="fixed", level="expert", dur="6 weeks"),
 
             # ─── EXTRA COMPLETED (10) — for richer review history ────────────
-            dict(client=cl[3], freelancer=fr[0], status="completed", bid_price=2800, feat=False,
+            dict(client=cl[3], freelancer=fr[0], status="completed", bid_price=3000, feat=False,
                  title="React Analytics Dashboard",
                  desc="Real-time analytics dashboard for marketing team. React + Recharts + FastAPI. Custom filters, CSV export, role-based access for 5 user types.",
-                 cat="web-dev", bmin=2200, bmax=3500, ptype="fixed", level="expert", dur="6 weeks"),
+                 cat="web-dev", bmin=2000, bmax=3500, ptype="fixed", level="expert", dur="6 weeks"),
 
-            dict(client=cl[4], freelancer=fr[1], status="completed", bid_price=3400, feat=False,
+            dict(client=cl[4], freelancer=fr[1], status="completed", bid_price=3500, feat=False,
                  title="Fitness Tracker App (Flutter iOS+Android)",
                  desc="Cross-platform fitness app with workout logging, progress charts, Apple Health / Google Fit integration, push notifications and offline mode.",
-                 cat="mobile-dev", bmin=2800, bmax=4500, ptype="fixed", level="expert", dur="2 months"),
+                 cat="mobile-dev", bmin=3000, bmax=5000, ptype="fixed", level="expert", dur="2 months"),
 
-            dict(client=cl[0], freelancer=fr[2], status="completed", bid_price=1600, feat=False,
+            dict(client=cl[0], freelancer=fr[2], status="completed", bid_price=1500, feat=False,
                  title="Corporate Website Redesign",
                  desc="Full redesign of 12-page corporate website. Figma prototypes → pixel-perfect HTML/CSS/JS. WCAG 2.1 AA accessibility, 97 Lighthouse score.",
-                 cat="design", bmin=1200, bmax=2200, ptype="fixed", level="intermediate", dur="4 weeks"),
+                 cat="design", bmin=1000, bmax=2000, ptype="fixed", level="intermediate", dur="4 weeks"),
 
-            dict(client=cl[1], freelancer=fr[4], status="completed", bid_price=2400, feat=False,
+            dict(client=cl[1], freelancer=fr[4], status="completed", bid_price=2500, feat=False,
                  title="AWS Infrastructure Migration",
                  desc="Migrated on-premise infrastructure to AWS. EC2 + RDS + S3 + CloudFront. IaC with Terraform. Zero-downtime migration with 2-hour maintenance window.",
-                 cat="devops", bmin=1800, bmax=3200, ptype="fixed", level="expert", dur="3 weeks"),
+                 cat="devops", bmin=2000, bmax=3000, ptype="fixed", level="expert", dur="3 weeks"),
 
-            dict(client=cl[2], freelancer=fr[5], status="completed", bid_price=580, feat=False,
+            dict(client=cl[2], freelancer=fr[5], status="completed", bid_price=600, feat=False,
                  title="Technical Blog Articles (15 posts)",
                  desc="15 SEO-optimized technical articles on fintech/API topics. 1500-2000 words each. Keyword research, meta descriptions, internal linking strategy.",
-                 cat="writing", bmin=400, bmax=800, ptype="fixed", level="intermediate", dur="5 weeks"),
+                 cat="writing", bmin=500, bmax=1000, ptype="fixed", level="intermediate", dur="5 weeks"),
 
-            dict(client=cl[4], freelancer=fr[9], status="completed", bid_price=1100, feat=False,
+            dict(client=cl[4], freelancer=fr[9], status="completed", bid_price=1000, feat=False,
                  title="Startup Financial Model (Series A)",
                  desc="3-year financial model: P&L, Balance Sheet, Cash Flow with scenario analysis. Investor-ready pitch deck slides. Prepared for $6M Series A round.",
                  cat="finance", bmin=800, bmax=1500, ptype="fixed", level="expert", dur="2 weeks"),
 
-            dict(client=cl[5], freelancer=fr[3], status="completed", bid_price=3100, feat=False,
+            dict(client=cl[5], freelancer=fr[3], status="completed", bid_price=3000, feat=False,
                  title="Customer Segmentation ML Model",
                  desc="RFM segmentation + K-means clustering on 500k customer records. Actionable segments for marketing team. Python + Spark + interactive Tableau dashboard.",
                  cat="data-ai", bmin=2500, bmax=4000, ptype="fixed", level="expert", dur="6 weeks"),
 
-            dict(client=cl[3], freelancer=fr[8], status="completed", bid_price=4300, feat=False,
+            dict(client=cl[3], freelancer=fr[8], status="completed", bid_price=4500, feat=False,
                  title="Event-Driven Architecture (Java + Kafka)",
                  desc="Redesigned order processing system using event sourcing and CQRS. Java + Kafka + PostgreSQL. 10x throughput improvement. Comprehensive integration tests.",
                  cat="web-dev", bmin=3500, bmax=5500, ptype="fixed", level="expert", dur="2 months"),
 
-            dict(client=cl[0], freelancer=fr[0], status="completed", bid_price=1900, feat=False,
+            dict(client=cl[0], freelancer=fr[0], status="completed", bid_price=2000, feat=False,
                  title="Internal Task Management Tool",
                  desc="Kanban board with drag-and-drop, time tracking, team workload view, Slack notifications. React + FastAPI + PostgreSQL. Deployed on company servers.",
                  cat="web-dev", bmin=1500, bmax=2500, ptype="fixed", level="intermediate", dur="5 weeks"),
 
-            dict(client=cl[5], freelancer=fr[2], status="completed", bid_price=1750, feat=False,
+            dict(client=cl[5], freelancer=fr[2], status="completed", bid_price=1800, feat=False,
                  title="Mobile App UI Design + Prototype",
                  desc="Full UI design for iOS/Android travel app. 48 screens, design system with 90+ components, interactive Figma prototype, developer handoff package.",
-                 cat="design", bmin=1400, bmax=2200, ptype="fixed", level="expert", dur="5 weeks"),
+                 cat="design", bmin=1500, bmax=2500, ptype="fixed", level="expert", dur="5 weeks"),
         ]
 
         projects = []
@@ -920,8 +920,30 @@ def seed():
         for u in all_users:
             check_and_grant(u, db)
 
+        # ── PROFILE LIKES ─────────────────────────────────────────────────────
+        likes_data = [
+            (cl[0], fr[0]),   # Timur → Alexei
+            (cl[0], fr[2]),   # Timur → Marco
+            (cl[1], fr[0]),   # Amina → Alexei
+            (cl[1], fr[6]),   # Amina → Ryan
+            (cl[2], fr[3]),   # Damir → Aisha
+            (cl[2], fr[9]),   # Damir → Natasha
+            (cl[3], fr[2]),   # Sofia → Marco
+            (cl[3], fr[7]),   # Sofia → Lena
+            (cl[4], fr[8]),   # Chen → Arjun
+            (cl[4], fr[3]),   # Chen → Aisha
+            (cl[5], fr[7]),   # Carlos → Lena
+            (cl[5], fr[1]),   # Carlos → Zara
+            (fr[0], fr[3]),   # Alexei → Aisha
+            (fr[2], fr[1]),   # Marco → Zara
+            (fr[8], fr[4]),   # Arjun → Bekzod
+        ]
+        for liker, liked in likes_data:
+            db.add(ProfileLike(liker_id=liker.id, liked_user_id=liked.id))
+        db.flush()
+
         db.commit()
-        print("\n✓ Seed complete!\n")
+        print("\nSeed complete!\n")
         print("=" * 52)
         print("LOGIN CREDENTIALS")
         print("=" * 52)

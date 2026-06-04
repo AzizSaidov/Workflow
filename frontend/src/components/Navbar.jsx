@@ -79,10 +79,10 @@ export default function Navbar() {
       display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       padding: '0 40px', height: 64,
       background: scrolled
-        ? isDark ? 'rgba(7,7,14,0.95)' : 'rgba(247,248,252,0.96)'
-        : isDark ? 'rgba(7,7,14,0.5)' : 'rgba(247,248,252,0.7)',
+        ? isDark ? 'rgba(7,7,14,0.95)' : 'rgba(240,245,255,0.96)'
+        : isDark ? 'rgba(7,7,14,0.5)' : 'rgba(240,245,255,0.7)',
       borderBottom: scrolled
-        ? isDark ? '0.5px solid rgba(255,255,255,0.07)' : '0.5px solid rgba(80,72,213,0.12)'
+        ? isDark ? '0.5px solid rgba(255,255,255,0.07)' : '0.5px solid rgba(59,91,219,0.12)'
         : '0.5px solid transparent',
       backdropFilter: 'blur(18px)',
       transition: 'background 0.3s, border-color 0.3s',
@@ -107,7 +107,7 @@ export default function Navbar() {
                 display: 'flex', alignItems: 'center', gap: 6,
                 padding: '6px 14px', borderRadius: 8, fontSize: 13.5, fontWeight: active ? 500 : 400,
                 color: active ? 'var(--text-primary)' : 'var(--text-secondary)',
-                background: active ? (isDark ? 'rgba(127,119,221,0.12)' : 'rgba(80,72,213,0.08)') : 'transparent',
+                background: active ? (isDark ? 'rgba(127,119,221,0.12)' : 'rgba(59,91,219,0.08)') : 'transparent',
                 transition: 'all 0.2s', cursor: 'pointer',
               }}
                 onMouseEnter={e => { if (!active) e.currentTarget.style.background = isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)' }}
@@ -184,7 +184,7 @@ export default function Navbar() {
                       padding: '9px 16px', fontSize: 13.5,
                       color: 'var(--text-secondary)', textDecoration: 'none',
                     }}
-                      onMouseEnter={e => e.currentTarget.style.background = isDark ? 'rgba(127,119,221,0.07)' : 'rgba(80,72,213,0.06)'}
+                      onMouseEnter={e => e.currentTarget.style.background = isDark ? 'rgba(127,119,221,0.07)' : 'rgba(59,91,219,0.06)'}
                       onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                     >
                       <i className={`ti ti-${icon}`} style={{ fontSize: 15, color: 'var(--accent)' }} />

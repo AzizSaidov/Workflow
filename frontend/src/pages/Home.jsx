@@ -66,7 +66,7 @@ function CategoryCard({ cat, isDark }) {
         onMouseEnter={e => {
           e.currentTarget.style.borderColor = 'var(--border-hover)'
           e.currentTarget.style.transform = 'translateY(-5px)'
-          e.currentTarget.style.boxShadow = isDark ? '0 12px 40px rgba(127,119,221,0.15)' : '0 8px 32px rgba(80,72,213,0.12)'
+          e.currentTarget.style.boxShadow = isDark ? '0 12px 40px rgba(127,119,221,0.15)' : '0 8px 32px rgba(59,91,219,0.12)'
         }}
         onMouseLeave={e => {
           e.currentTarget.style.borderColor = 'var(--border)'
@@ -74,7 +74,7 @@ function CategoryCard({ cat, isDark }) {
           e.currentTarget.style.boxShadow = 'none'
         }}
       >
-        <div style={{ width: 52, height: 52, borderRadius: 14, background: isDark ? 'rgba(127,119,221,0.12)' : 'rgba(80,72,213,0.09)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ width: 52, height: 52, borderRadius: 14, background: isDark ? 'rgba(127,119,221,0.12)' : 'rgba(59,91,219,0.09)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <i className={`ti ${iconClass}`} style={{ fontSize: 24, color: 'var(--accent)' }} />
         </div>
         <span style={{ fontSize: 12.5, fontWeight: 500, color: 'var(--text-primary)', lineHeight: 1.3 }}>{cat.name}</span>
@@ -216,7 +216,7 @@ export default function Home() {
             background: 'var(--bg-card)', border: '0.5px solid var(--border)',
             borderRadius: 12, padding: '9px 18px',
             display: 'flex', alignItems: 'center', gap: 9, fontSize: 12.5,
-            boxShadow: isDark ? '0 4px 24px rgba(0,0,0,0.45)' : '0 4px 20px rgba(80,72,213,0.12)',
+            boxShadow: isDark ? '0 4px 24px rgba(0,0,0,0.45)' : '0 4px 20px rgba(59,91,219,0.12)',
             animation: 'fadeInUp 0.5s ease both', animationDelay: '1.1s',
             whiteSpace: 'nowrap',
           }}>
@@ -231,8 +231,8 @@ export default function Home() {
             <div className="animate-in" style={{
               display: 'inline-flex', alignItems: 'center', gap: 8,
               padding: '6px 16px', borderRadius: 20, marginBottom: 24,
-              background: isDark ? 'rgba(127,119,221,0.08)' : 'rgba(80,72,213,0.08)',
-              border: `0.5px solid ${isDark ? 'rgba(127,119,221,0.22)' : 'rgba(80,72,213,0.22)'}`,
+              background: isDark ? 'rgba(127,119,221,0.08)' : 'rgba(59,91,219,0.08)',
+              border: `0.5px solid ${isDark ? 'rgba(127,119,221,0.22)' : 'rgba(59,91,219,0.22)'}`,
               fontSize: 13, fontWeight: 500, color: 'var(--accent)',
               animationDelay: '0.1s',
             }}>
@@ -283,7 +283,7 @@ export default function Home() {
 
           {/* Globe */}
           <div className="animate-fade" style={{ flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', animationDelay: '0.3s' }}>
-            <div style={{ position: 'absolute', inset: '-20px', borderRadius: '50%', background: isDark ? 'radial-gradient(circle, rgba(127,119,221,0.12) 0%, transparent 70%)' : 'radial-gradient(circle, rgba(80,72,213,0.1) 0%, transparent 70%)', pointerEvents: 'none' }} />
+            <div style={{ position: 'absolute', inset: '-20px', borderRadius: '50%', background: isDark ? 'radial-gradient(circle, rgba(127,119,221,0.12) 0%, transparent 70%)' : 'radial-gradient(circle, rgba(59,91,219,0.1) 0%, transparent 70%)', pointerEvents: 'none' }} />
             <Globe locations={locations} width={460} height={460} />
           </div>
         </div>
@@ -551,7 +551,7 @@ export default function Home() {
             <div style={{
               background: isDark
                 ? 'linear-gradient(135deg, rgba(127,119,221,0.13) 0%, rgba(13,13,24,0.95) 100%)'
-                : 'linear-gradient(135deg, rgba(80,72,213,0.07) 0%, var(--bg-card) 100%)',
+                : 'linear-gradient(135deg, rgba(59,91,219,0.07) 0%, var(--bg-card) 100%)',
               border: '0.5px solid var(--border-hover)',
               borderRadius: 22, padding: '36px 32px',
               display: 'flex', flexDirection: 'column', gap: 16,

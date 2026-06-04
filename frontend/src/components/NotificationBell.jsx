@@ -270,12 +270,12 @@ export default function NotificationBell() {
                         cursor: n.is_read ? 'default' : 'pointer',
                         background: n.is_read
                           ? 'transparent'
-                          : isDark ? 'rgba(127,119,221,0.04)' : 'rgba(80,72,213,0.03)',
+                          : isDark ? 'rgba(127,119,221,0.04)' : 'rgba(59,91,219,0.03)',
                         display: 'flex', gap: 12, alignItems: 'flex-start',
                         transition: 'background 0.15s',
                       }}
-                      onMouseEnter={e => { if (!n.is_read) e.currentTarget.style.background = isDark ? 'rgba(127,119,221,0.08)' : 'rgba(80,72,213,0.06)' }}
-                      onMouseLeave={e => { e.currentTarget.style.background = n.is_read ? 'transparent' : (isDark ? 'rgba(127,119,221,0.04)' : 'rgba(80,72,213,0.03)') }}
+                      onMouseEnter={e => { if (!n.is_read) e.currentTarget.style.background = isDark ? 'rgba(127,119,221,0.08)' : 'rgba(59,91,219,0.06)' }}
+                      onMouseLeave={e => { e.currentTarget.style.background = n.is_read ? 'transparent' : (isDark ? 'rgba(127,119,221,0.04)' : 'rgba(59,91,219,0.03)') }}
                     >
                       {/* Icon */}
                       <div style={{

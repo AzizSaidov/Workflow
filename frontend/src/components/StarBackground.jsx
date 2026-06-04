@@ -80,12 +80,12 @@ export default function StarBackground({ isDark = true, intensity = 'full' }) {
     const blobCount = intensity === 'full' ? 6 : 4
     const lightBlobs = []
     const blobColors = [
-      [80, 72, 213],   // purple
-      [13, 146, 104],  // green
-      [128, 121, 224], // light purple
-      [80, 72, 213],
-      [13, 146, 104],
-      [100, 90, 220],
+      [59, 91, 219],   // purple
+      [14, 159, 110],  // green
+      [104, 128, 229], // light purple
+      [59, 91, 219],
+      [14, 159, 110],
+      [86, 112, 224],
     ]
     for (let i = 0; i < blobCount; i++) {
       lightBlobs.push({
@@ -104,7 +104,7 @@ export default function StarBackground({ isDark = true, intensity = 'full' }) {
     const particleCount = intensity === 'full' ? 55 : 25
     const lightParticles = []
     for (let i = 0; i < particleCount; i++) {
-      const c = Math.random() > 0.5 ? [80, 72, 213] : [13, 146, 104]
+      const c = Math.random() > 0.5 ? [59, 91, 219] : [14, 159, 110]
       lightParticles.push({
         x: Math.random() * 1400,
         y: Math.random() * 900,
@@ -195,7 +195,7 @@ export default function StarBackground({ isDark = true, intensity = 'full' }) {
             const a = 0.06 + 0.07 * wave
             ctx.beginPath()
             ctx.arc(dx, dy, 1.2, 0, Math.PI * 2)
-            ctx.fillStyle = `rgba(80,72,213,${a})`
+            ctx.fillStyle = `rgba(59,91,219,${a})`
             ctx.globalAlpha = 1
             ctx.fill()
           }

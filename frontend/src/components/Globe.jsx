@@ -67,7 +67,7 @@ export default function Globe({
   }, [])
 
   const earthTexture = isDark ? '/earth-night.jpg' : '/earth-blue-marble.jpg'
-  const fadeRgb = isDark ? '7,7,14' : '247,248,252'
+  const fadeRgb = isDark ? '7,7,14' : '248,247,255'
 
   return (
     <div style={{ position: 'relative', width, height }}>
@@ -91,7 +91,7 @@ export default function Globe({
         position: 'absolute', inset: '-12%', borderRadius: '50%',
         background: isDark
           ? 'radial-gradient(circle, rgba(127,119,221,0.13) 0%, rgba(29,158,117,0.05) 50%, transparent 70%)'
-          : 'radial-gradient(circle, rgba(80,72,213,0.10) 0%, transparent 65%)',
+          : 'radial-gradient(circle, rgba(59,91,219,0.10) 0%, transparent 65%)',
         pointerEvents: 'none', zIndex: 0,
       }} />
 
@@ -157,8 +157,8 @@ export default function Globe({
           height={height}
           backgroundColor="rgba(0,0,0,0)"
           globeImageUrl={earthTexture}
-          atmosphereColor={isDark ? '#9B93F0' : '#5048D5'}
-          atmosphereAltitude={0.26}
+          atmosphereColor={isDark ? '#9B93F0' : '#6096E8'}
+          atmosphereAltitude={isDark ? 0.26 : 0.15}
 
           pointsData={points}
           pointColor="color"
@@ -201,7 +201,9 @@ export default function Globe({
       {loaded && (
         <div style={{
           position: 'absolute', inset: 0,
-          background: `radial-gradient(circle, transparent 48%, rgba(${fadeRgb},0.3) 66%, rgba(${fadeRgb},0.72) 82%, rgba(${fadeRgb},0.95) 100%)`,
+          background: isDark
+            ? `radial-gradient(circle, transparent 48%, rgba(${fadeRgb},0.3) 66%, rgba(${fadeRgb},0.72) 82%, rgba(${fadeRgb},0.95) 100%)`
+            : `radial-gradient(circle, transparent 38%, rgba(${fadeRgb},0.45) 54%, rgba(${fadeRgb},0.88) 70%, rgba(${fadeRgb},1) 82%)`,
           pointerEvents: 'none', zIndex: 2,
           borderRadius: '50%',
         }} />
@@ -213,7 +215,7 @@ export default function Globe({
         <div style={{
           position: 'absolute', bottom: 28, left: '50%', transform: 'translateX(-50%)',
           display: 'flex', gap: 14, zIndex: 4,
-          background: isDark ? 'rgba(13,13,24,0.75)' : 'rgba(247,248,252,0.85)',
+          background: isDark ? 'rgba(13,13,24,0.75)' : 'rgba(240,245,255,0.85)',
           backdropFilter: 'blur(8px)',
           border: '0.5px solid var(--border)',
           borderRadius: 20, padding: '6px 16px',
@@ -252,15 +254,15 @@ function GlobeSkeleton({ size, isDark }) {
         background: isDark
           ? 'radial-gradient(circle at 35% 35%, #1a1a2e 0%, #0d0b1e 60%, #07070e 100%)'
           : 'radial-gradient(circle at 35% 35%, #e8e5f8 0%, #d8d4f0 60%, #c8c3e8 100%)',
-        border: `1px solid ${isDark ? 'rgba(127,119,221,0.2)' : 'rgba(80,72,213,0.15)'}`,
+        border: `1px solid ${isDark ? 'rgba(127,119,221,0.2)' : 'rgba(59,91,219,0.15)'}`,
         position: 'relative', overflow: 'hidden',
       }}>
-        <div style={{ position: 'absolute', inset: -2, borderRadius: '50%', border: '2px solid transparent', borderTopColor: isDark ? '#7F77DD' : '#5048D5', borderRightColor: isDark ? 'rgba(127,119,221,0.3)' : 'rgba(80,72,213,0.3)', animation: 'spin 1.4s linear infinite' }} />
-        {[20,40,60].map(p => <div key={p} style={{ position:'absolute', top:`${p}%`, left:0, right:0, height:'0.5px', background: isDark?'rgba(127,119,221,0.1)':'rgba(80,72,213,0.08)' }} />)}
-        {[30,50,70].map(p => <div key={p} style={{ position:'absolute', left:`${p}%`, top:0, bottom:0, width:'0.5px', background: isDark?'rgba(127,119,221,0.1)':'rgba(80,72,213,0.08)' }} />)}
+        <div style={{ position: 'absolute', inset: -2, borderRadius: '50%', border: '2px solid transparent', borderTopColor: isDark ? '#7F77DD' : '#3B5BDB', borderRightColor: isDark ? 'rgba(127,119,221,0.3)' : 'rgba(59,91,219,0.3)', animation: 'spin 1.4s linear infinite' }} />
+        {[20,40,60].map(p => <div key={p} style={{ position:'absolute', top:`${p}%`, left:0, right:0, height:'0.5px', background: isDark?'rgba(127,119,221,0.1)':'rgba(59,91,219,0.08)' }} />)}
+        {[30,50,70].map(p => <div key={p} style={{ position:'absolute', left:`${p}%`, top:0, bottom:0, width:'0.5px', background: isDark?'rgba(127,119,221,0.1)':'rgba(59,91,219,0.08)' }} />)}
         <div style={{ position:'absolute', inset:0, display:'flex', alignItems:'center', justifyContent:'center', flexDirection:'column', gap:6 }}>
-          <i className="ti ti-world" style={{ fontSize:28, color: isDark?'rgba(127,119,221,0.4)':'rgba(80,72,213,0.35)' }} />
-          <span style={{ fontSize:11, color: isDark?'rgba(255,255,255,0.2)':'rgba(80,72,213,0.4)', letterSpacing:1 }}>Загрузка...</span>
+          <i className="ti ti-world" style={{ fontSize:28, color: isDark?'rgba(127,119,221,0.4)':'rgba(59,91,219,0.35)' }} />
+          <span style={{ fontSize:11, color: isDark?'rgba(255,255,255,0.2)':'rgba(59,91,219,0.4)', letterSpacing:1 }}>Загрузка...</span>
         </div>
       </div>
     </div>

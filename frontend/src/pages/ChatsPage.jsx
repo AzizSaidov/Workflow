@@ -132,7 +132,7 @@ function MessageBubble({ msg, isOwn, isDark, onDelete, onEdit }) {
 
         <div style={{
           background: isOwn
-            ? (isDark ? 'rgba(127,119,221,0.22)' : 'rgba(80,72,213,0.13)')
+            ? (isDark ? 'rgba(127,119,221,0.22)' : 'rgba(59,91,219,0.13)')
             : (isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'),
           border: `0.5px solid ${isOwn ? 'rgba(127,119,221,0.35)' : 'var(--border)'}`,
           borderRadius: isOwn ? '16px 16px 4px 16px' : '16px 16px 16px 4px',
@@ -391,7 +391,7 @@ export default function ChatsPage() {
         <div style={{
           width: 300, flexShrink: 0, borderRight: '0.5px solid var(--border)',
           display: 'flex', flexDirection: 'column',
-          background: isDark ? 'rgba(7,7,14,0.95)' : 'rgba(247,248,252,0.95)',
+          background: isDark ? 'rgba(7,7,14,0.95)' : 'rgba(240,245,255,0.95)',
           backdropFilter: 'blur(16px)',
         }}>
           <div style={{ padding: '16px 18px 12px', borderBottom: '0.5px solid var(--border)', flexShrink: 0 }}>
@@ -447,7 +447,7 @@ export default function ChatsPage() {
                     style={{
                       width: '100%', textAlign: 'left',
                       padding: '12px 40px 12px 14px',
-                      background: isActive ? (isDark ? 'rgba(127,119,221,0.1)' : 'rgba(80,72,213,0.07)') : 'transparent',
+                      background: isActive ? (isDark ? 'rgba(127,119,221,0.1)' : 'rgba(59,91,219,0.07)') : 'transparent',
                       border: 'none',
                       borderLeft: `2px solid ${isActive ? 'var(--accent)' : 'transparent'}`,
                       cursor: 'pointer', display: 'flex', gap: 11, alignItems: 'center',
@@ -495,7 +495,7 @@ export default function ChatsPage() {
             <div style={{
               padding: '12px 20px', borderBottom: '0.5px solid var(--border)',
               display: 'flex', alignItems: 'center', gap: 12,
-              background: isDark ? 'rgba(7,7,14,0.88)' : 'rgba(247,248,252,0.88)',
+              background: isDark ? 'rgba(7,7,14,0.88)' : 'rgba(240,245,255,0.88)',
               backdropFilter: 'blur(12px)', flexShrink: 0,
             }}>
               {partner
@@ -552,7 +552,7 @@ export default function ChatsPage() {
             {/* Input */}
             <div style={{
               padding: '10px 14px', borderTop: '0.5px solid var(--border)',
-              background: isDark ? 'rgba(7,7,14,0.88)' : 'rgba(247,248,252,0.88)',
+              background: isDark ? 'rgba(7,7,14,0.88)' : 'rgba(240,245,255,0.88)',
               backdropFilter: 'blur(12px)', flexShrink: 0,
             }}>
               <input type="file" ref={fileInputRef} style={{ display: 'none' }} accept="image/*,.pdf,.docx,.txt,.zip,.mp4" onChange={handleFileSelect} />

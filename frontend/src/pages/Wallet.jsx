@@ -244,7 +244,7 @@ export default function Wallet() {
           <div style={{
             background: isDark
               ? 'linear-gradient(135deg, rgba(127,119,221,0.15) 0%, rgba(13,13,24,0.95) 60%, rgba(29,158,117,0.07) 100%)'
-              : 'linear-gradient(135deg, rgba(80,72,213,0.09) 0%, var(--bg-card) 60%, rgba(29,158,117,0.05) 100%)',
+              : 'linear-gradient(135deg, rgba(59,91,219,0.09) 0%, var(--bg-card) 60%, rgba(29,158,117,0.05) 100%)',
             border: '0.5px solid var(--border-hover)',
             borderRadius: 24, padding: '36px 40px', marginBottom: 16,
             position: 'relative', overflow: 'hidden',
@@ -375,7 +375,7 @@ export default function Wallet() {
                       display: 'flex', alignItems: 'center', gap: 6,
                       padding: '8px 14px 12px', borderRadius: '10px 10px 0 0',
                       background: active
-                        ? (isDark ? 'rgba(127,119,221,0.12)' : 'rgba(80,72,213,0.07)')
+                        ? (isDark ? 'rgba(127,119,221,0.12)' : 'rgba(59,91,219,0.07)')
                         : 'transparent',
                       border: 'none',
                       borderBottom: active ? '2px solid var(--accent)' : '2px solid transparent',
@@ -462,7 +462,7 @@ export default function Wallet() {
                             borderTop: '0.5px solid var(--border)',
                             transition: 'background 0.15s',
                           }}
-                          onMouseEnter={e => e.currentTarget.style.background = isDark ? 'rgba(255,255,255,0.022)' : 'rgba(80,72,213,0.025)'}
+                          onMouseEnter={e => e.currentTarget.style.background = isDark ? 'rgba(255,255,255,0.022)' : 'rgba(59,91,219,0.025)'}
                           onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                         >
                           {/* Direction icon */}

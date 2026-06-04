@@ -4,7 +4,7 @@ import Tag from './Tag'
 const TYPE_LABELS = { fixed: 'Фиксированная', hourly: 'Почасовая' }
 const LEVEL_LABELS = { entry: 'Начальный', intermediate: 'Средний', expert: 'Эксперт' }
 
-export default function ProjectCard({ project, isFavorited, onFavoriteToggle }) {
+export default function ProjectCard({ project }) {
   const { id, title, description, budget_min, budget_max, status, category, created_at, project_type, experience_level, deadline } = project
 
   const daysAgo = created_at
@@ -44,16 +44,6 @@ export default function ProjectCard({ project, isFavorited, onFavoriteToggle }) 
             {experience_level && <Tag color="muted">{LEVEL_LABELS[experience_level] || experience_level}</Tag>}
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
-            {onFavoriteToggle && (
-              <button
-                onClick={e => { e.preventDefault(); e.stopPropagation(); onFavoriteToggle() }}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 2, color: isFavorited ? '#F87171' : 'var(--text-muted)', display: 'flex', alignItems: 'center', transition: 'color 0.15s' }}
-                onMouseEnter={e => e.currentTarget.style.color = '#F87171'}
-                onMouseLeave={e => e.currentTarget.style.color = isFavorited ? '#F87171' : 'var(--text-muted)'}
-              >
-                <i className={`ti ti-heart${isFavorited ? '-filled' : ''}`} style={{ fontSize: 16 }} />
-              </button>
-            )}
             <Tag status={status || 'open'} />
           </div>
         </div>

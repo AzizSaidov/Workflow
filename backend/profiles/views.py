@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func
 from categories.models import Category
 from fastapi import HTTPException, status
-from profiles.models import FreelancerProfile, SkillToProfile, ProfileLanguage
+from profiles.models import FreelancerProfile, SkillToProfile, ProfileLanguage, ProfileLike
 from profiles.schemas import ProfileUpdate, SkillAddRequest, LanguageAddRequest, SkillInProfile, LanguageInProfile
 from users.models import User, UserRole
 from skills.models import Skill
@@ -166,3 +166,33 @@ def remove_language(language_id: UUID, current_user: User, db: Session) -> dict:
     db.delete(link)
     db.commit()
     return _build_profile_response(profile, db)
+
+
+def toggle_like(liked_user_id: UUID, current_user: User, db: Session) -> dict:
+    if str(current_user.id) == str(liked_user_id):
+        raise HTTPException(status_code=400, detail="Cannot like yourself")
+    existing = db.query(ProfileLike).filter(
+        ProfileLike.liker_id == current_user.id,
+        ProfileLike.liked_user_id == liked_user_id,
+    ).first()
+    if existing:
+        db.delete(existing)
+        db.commit()
+        liked = False
+    else:
+        db.add(ProfileLike(liker_id=current_user.id, liked_user_id=liked_user_id))
+        db.commit()
+        liked = True
+    count = db.query(func.count(ProfileLike.id)).filter(ProfileLike.liked_user_id == liked_user_id).scalar()
+    return {"liked": liked, "likes_count": count}
+
+
+def get_likes(liked_user_id: UUID, current_user_id: UUID | None, db: Session) -> dict:
+    count = db.query(func.count(ProfileLike.id)).filter(ProfileLike.liked_user_id == liked_user_id).scalar()
+    liked = False
+    if current_user_id:
+        liked = db.query(ProfileLike).filter(
+            ProfileLike.liker_id == current_user_id,
+            ProfileLike.liked_user_id == liked_user_id,
+        ).first() is not None
+    return {"liked": liked, "likes_count": count}

@@ -1,8 +1,9 @@
 import uuid
 import enum
-from sqlalchemy import Column, Integer, Numeric, ForeignKey, Boolean, String, Enum
+from sqlalchemy import Column, Integer, Numeric, ForeignKey, Boolean, String, Enum, DateTime
 from sqlalchemy.dialects.postgresql import UUID, ARRAY, JSONB
 from database import Base
+from utils import get_dushanbe_time
 
 
 class FreelancerProfile(Base):
@@ -49,3 +50,12 @@ class ProfileLanguage(Base):
     profile_id = Column(UUID(as_uuid=True), ForeignKey("freelancer_profiles.id"), nullable=False)
     language_id = Column(UUID(as_uuid=True), ForeignKey("languages.id"), nullable=False)
     level = Column(Enum(LanguageLevel), nullable=False)
+
+
+class ProfileLike(Base):
+    __tablename__ = "profile_likes"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    liker_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
+    liked_user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
+    created_at = Column(DateTime(timezone=True), default=get_dushanbe_time)

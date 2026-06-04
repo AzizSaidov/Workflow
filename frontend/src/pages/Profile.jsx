@@ -185,6 +185,9 @@ export default function Profile() {
   const [isFavorited, setIsFavorited] = useState(false)
   const [favLoading, setFavLoading] = useState(false)
   const [favHov, setFavHov] = useState(false)
+  const [likesCount, setLikesCount] = useState(0)
+  const [isLiked, setIsLiked] = useState(false)
+  const [likeLoading, setLikeLoading] = useState(false)
   const [clientProjects, setClientProjects] = useState([])
   const [activeTab, setActiveTab] = useState('about')
   const [editMode, setEditMode] = useState(false)
@@ -234,6 +237,11 @@ export default function Profile() {
     if (!me || me.id === id) return
     favoritesApi.getAll().then(r => setIsFavorited((r.data || []).some(f => f.freelancer_id === id))).catch(() => {})
   }, [id, me])
+  useEffect(() => {
+    profilesApi.getLikes(id)
+      .then(r => { setLikesCount(r.data.likes_count); setIsLiked(r.data.liked) })
+      .catch(() => {})
+  }, [id, me?.id])
   useEffect(() => {
     if (!userData || userData.role !== 'client') return
     client.get(`/projects/?limit=20`).then(r => {
@@ -337,6 +345,17 @@ export default function Profile() {
     try {
       removing ? await favoritesApi.removeFreelancer(id) : await favoritesApi.addFreelancer(id)
     } catch { setIsFavorited(removing); toast('Ошибка', 'error') } finally { setFavLoading(false) }
+  }
+
+  const toggleLike = async () => {
+    if (!me) { toast('Войдите чтобы поставить лайк', 'info'); return }
+    if (me.id === id) return
+    setLikeLoading(true)
+    try {
+      const r = await profilesApi.toggleLike(id)
+      setIsLiked(r.data.liked)
+      setLikesCount(r.data.likes_count)
+    } catch { toast('Ошибка', 'error') } finally { setLikeLoading(false) }
   }
 
   if (loading) return (
@@ -482,12 +501,32 @@ export default function Profile() {
                 {profile?.title && <p style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 8 }}>{profile.title}</p>}
                 <Tag color={isFreelancer ? 'purple' : 'green'} style={{ fontSize: 11 }}>{isFreelancer ? 'Фрилансер' : 'Заказчик'}</Tag>
 
-                {/* Rating inline */}
-                {profile?.rating > 0 && (
-                  <div style={{ marginTop: 12 }}>
-                    <Rating value={profile.rating} count={profile.total_jobs} size={13} />
-                  </div>
-                )}
+                {/* Rating + likes row */}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 12, width: '100%' }}>
+                  {profile?.rating > 0
+                    ? <Rating value={profile.rating} count={profile.total_jobs} size={13} />
+                    : <span />
+                  }
+                  {/* Likes counter */}
+                  <button
+                    onClick={me?.id !== id ? toggleLike : undefined}
+                    disabled={likeLoading || me?.id === id}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: 4,
+                      background: 'none', border: 'none',
+                      cursor: me?.id === id ? 'default' : 'pointer',
+                      padding: '3px 6px', borderRadius: 6,
+                      color: isLiked ? '#F87171' : 'var(--text-muted)',
+                      transition: 'color 0.15s',
+                      fontSize: 12,
+                    }}
+                    onMouseEnter={e => { if (me?.id !== id) e.currentTarget.style.color = '#F87171' }}
+                    onMouseLeave={e => { e.currentTarget.style.color = isLiked ? '#F87171' : 'var(--text-muted)' }}
+                  >
+                    <span style={{ fontSize: 13, lineHeight: 1 }}>{isLiked ? '♥' : '♡'}</span>
+                    {likesCount > 0 && <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 600 }}>{likesCount}</span>}
+                  </button>
+                </div>
 
                 {/* Action buttons */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8, width: '100%', marginTop: 16 }}>
@@ -503,7 +542,7 @@ export default function Profile() {
                       onMouseEnter={() => { if (!favLoading) setFavHov(true) }}
                       onMouseLeave={() => setFavHov(false)}
                       style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7, padding: '9px 0', width: '100%', borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: favLoading ? 'not-allowed' : 'pointer', transition: 'all 0.15s', border: isFavorited ? '0.5px solid rgba(251,191,36,0.4)' : '0.5px solid var(--border)', background: isFavorited ? 'rgba(251,191,36,0.07)' : 'transparent', color: isFavorited ? '#FBBF24' : favHov ? '#FBBF24' : 'var(--text-secondary)' }}>
-                      <i className={`ti ti-${isFavorited ? (favHov ? 'star-off' : 'star-filled') : 'star'}`} style={{ fontSize: 15 }} />
+                      <span style={{ fontSize: 15, lineHeight: 1 }}>{isFavorited ? (favHov ? '☆' : '★') : '☆'}</span>
                       {favLoading ? '...' : isFavorited ? (favHov ? 'Убрать' : 'В избранном') : 'В избранное'}
                     </button>
                   )}
@@ -513,7 +552,7 @@ export default function Profile() {
               {/* Stats card */}
               {isFreelancer && profile && (
                 <div style={{ background: 'var(--bg-card)', border: '0.5px solid var(--border)', borderRadius: 16, padding: '16px 20px' }}>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
                     {profile.total_jobs > 0 && <MiniStat icon="circle-check" value={profile.total_jobs} label="Выполнено" color="var(--accent-green)" />}
                     {profile.experience_years > 0 && <MiniStat icon="clock" value={`${profile.experience_years} л.`} label="Опыт" color="var(--accent)" />}
                     {reviews.length > 0 && <MiniStat icon="message-star" value={reviews.length} label="Отзывов" color="#EF9F27" />}
@@ -580,7 +619,7 @@ export default function Profile() {
                 {tabs.map(tab => {
                   const active = activeTab === tab.key
                   return (
-                    <button key={tab.key} onClick={() => setActiveTab(tab.key)} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 18px', borderRadius: 9, fontSize: 13, fontWeight: active ? 600 : 400, border: 'none', cursor: 'pointer', background: active ? (isDark ? 'rgba(127,119,221,0.2)' : 'rgba(80,72,213,0.1)') : 'transparent', color: active ? 'var(--accent)' : 'var(--text-muted)', transition: 'all 0.15s' }}>
+                    <button key={tab.key} onClick={() => setActiveTab(tab.key)} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 18px', borderRadius: 9, fontSize: 13, fontWeight: active ? 600 : 400, border: 'none', cursor: 'pointer', background: active ? (isDark ? 'rgba(127,119,221,0.2)' : 'rgba(59,91,219,0.1)') : 'transparent', color: active ? 'var(--accent)' : 'var(--text-muted)', transition: 'all 0.15s' }}>
                       <i className={`ti ti-${tab.icon}`} style={{ fontSize: 14 }} />
                       {tab.label}
                       {tab.count > 0 && <span style={{ fontSize: 11, padding: '1px 6px', borderRadius: 8, background: active ? 'rgba(127,119,221,0.25)' : 'rgba(255,255,255,0.07)', color: active ? 'var(--accent)' : 'var(--text-muted)' }}>{tab.count}</span>}
@@ -827,7 +866,7 @@ export default function Profile() {
                             onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border)'}>
                             {item.image_url
                               ? <img src={item.image_url} alt={item.title} style={{ width: '100%', height: 140, objectFit: 'cover', display: 'block' }} />
-                              : <div style={{ height: 80, background: isDark ? 'rgba(127,119,221,0.07)' : 'rgba(80,72,213,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                              : <div style={{ height: 80, background: isDark ? 'rgba(127,119,221,0.07)' : 'rgba(59,91,219,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                 <i className="ti ti-photo" style={{ fontSize: 28, color: 'rgba(127,119,221,0.22)' }} />
                               </div>}
                             <div style={{ padding: '12px 14px' }}>
@@ -835,7 +874,7 @@ export default function Profile() {
                               {item.description && <p style={{ fontSize: 12, color: 'var(--text-muted)', lineHeight: 1.5, marginBottom: 8 }}>{item.description}</p>}
                               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                 <button onClick={() => handleLike(item)} style={{ display: 'flex', alignItems: 'center', gap: 4, background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, color: item.liked_by_me ? '#F87171' : 'var(--text-muted)' }}>
-                                  <i className={`ti ti-heart${item.liked_by_me ? '-filled' : ''}`} />{item.likes_count || 0}
+                                  <span style={{ lineHeight: 1 }}>{item.liked_by_me ? '♥' : '♡'}</span>{item.likes_count || 0}
                                 </button>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                                   {item.project_url && <a href={item.project_url} target="_blank" rel="noreferrer" style={{ fontSize: 11, color: 'var(--accent)', display: 'flex', alignItems: 'center', gap: 3, textDecoration: 'none' }}><i className="ti ti-external-link" style={{ fontSize: 11 }} /> Открыть</a>}
@@ -939,7 +978,7 @@ export default function Profile() {
                     </div>
                   )) : (
                     <div style={{ textAlign: 'center', padding: '52px 24px', color: 'var(--text-muted)' }}>
-                      <i className="ti ti-star-off" style={{ fontSize: 40, display: 'block', marginBottom: 12, opacity: 0.18 }} />
+                      <span style={{ fontSize: 40, display: 'block', marginBottom: 12, opacity: 0.18, lineHeight: 1 }}>☆</span>
                       <div style={{ fontSize: 14 }}>Нет отзывов</div>
                     </div>
                   )}
@@ -956,12 +995,14 @@ export default function Profile() {
 
 function MiniStat({ icon, value, label, color }) {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-        <i className={`ti ti-${icon}`} style={{ fontSize: 13, color }} />
-        <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 16, color: 'var(--text-primary)', letterSpacing: '-0.5px' }}>{value}</span>
+    <div style={{ padding: '10px 12px', borderRadius: 12, background: 'rgba(255,255,255,0.025)', display: 'flex', flexDirection: 'column', gap: 6 }}>
+      <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 22, color: 'var(--text-primary)', letterSpacing: '-1px', lineHeight: 1 }}>
+        {value}
+      </span>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+        <i className={`ti ti-${icon}`} style={{ fontSize: 11, color }} />
+        <span style={{ fontSize: 10, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.7, fontWeight: 600 }}>{label}</span>
       </div>
-      <div style={{ fontSize: 11, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.4, fontWeight: 500 }}>{label}</div>
     </div>
   )
 }

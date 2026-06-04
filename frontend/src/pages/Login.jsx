@@ -58,10 +58,10 @@ export default function Login() {
   }
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--bg)' }}>
+    <div style={{ display: 'flex', minHeight: '100vh', background: isDark ? 'var(--bg)' : '#F5F8FF' }}>
       <AuthLeft isDark={isDark} />
 
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 48px', position: 'relative', overflowY: 'auto' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 48px', position: 'relative', overflowY: 'auto', background: isDark ? 'transparent' : 'linear-gradient(160deg, #F5F8FF 0%, #FEFCF5 100%)' }}>
         <div style={{ position: 'absolute', top: 24, right: 24 }}>
           <ThemeToggle />
         </div>

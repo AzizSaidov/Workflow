@@ -97,7 +97,7 @@ export default function AdminPanel() {
                     style={{
                       display: 'flex', alignItems: 'center', gap: 10,
                       padding: '10px 14px', borderRadius: 12,
-                      background: active ? (isDark ? 'rgba(127,119,221,0.14)' : 'rgba(80,72,213,0.09)') : 'transparent',
+                      background: active ? (isDark ? 'rgba(127,119,221,0.14)' : 'rgba(59,91,219,0.09)') : 'transparent',
                       border: active ? '0.5px solid rgba(127,119,221,0.25)' : '0.5px solid transparent',
                       color: active ? 'var(--accent)' : 'var(--text-muted)',
                       fontSize: 14, fontWeight: active ? 600 : 400,
@@ -597,7 +597,7 @@ function WalletsSection() {
                           display: 'flex', alignItems: 'center', gap: 10,
                           padding: '10px 14px', width: '100%',
                           background: selectedUser?.id === u.id
-                            ? (isDark ? 'rgba(127,119,221,0.12)' : 'rgba(80,72,213,0.07)')
+                            ? (isDark ? 'rgba(127,119,221,0.12)' : 'rgba(59,91,219,0.07)')
                             : 'transparent',
                           border: 'none',
                           borderBottom: i < filtered.length - 1 ? '0.5px solid var(--border)' : 'none',
