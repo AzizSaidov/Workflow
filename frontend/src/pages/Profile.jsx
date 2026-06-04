@@ -898,28 +898,44 @@ export default function Profile() {
                       </div>
                       <div>
                         <div style={{ display: 'flex', gap: 2, marginBottom: 4 }}>
-                          {[1,2,3,4,5].map(s => <i key={s} className={`ti ti-star${s <= Math.round(reviews.reduce((a,r) => a+r.rating, 0)/reviews.length) ? '-filled' : ''}`} style={{ fontSize: 16, color: '#EF9F27' }} />)}
+                          {[1,2,3,4,5].map(s => {
+                            const avg = reviews.reduce((a, rv) => a + Number(rv.rating), 0) / reviews.length
+                            return <span key={s} style={{ fontSize: 16, lineHeight: 1, color: s <= Math.round(avg) ? '#EF9F27' : 'rgba(239,159,39,0.2)' }}>★</span>
+                          })}
                         </div>
                         <div style={{ fontSize: 13, color: 'var(--text-muted)' }}>{reviews.length} отзыв{reviews.length === 1 ? '' : reviews.length < 5 ? 'а' : 'ов'}</div>
                       </div>
                     </div>
                   )}
                   {reviews.length > 0 ? reviews.map(r => (
-                    <div key={r.id} style={{ padding: '16px 18px', borderRadius: 14, background: 'var(--bg-card)', border: '0.5px solid var(--border)' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                          <Avatar name={r.reviewer_name || 'Аноним'} size={34} />
-                          <div>
-                            <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>{r.reviewer_name || 'Пользователь'}</div>
-                            <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 1 }}>{r.created_at ? new Date(r.created_at).toLocaleDateString('ru-RU') : ''}</div>
+                    <div key={r.id} style={{ padding: '18px 20px', borderRadius: 16, background: 'var(--bg-card)', border: '0.5px solid var(--border)' }}>
+                      {/* Header: avatar + name + stars */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: r.comment ? 12 : 0 }}>
+                        <Avatar src={r.reviewer_avatar_url} name={r.reviewer_name || 'Аноним'} size={40} />
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+                            <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                              {r.reviewer_name || 'Пользователь'}
+                            </div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 2, flexShrink: 0 }}>
+                              {[1,2,3,4,5].map(s => (
+                                <span key={s} style={{ fontSize: 14, lineHeight: 1, color: s <= Number(r.rating) ? '#EF9F27' : 'rgba(239,159,39,0.2)' }}>★</span>
+                              ))}
+                              <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 13, color: '#EF9F27', marginLeft: 5 }}>
+                                {Number(r.rating).toFixed(1)}
+                              </span>
+                            </div>
+                          </div>
+                          <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 3 }}>
+                            {r.created_at ? new Date(r.created_at).toLocaleDateString('ru-RU', { day: '2-digit', month: 'long', year: 'numeric' }) : ''}
                           </div>
                         </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#EF9F27', background: 'rgba(239,159,39,0.1)', padding: '4px 10px', borderRadius: 8, fontSize: 13 }}>
-                          <i className="ti ti-star-filled" />
-                          <span style={{ fontWeight: 700, fontFamily: 'Syne, sans-serif' }}>{r.rating}</span>
-                        </div>
                       </div>
-                      {r.comment && <p style={{ fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.65 }}>{r.comment}</p>}
+                      {r.comment && (
+                        <p style={{ fontSize: 13.5, color: 'var(--text-secondary)', lineHeight: 1.7, margin: 0, paddingLeft: 52 }}>
+                          {r.comment}
+                        </p>
+                      )}
                     </div>
                   )) : (
                     <div style={{ textAlign: 'center', padding: '52px 24px', color: 'var(--text-muted)' }}>

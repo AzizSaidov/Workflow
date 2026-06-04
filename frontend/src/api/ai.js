@@ -10,4 +10,11 @@ export const aiApi = {
   // history = [{role: 'user'|'assistant', content: '...'}]
   chat: (message, history = [], context = null) =>
     client.post('/ai/chat', { message, history, context }),
+
+  // action: 'improve' | 'shorten' | 'translate'
+  editText: (text, action) =>
+    client.post('/ai/edit-text', { text, action }),
+
+  helpDeliver: (project_title, project_description = '') =>
+    client.post('/ai/help-deliver', { project_title, project_description }),
 }

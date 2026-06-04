@@ -50,9 +50,6 @@ export default function Navbar() {
   const navigate = useNavigate()
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
-  const [searchOpen, setSearchOpen] = useState(false)
-  const [searchVal, setSearchVal] = useState('')
-  const searchRef = useRef(null)
   const menuRef = useRef(null)
 
   useEffect(() => {
@@ -69,22 +66,10 @@ export default function Navbar() {
     return () => document.removeEventListener('mousedown', handler)
   }, [])
 
-  useEffect(() => {
-    if (searchOpen) searchRef.current?.focus()
-  }, [searchOpen])
-
   const handleLogout = () => { logout(); navigate('/login') }
   const isActive = (path) => path === '/'
     ? location.pathname === '/'
     : location.pathname === path || location.pathname.startsWith(path + '/')
-
-  const handleSearch = (e) => {
-    e.preventDefault()
-    if (!searchVal.trim()) return
-    navigate(`/projects?search=${encodeURIComponent(searchVal.trim())}`)
-    setSearchVal('')
-    setSearchOpen(false)
-  }
 
   const navLinks = getNavLinks(user)
 
@@ -138,43 +123,6 @@ export default function Navbar() {
 
       {/* Right side */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
-
-        {/* Search */}
-        <form onSubmit={handleSearch} style={{ display: 'flex', alignItems: 'center' }}>
-          {searchOpen ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6,
-              background: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)',
-              border: '0.5px solid var(--border)', borderRadius: 8, padding: '4px 10px',
-              transition: 'all 0.2s' }}>
-              <input
-                ref={searchRef}
-                value={searchVal}
-                onChange={e => setSearchVal(e.target.value)}
-                onBlur={() => { if (!searchVal) setSearchOpen(false) }}
-                placeholder="Поиск проектов…"
-                style={{
-                  background: 'none', border: 'none', outline: 'none',
-                  fontSize: 13, color: 'var(--text-primary)', width: 180,
-                }}
-              />
-              <button type="submit" style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
-                <i className="ti ti-arrow-right" style={{ fontSize: 14, color: 'var(--accent)' }} />
-              </button>
-            </div>
-          ) : (
-            <button type="button" onClick={() => setSearchOpen(true)} style={{
-              background: 'none', border: 'none', cursor: 'pointer',
-              padding: '6px 8px', borderRadius: 8, color: 'var(--text-secondary)',
-              display: 'flex', alignItems: 'center',
-              transition: 'color 0.2s',
-            }}
-              onMouseEnter={e => e.currentTarget.style.color = 'var(--text-primary)'}
-              onMouseLeave={e => e.currentTarget.style.color = 'var(--text-secondary)'}
-            >
-              <i className="ti ti-search" style={{ fontSize: 18 }} />
-            </button>
-          )}
-        </form>
 
         <ThemeToggle />
 

@@ -23,7 +23,8 @@
 | Freelancers | Freelancers.jsx | ✅ Готово | Публичная, звёздочки, ProtectedRoute убран |
 | Profile | Profile.jsx | ✅ Готово | Sidebar 280px, 3 вкладки, сертификаты с файлом, GitHub кнопка |
 | ProjectDetail | ProjectDetail.jsx | ✅ Готово | Вкладки Заявки/Чат/Файлы, AI Rank TOP-3, StatusTimeline |
-| AIAssistant | AIAssistant.jsx | ⏳ Нужен редизайн | Вертикальный sidebar + split layout |
+| AIAssistant | AIAssistant.jsx | ✅ Готово | Sidebar 268px + split layout, empty state |
+| NotificationBell | NotificationBell.jsx | ⏳ Нужен редизайн | Grouped by date, иконки по типу, skeleton |
 | Wallet | Wallet.jsx | ✅ Готово | Баланс 56px, stats row, группировка по дате, фильтр-табы |
 | ClientProfile | — | 🆕 Создать | Профиль заказчика (новая страница) |
 | Achievements | Achievements.jsx | ✅ Готово | Сетка достижений, прогресс, фильтры по категориям |
@@ -58,6 +59,11 @@
 ### Функциональность
 - [x] TJS → $ везде
 - [x] AI "Улучшить" — не меняет смысл
+- [x] AI improve/shorten/translate — отдельный эндпоинт `/ai/edit-text`, не использует chat-промпт платформы
+- [x] AI сдача работы — `mode: 'deliver'`, эндпоинт `/ai/help-deliver`
+- [x] Отзывы — `reviewer_name` и `reviewer_avatar_url` в ответе бэкенда (JOIN с User)
+- [x] Отзывы — эндпоинт `GET /api/reviews/my/{project_id}`, форма не показывается после refresh если уже оставлен
+- [x] Отзывы в профиле — 5 иконок звёзд (filled/empty) вместо цифры
 - [x] Аватарки и имена реальные везде
 - [x] Страница /ai (чат + создать проект + написать заявку), для всех ролей
 - [x] Публичный доступ — /projects, /projects/:id, /profile/:id без логина
@@ -239,6 +245,37 @@ created_at: datetime
 PK: (user_id, liker_id)
 ```
 
+**18. Категории в профиле фрилансера**
+
+Сейчас: у фрилансера нет поля "категории". На /freelancers нет фильтра по специализации.
+Нужно:
+- В профиле фрилансера (вкладка "О себе", редактирование): multi-select категорий из справочника `/api/categories/`
+- Хранить в `FreelancerProfile.categories` (M2M или JSON array, смотреть как реализован skills)
+- На странице `/freelancers`: добавить фильтр по категории (дропдаун или chips)
+- На `/projects` для авторизованного фрилансера: кнопка "По моим категориям" — быстрый фильтр, показывает проекты в категориях из его профиля
+
+Backend: если M2M — новая таблица `freelancer_profile_categories`; если JSON — добавить поле `category_ids: list[UUID]` в `FreelancerProfile`.
+Предпочтительно M2M (как skills) — `/api/profiles/me` уже возвращает skills[], добавить categories[] туда же.
+
+**19. Редизайн уведомлений (NotificationBell)**
+
+Сейчас: простой dropdown со списком строк, все одинаковые визуально.
+Нужно:
+- Иконка по типу уведомления:
+  - `payment_received` → `ti-wallet` зелёный
+  - `bid_accepted` → `ti-check` акцентный
+  - `bid_rejected` → `ti-x` красный
+  - `new_bid` → `ti-send` акцентный
+  - `project_completed` → `ti-trophy` золотой
+  - `project_disputed` → `ti-alert-triangle` оранжевый
+  - `achievement` → `ti-award` фиолетовый
+  - остальное → `ti-bell` серый
+- Группировка по дате: "Сегодня" / "Вчера" / "Ранее"
+- Непрочитанные — белый фон, прочитанные — приглушённее
+- Skeleton-лоадер пока грузится
+- Кнопка "Отметить все прочитанными" в хедере дропдауна
+- Пустое состояние с иллюстрацией: большая иконка `ti-bell-off` + текст
+
 **13. Toggle для Избранного и Лайков**
 
 Сейчас: кнопка ♡ в FreelancerCard / Profile добавляет в избранное, но повторный клик не убирает.
@@ -293,7 +330,13 @@ def check_deadlines():
 **10. Freelancers (/freelancers)**
 - ~~Убрать ProtectedRoute~~ ✅ Сделано
 - Поиск по имени/навыку через `/api/search/freelancers?q=` ⏳
-- Фильтры: рейтинг 4+, ставка до $X, верифицированные ⏳
+- Фильтры: рейтинг 4+, ставка до $X, верифицированные, категория ⏳
+
+**20. Убрать поиск (лупу) из Navbar**
+
+Иконка лупы в правой части Navbar — лишняя, не добавляет ценности.
+Удалить: `<form onSubmit={handleSearch}>` блок целиком из `Navbar.jsx`, а также связанные `useState` (`searchOpen`, `searchVal`) и `useRef` (`searchRef`).
+Навигация по проектам остаётся через ссылку "Найти работу" / "Проекты".
 
 **11. Пагинация в ProjectsFeed** ✅ Сделано
 
@@ -409,7 +452,8 @@ WebSocket `/ws/chat/{project_id}` проверяет: `user_id == project.client
 ПРИОРИТЕТ 1 — Редизайн страниц:
   ✅ Home, Login, Register, RoleSelect, DashboardClient, DashboardFreelancer
   ✅ MyWork, ProjectsFeed, Freelancers, ProjectCard, FreelancerCard
-  ⏳ Profile, ProjectDetail, AIAssistant, Wallet, ClientProfile (новая)
+  ✅ Profile, ProjectDetail, AIAssistant, Wallet
+  ⏳ NotificationBell, ClientProfile (новая)
 
 ПРИОРИТЕТ 2 — Пропущенные фичи:
   1. AI Rank ТОП-3 в ProjectDetail (#10)
@@ -427,9 +471,10 @@ WebSocket `/ws/chat/{project_id}` проверяет: `user_id == project.client
   13. Дедлайн — реальная логика + Celery (#17)
 
 ПРИОРИТЕТ 3 — UX улучшения:
-  12. Freelancers (убрать ProtectedRoute + поиск + фильтры)
-  13. Пагинация в ProjectsFeed
-  14. URL-синхронизация фильтров
+  12. Freelancers (поиск + фильтры включая категорию)
+  13. ~~Пагинация в ProjectsFeed~~ ✅
+  14. ~~URL-синхронизация фильтров~~ ✅
+  15. Убрать лупу из Navbar (#20)
 
 ПРИОРИТЕТ 4 — Техническое:
   15. useSEO хук + применить на 5 страницах

@@ -4,29 +4,26 @@ import useAuthStore from '../store/authStore'
 import { aiApi } from '../api/ai'
 import StarBackground from '../components/StarBackground'
 import Navbar from '../components/Navbar'
-import Button from '../components/Button'
-import Input from '../components/Input'
 
 const MODES = [
-  { key: 'chat',    icon: 'message-chatbot', label: 'Чат-помощник',    desc: 'Путеводитель по платформе' },
-  { key: 'project', icon: 'file-plus',       label: 'Создать проект',  desc: 'Генерация описания'        },
-  { key: 'bid',     icon: 'send',             label: 'Написать заявку', desc: 'Cover letter для заявки'   },
+  { key: 'chat',    icon: 'message-chatbot', label: 'Чат',    desc: 'Ответы на вопросы о платформе' },
+  { key: 'project', icon: 'file-plus',       label: 'Проект', desc: 'Генерация описания проекта'    },
+  { key: 'bid',     icon: 'send',             label: 'Заявка', desc: 'Cover letter для заявки'       },
 ]
 
 const QUICK_PROMPTS = [
-  { icon: 'help-circle',     text: 'Как подать заявку на проект?' },
-  { icon: 'lock',            text: 'Что такое эскроу и как он работает?' },
-  { icon: 'wallet',          text: 'Как пополнить кошелёк и запустить проект?' },
-  { icon: 'package-export',  text: 'Как сдать работу заказчику?' },
-  { icon: 'star',            text: 'Как повысить рейтинг на платформе?' },
-  { icon: 'alert-triangle',  text: 'Как открыть спор с фрилансером?' },
-  { icon: 'user-check',      text: 'Как заполнить профиль фрилансера?' },
-  { icon: 'file-description',text: 'Как написать хороший cover letter?' },
+  { icon: 'help-circle',      text: 'Как подать заявку на проект?' },
+  { icon: 'lock',             text: 'Что такое эскроу и как он работает?' },
+  { icon: 'wallet',           text: 'Как пополнить кошелёк и запустить проект?' },
+  { icon: 'package-export',   text: 'Как сдать работу заказчику?' },
+  { icon: 'star',             text: 'Как повысить рейтинг на платформе?' },
+  { icon: 'alert-triangle',   text: 'Как открыть спор с фрилансером?' },
+  { icon: 'user-check',       text: 'Как заполнить профиль фрилансера?' },
+  { icon: 'file-description', text: 'Как написать хороший cover letter?' },
 ]
 
 function parseBold(text) {
-  const parts = text.split(/\*\*(.*?)\*\*/g)
-  return parts.map((part, j) =>
+  return text.split(/\*\*(.*?)\*\*/g).map((part, j) =>
     j % 2 === 1
       ? <strong key={j} style={{ color: 'var(--text-primary)', fontWeight: 600 }}>{part}</strong>
       : part
@@ -39,10 +36,9 @@ function formatMessage(text) {
   lines.forEach((line, i) => {
     if (!line.trim()) {
       result.push(<div key={i} style={{ height: 5 }} />)
-    } else if (line.startsWith('### ')) {
+    } else if (/^###\s/.test(line)) {
       result.push(<div key={i} style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 14, color: 'var(--text-primary)', marginTop: 10, marginBottom: 3 }}>{parseBold(line.slice(4))}</div>)
-    } else if (line.startsWith('## ') || line.startsWith('# ')) {
-      const lvl = line.startsWith('## ') ? 3 : 4
+    } else if (/^##?\s/.test(line)) {
       result.push(<div key={i} style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 15, color: 'var(--text-primary)', marginTop: 12, marginBottom: 5 }}>{parseBold(line.replace(/^#+\s/, ''))}</div>)
     } else if (/^[-•*]\s/.test(line)) {
       result.push(
@@ -66,12 +62,19 @@ function formatMessage(text) {
   return result
 }
 
+function FieldLabel({ children }) {
+  return (
+    <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.5, display: 'block', marginBottom: 7 }}>
+      {children}
+    </label>
+  )
+}
+
 export default function AIAssistant() {
   const { isDark } = useThemeStore()
   const { user } = useAuthStore()
   const [mode, setMode] = useState('chat')
 
-  // Chat
   const greeting = user?.role === 'client'
     ? 'Привет! Я AI-помощник **Workflow**.\n\nПомогу тебе:\n- Сформулировать описание проекта\n- Разобраться как работает эскроу\n- Выбрать фрилансера\n- Ответить на любой вопрос о платформе\n\nСпрашивай!'
     : 'Привет! Я AI-помощник **Workflow**.\n\nПомогу тебе:\n- Написать убедительный cover letter для заявки\n- Разобраться как работает платформа\n- Советы по оформлению профиля\n- Ответить на любой вопрос\n\nСпрашивай!'
@@ -80,18 +83,16 @@ export default function AIAssistant() {
   const [chatInput, setChatInput] = useState('')
   const [chatLoading, setChatLoading] = useState(false)
   const messagesEndRef = useRef(null)
+  const inputRef = useRef(null)
 
-  // Project
   const [projectForm, setProjectForm] = useState({ title: '', description: '', category: '', budget: '' })
   const [projectResult, setProjectResult] = useState('')
   const [projectLoading, setProjectLoading] = useState(false)
 
-  // Bid
   const [bidForm, setBidForm] = useState({ projectTitle: '', projectDescription: '', skills: '' })
   const [bidResult, setBidResult] = useState('')
   const [bidLoading, setBidLoading] = useState(false)
 
-  // Copy feedback
   const [copied, setCopied] = useState('')
 
   useEffect(() => {
@@ -102,17 +103,12 @@ export default function AIAssistant() {
     const msg = (text || chatInput).trim()
     if (!msg || chatLoading) return
     setChatInput('')
-
-    // snapshot history BEFORE adding new user message
     setMessages(prev => {
       const history = prev.map(m => ({ role: m.role, content: m.text }))
       const next = [...prev, { role: 'user', text: msg }]
-
       setChatLoading(true)
       aiApi.chat(msg, history)
-        .then(({ data }) => {
-          setMessages(m => [...m, { role: 'assistant', text: data.text }])
-        })
+        .then(({ data }) => setMessages(m => [...m, { role: 'assistant', text: data.text }]))
         .catch(err => {
           const detail = err.response?.data?.detail
           setMessages(m => [...m, {
@@ -124,7 +120,6 @@ export default function AIAssistant() {
           }])
         })
         .finally(() => setChatLoading(false))
-
       return next
     })
   }
@@ -167,144 +162,178 @@ export default function AIAssistant() {
   return (
     <div className="page-wrapper" style={{ background: 'var(--bg)' }}>
       <StarBackground isDark={isDark} intensity="reduced" />
-      <div className="glow-blob glow-1" style={{ opacity: 0.3 }} />
+      <div className="glow-blob glow-1" style={{ opacity: 0.25 }} />
       <Navbar />
 
-      <div style={{ paddingTop: 80, position: 'relative', zIndex: 2, height: 'calc(100vh - 80px)', display: 'flex', flexDirection: 'column' }}>
+      <div style={{
+        paddingTop: 64,
+        position: 'relative', zIndex: 2,
+        height: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+      }}>
         <div style={{
           display: 'grid',
-          gridTemplateColumns: '252px 1fr',
+          gridTemplateColumns: '268px 1fr',
           flex: 1,
           minHeight: 0,
-          maxWidth: 1280,
-          width: '100%',
-          margin: '0 auto',
-          padding: '0 24px',
+          overflow: 'hidden',
+          borderTop: '0.5px solid var(--border)',
         }}>
 
           {/* ══════════ SIDEBAR ══════════ */}
-          <div style={{
+          <aside style={{
             borderRight: '0.5px solid var(--border)',
-            display: 'flex', flexDirection: 'column',
-            overflow: 'hidden', height: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+            overflow: 'hidden',
+            background: isDark ? 'rgba(13,13,24,0.6)' : 'rgba(248,247,255,0.7)',
           }}>
 
             {/* Branding */}
-            <div style={{ padding: '24px 20px 20px', borderBottom: '0.5px solid var(--border)', flexShrink: 0 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 11 }}>
+            <div style={{ padding: '20px 20px 18px', borderBottom: '0.5px solid var(--border)', flexShrink: 0 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                 <div style={{
-                  width: 40, height: 40, borderRadius: 12, flexShrink: 0,
-                  background: 'linear-gradient(135deg, rgba(127,119,221,0.3) 0%, rgba(93,202,165,0.2) 100%)',
+                  width: 42, height: 42, borderRadius: 13, flexShrink: 0,
+                  background: 'linear-gradient(135deg, rgba(127,119,221,0.25) 0%, rgba(93,202,165,0.15) 100%)',
                   border: '0.5px solid rgba(127,119,221,0.3)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  boxShadow: '0 0 20px rgba(127,119,221,0.12)',
+                  boxShadow: '0 0 24px rgba(127,119,221,0.1)',
                 }}>
-                  <i className="ti ti-robot" style={{ fontSize: 20, color: 'var(--accent)' }} />
+                  <i className="ti ti-robot" style={{ fontSize: 21, color: 'var(--accent)' }} />
                 </div>
                 <div>
-                  <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 15, color: 'var(--text-primary)', letterSpacing: '-0.3px' }}>Workflow AI</div>
-                  <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 1, display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <span style={{ width: 5, height: 5, borderRadius: '50%', background: 'var(--accent-green)', display: 'inline-block' }} />
-                    Llama 3.3 70B · Groq
+                  <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 15, color: 'var(--text-primary)', letterSpacing: '-0.3px' }}>
+                    Workflow <span style={{ color: 'var(--accent)' }}>AI</span>
+                  </div>
+                  <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 2, display: 'flex', alignItems: 'center', gap: 5 }}>
+                    <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#1D9E75', display: 'inline-block', boxShadow: '0 0 6px rgba(29,158,117,0.5)' }} />
+                    Llama 3.3 · 70B · Groq
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Mode switcher */}
-            <div style={{ padding: '16px 12px 12px', flexShrink: 0 }}>
-              <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.9, padding: '0 8px', marginBottom: 8 }}>Режим</div>
+            {/* Mode tabs */}
+            <div style={{ padding: '14px 12px 12px', borderBottom: '0.5px solid var(--border)', flexShrink: 0 }}>
+              <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.9, padding: '0 6px', marginBottom: 8 }}>
+                Режим
+              </div>
               {MODES.map(m => {
                 const active = mode === m.key
                 return (
                   <button key={m.key} onClick={() => setMode(m.key)} style={{
                     width: '100%', display: 'flex', alignItems: 'center', gap: 10,
                     padding: '9px 10px', borderRadius: 10, marginBottom: 3,
-                    border: active ? '0.5px solid rgba(127,119,221,0.3)' : '0.5px solid transparent',
+                    border: active ? '0.5px solid rgba(127,119,221,0.35)' : '0.5px solid transparent',
                     cursor: 'pointer', textAlign: 'left',
                     background: active
                       ? isDark ? 'rgba(127,119,221,0.12)' : 'rgba(80,72,213,0.07)'
                       : 'transparent',
                     transition: 'all 0.15s',
                   }}
-                    onMouseEnter={e => { if (!active) e.currentTarget.style.background = isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.025)' }}
+                    onMouseEnter={e => { if (!active) e.currentTarget.style.background = isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.03)' }}
                     onMouseLeave={e => { if (!active) e.currentTarget.style.background = 'transparent' }}
                   >
                     <div style={{
-                      width: 32, height: 32, borderRadius: 9, flexShrink: 0,
-                      background: active ? 'rgba(127,119,221,0.2)' : 'rgba(255,255,255,0.05)',
+                      width: 34, height: 34, borderRadius: 9, flexShrink: 0,
+                      background: active ? 'rgba(127,119,221,0.18)' : isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)',
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
                       transition: 'background 0.15s',
                     }}>
                       <i className={`ti ti-${m.icon}`} style={{ fontSize: 16, color: active ? 'var(--accent)' : 'var(--text-muted)' }} />
                     </div>
                     <div style={{ minWidth: 0 }}>
-                      <div style={{ fontSize: 13, fontWeight: active ? 600 : 400, color: active ? 'var(--accent)' : 'var(--text-secondary)', lineHeight: 1.2 }}>{m.label}</div>
+                      <div style={{ fontSize: 13.5, fontWeight: active ? 600 : 400, color: active ? 'var(--accent)' : 'var(--text-secondary)', lineHeight: 1.2 }}>{m.label}</div>
                       <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{m.desc}</div>
                     </div>
+                    {active && (
+                      <div style={{ marginLeft: 'auto', width: 5, height: 5, borderRadius: '50%', background: 'var(--accent)', flexShrink: 0 }} />
+                    )}
                   </button>
                 )
               })}
             </div>
 
-            {/* Quick prompts — chat mode only */}
+            {/* Quick prompts — chat only */}
             {mode === 'chat' && (
-              <div style={{ padding: '0 12px', flex: 1, overflowY: 'auto' }}>
-                <div style={{ borderTop: '0.5px solid var(--border)', paddingTop: 16, marginBottom: 10 }}>
-                  <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.9, padding: '0 8px', marginBottom: 10 }}>Быстрые вопросы</div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                    {QUICK_PROMPTS.map((p, i) => (
-                      <button key={i} onClick={() => sendMessage(p.text)} disabled={chatLoading}
-                        style={{
-                          textAlign: 'left', padding: '7px 10px', borderRadius: 8, fontSize: 11.5,
-                          border: '0.5px solid var(--border)', background: 'transparent',
-                          color: 'var(--text-muted)', cursor: chatLoading ? 'not-allowed' : 'pointer',
-                          lineHeight: 1.45, transition: 'all 0.15s',
-                          display: 'flex', alignItems: 'flex-start', gap: 7,
-                        }}
-                        onMouseEnter={e => { if (!chatLoading) { e.currentTarget.style.borderColor = 'rgba(127,119,221,0.35)'; e.currentTarget.style.color = 'var(--text-secondary)'; e.currentTarget.style.background = 'rgba(127,119,221,0.04)' } }}
-                        onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--text-muted)'; e.currentTarget.style.background = 'transparent' }}
-                      >
-                        <i className={`ti ti-${p.icon}`} style={{ fontSize: 12, flexShrink: 0, marginTop: 1, color: 'var(--accent)', opacity: 0.7 }} />
-                        {p.text}
-                      </button>
-                    ))}
+              <div style={{ flex: 1, overflowY: 'auto', padding: '14px 12px 0' }}>
+                <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.9, padding: '0 6px', marginBottom: 10 }}>
+                  Быстрые вопросы
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                  {QUICK_PROMPTS.map((p, i) => (
+                    <button key={i} onClick={() => sendMessage(p.text)} disabled={chatLoading}
+                      style={{
+                        textAlign: 'left', padding: '7px 10px', borderRadius: 9, fontSize: 11.5,
+                        border: '0.5px solid var(--border)', background: 'transparent',
+                        color: 'var(--text-muted)', cursor: chatLoading ? 'not-allowed' : 'pointer',
+                        lineHeight: 1.45, transition: 'all 0.15s',
+                        display: 'flex', alignItems: 'flex-start', gap: 8,
+                      }}
+                      onMouseEnter={e => { if (!chatLoading) { e.currentTarget.style.borderColor = 'rgba(127,119,221,0.3)'; e.currentTarget.style.color = 'var(--text-secondary)'; e.currentTarget.style.background = 'rgba(127,119,221,0.04)' } }}
+                      onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--text-muted)'; e.currentTarget.style.background = 'transparent' }}
+                    >
+                      <i className={`ti ti-${p.icon}`} style={{ fontSize: 12, flexShrink: 0, marginTop: 1, color: 'var(--accent)', opacity: 0.65 }} />
+                      {p.text}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Info for forms */}
+            {mode !== 'chat' && (
+              <div style={{ flex: 1, padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+                <div style={{ fontSize: 11, color: 'var(--text-muted)', lineHeight: 1.6 }}>
+                  {mode === 'project'
+                    ? 'AI сгенерирует профессиональное техническое задание на основе ваших данных. Заполните форму и нажмите «Сгенерировать».'
+                    : 'AI напишет убедительный cover letter, который выделит вас среди других кандидатов. Заполните поля и нажмите «Написать заявку».'}
+                </div>
+                <div style={{ padding: '12px 14px', borderRadius: 12, background: 'rgba(127,119,221,0.07)', border: '0.5px solid rgba(127,119,221,0.2)' }}>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--accent)', marginBottom: 6 }}>
+                    <i className="ti ti-bulb" style={{ fontSize: 12, marginRight: 5 }} />Совет
+                  </div>
+                  <div style={{ fontSize: 11, color: 'var(--text-muted)', lineHeight: 1.6 }}>
+                    {mode === 'project'
+                      ? 'Чем подробнее вы опишете что нужно сделать — тем точнее будет результат.'
+                      : 'Укажите конкретный опыт и навыки — AI подчеркнёт их в заявке.'}
                   </div>
                 </div>
               </div>
             )}
 
-            {/* Clear chat */}
+            {/* Clear chat button */}
             {mode === 'chat' && messages.length > 1 && (
-              <div style={{ padding: '12px 20px 20px', flexShrink: 0 }}>
+              <div style={{ padding: '12px 16px 18px', flexShrink: 0 }}>
                 <button onClick={clearChat} style={{
-                  width: '100%', padding: '7px 0', borderRadius: 9, fontSize: 12,
+                  width: '100%', padding: '8px 0', borderRadius: 9, fontSize: 12,
                   border: '0.5px solid var(--border)', background: 'transparent',
                   color: 'var(--text-muted)', cursor: 'pointer',
                   display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
                   transition: 'all 0.15s',
                 }}
-                  onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(248,113,113,0.35)'; e.currentTarget.style.color = '#F87171' }}
-                  onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--text-muted)' }}
+                  onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(248,113,113,0.35)'; e.currentTarget.style.color = '#F87171'; e.currentTarget.style.background = 'rgba(248,113,113,0.05)' }}
+                  onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--text-muted)'; e.currentTarget.style.background = 'transparent' }}
                 >
                   <i className="ti ti-trash" style={{ fontSize: 13 }} /> Очистить чат
                 </button>
               </div>
             )}
-          </div>
+          </aside>
 
           {/* ══════════ CONTENT ══════════ */}
-          <div style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0, overflow: 'hidden' }}>
+          <main style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0, overflow: 'hidden' }}>
 
             {/* ── CHAT MODE ── */}
             {mode === 'chat' && (
               <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
 
                 {/* Messages */}
-                <div style={{ flex: 1, overflowY: 'auto', padding: '28px 36px 16px' }}>
+                <div style={{ flex: 1, overflowY: 'auto', padding: '28px 40px 16px' }}>
                   {messages.map((msg, i) => (
                     <div key={i} style={{
-                      display: 'flex', gap: 12, marginBottom: 18,
+                      display: 'flex', gap: 12, marginBottom: 20,
                       flexDirection: msg.role === 'user' ? 'row-reverse' : 'row',
                       alignItems: 'flex-start',
                     }}>
@@ -319,7 +348,7 @@ export default function AIAssistant() {
                         </div>
                       )}
                       <div style={{
-                        maxWidth: '76%',
+                        maxWidth: '74%',
                         padding: '11px 16px',
                         borderRadius: msg.role === 'user' ? '16px 4px 16px 16px' : '4px 16px 16px 16px',
                         background: msg.role === 'user'
@@ -334,20 +363,22 @@ export default function AIAssistant() {
                             : '0.5px solid var(--border)',
                         fontSize: 14,
                         color: msg.role === 'user' ? '#fff' : msg.isError ? '#F87171' : 'var(--text-primary)',
+                        lineHeight: 1.6,
                       }}>
                         {msg.role === 'user' ? msg.text : formatMessage(msg.text)}
                       </div>
                     </div>
                   ))}
 
-                  {/* Typing indicator */}
                   {chatLoading && (
-                    <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start', marginBottom: 18 }}>
+                    <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start', marginBottom: 20 }}>
                       <div style={{ width: 34, height: 34, borderRadius: 10, flexShrink: 0, background: 'linear-gradient(135deg, rgba(127,119,221,0.22), rgba(93,202,165,0.12))', border: '0.5px solid rgba(127,119,221,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         <i className="ti ti-robot" style={{ fontSize: 17, color: 'var(--accent)' }} />
                       </div>
                       <div style={{ padding: '14px 18px', borderRadius: '4px 16px 16px 16px', background: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)', border: '0.5px solid var(--border)', display: 'flex', gap: 5, alignItems: 'center' }}>
-                        {[0, 1, 2].map(n => <span key={n} style={{ width: 7, height: 7, borderRadius: '50%', background: 'var(--accent)', display: 'inline-block', animation: 'bounce 1s ease infinite', animationDelay: `${n * 0.15}s` }} />)}
+                        {[0, 1, 2].map(n => (
+                          <span key={n} style={{ width: 7, height: 7, borderRadius: '50%', background: 'var(--accent)', display: 'inline-block', animation: 'bounce 1s ease infinite', animationDelay: `${n * 0.15}s`, opacity: 0.7 }} />
+                        ))}
                       </div>
                     </div>
                   )}
@@ -355,9 +386,10 @@ export default function AIAssistant() {
                 </div>
 
                 {/* Input */}
-                <div style={{ borderTop: '0.5px solid var(--border)', padding: '14px 36px 20px', flexShrink: 0 }}>
-                  <form onSubmit={e => { e.preventDefault(); sendMessage() }} style={{ display: 'flex', gap: 10 }}>
+                <div style={{ borderTop: '0.5px solid var(--border)', padding: '14px 40px 20px', flexShrink: 0 }}>
+                  <form onSubmit={e => { e.preventDefault(); sendMessage() }} style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
                     <input
+                      ref={inputRef}
                       value={chatInput}
                       onChange={e => setChatInput(e.target.value)}
                       placeholder="Спроси что угодно о платформе..."
@@ -367,10 +399,11 @@ export default function AIAssistant() {
                     />
                     <button type="submit" disabled={!chatInput.trim() || chatLoading} style={{
                       width: 46, height: 46, borderRadius: 12, border: 'none', flexShrink: 0,
-                      background: chatInput.trim() && !chatLoading ? 'var(--accent)' : 'var(--border)',
-                      color: '#fff', cursor: chatInput.trim() && !chatLoading ? 'pointer' : 'not-allowed',
+                      background: chatInput.trim() && !chatLoading ? 'var(--accent)' : isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.07)',
+                      color: chatInput.trim() && !chatLoading ? '#fff' : 'var(--text-muted)',
+                      cursor: chatInput.trim() && !chatLoading ? 'pointer' : 'not-allowed',
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      transition: 'background 0.2s',
+                      transition: 'all 0.2s',
                     }}>
                       <i className="ti ti-send" style={{ fontSize: 18 }} />
                     </button>
@@ -379,115 +412,250 @@ export default function AIAssistant() {
               </div>
             )}
 
-            {/* ── PROJECT MODE ── */}
-            {mode === 'project' && (
-              <div style={{ flex: 1, overflowY: 'auto', padding: '28px 36px' }}>
-                <div style={{ marginBottom: 22 }}>
-                  <h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: 22, fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.5px', marginBottom: 4 }}>Создать описание проекта</h2>
-                  <p style={{ fontSize: 13, color: 'var(--text-muted)' }}>AI напишет профессиональное техническое задание на основе ваших данных</p>
+            {/* ── PROJECT / BID MODE ── */}
+            {(mode === 'project' || mode === 'bid') && (
+              <div style={{ flex: 1, overflowY: 'auto', padding: '28px 32px' }}>
+
+                {/* Header */}
+                <div style={{ marginBottom: 24 }}>
+                  <h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: 24, fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.5px', marginBottom: 4 }}>
+                    {mode === 'project' ? 'Создать описание проекта' : 'Написать заявку'}
+                  </h2>
+                  <p style={{ fontSize: 13, color: 'var(--text-muted)' }}>
+                    {mode === 'project'
+                      ? 'AI напишет профессиональное техническое задание на основе ваших данных'
+                      : 'AI напишет убедительный cover letter который выделит вас среди других кандидатов'}
+                  </p>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: projectResult || projectLoading ? '1fr 1fr' : 'minmax(0, 560px)', gap: 24 }}>
-                  {/* Form */}
-                  <div style={{ background: 'var(--bg-card)', border: '0.5px solid var(--border)', borderRadius: 18, padding: 24, display: 'flex', flexDirection: 'column', gap: 16 }}>
-                    <Input label="Название проекта *" placeholder="Разработка сайта для интернет-магазина" value={projectForm.title} onChange={e => setProjectForm(f => ({ ...f, title: e.target.value }))} />
-                    <div>
-                      <label style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)', display: 'block', marginBottom: 6 }}>Что нужно сделать</label>
-                      <textarea value={projectForm.description} onChange={e => setProjectForm(f => ({ ...f, description: e.target.value }))} placeholder="Нужен интернет-магазин с корзиной, оплатой и каталогом..." rows={4} className="input" style={{ resize: 'vertical', lineHeight: 1.6 }} />
+                {/* Split layout — always 50/50 */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, minHeight: 420 }}>
+
+                  {/* ── Form card ── */}
+                  <div style={{
+                    background: 'var(--bg-card)',
+                    border: '0.5px solid var(--border)',
+                    borderRadius: 18,
+                    padding: 24,
+                    display: 'flex', flexDirection: 'column', gap: 16,
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                      <div style={{ width: 30, height: 30, borderRadius: 9, background: 'rgba(127,119,221,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <i className={`ti ti-${mode === 'project' ? 'file-plus' : 'send'}`} style={{ fontSize: 15, color: 'var(--accent)' }} />
+                      </div>
+                      <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)' }}>
+                        {mode === 'project' ? 'Параметры проекта' : 'Данные для заявки'}
+                      </span>
                     </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-                      <Input label="Категория" placeholder="Веб-разработка" value={projectForm.category} onChange={e => setProjectForm(f => ({ ...f, category: e.target.value }))} />
-                      <Input label="Бюджет" placeholder="$500 – $2000" value={projectForm.budget} onChange={e => setProjectForm(f => ({ ...f, budget: e.target.value }))} />
-                    </div>
-                    <Button variant="primary" icon="sparkles" loading={projectLoading} onClick={generateProject} disabled={!projectForm.title.trim()}>
-                      Сгенерировать описание
-                    </Button>
+
+                    {mode === 'project' && (
+                      <>
+                        <div>
+                          <FieldLabel>Название проекта *</FieldLabel>
+                          <input
+                            className="input" placeholder="Разработка сайта для интернет-магазина"
+                            value={projectForm.title}
+                            onChange={e => setProjectForm(f => ({ ...f, title: e.target.value }))}
+                            style={{ margin: 0 }}
+                          />
+                        </div>
+                        <div>
+                          <FieldLabel>Что нужно сделать</FieldLabel>
+                          <textarea
+                            value={projectForm.description}
+                            onChange={e => setProjectForm(f => ({ ...f, description: e.target.value }))}
+                            placeholder="Нужен интернет-магазин с корзиной, оплатой и каталогом..."
+                            rows={4} className="input" style={{ resize: 'vertical', lineHeight: 1.6 }}
+                          />
+                        </div>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                          <div>
+                            <FieldLabel>Категория</FieldLabel>
+                            <input className="input" placeholder="Веб-разработка" value={projectForm.category} onChange={e => setProjectForm(f => ({ ...f, category: e.target.value }))} style={{ margin: 0 }} />
+                          </div>
+                          <div>
+                            <FieldLabel>Бюджет</FieldLabel>
+                            <input className="input" placeholder="$500 – $2000" value={projectForm.budget} onChange={e => setProjectForm(f => ({ ...f, budget: e.target.value }))} style={{ margin: 0 }} />
+                          </div>
+                        </div>
+                        <button
+                          onClick={generateProject}
+                          disabled={!projectForm.title.trim() || projectLoading}
+                          style={{
+                            marginTop: 'auto', padding: '12px 0', borderRadius: 12, border: 'none',
+                            background: projectForm.title.trim() && !projectLoading ? 'var(--accent)' : isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.07)',
+                            color: projectForm.title.trim() && !projectLoading ? '#fff' : 'var(--text-muted)',
+                            fontSize: 14, fontWeight: 600, cursor: projectForm.title.trim() && !projectLoading ? 'pointer' : 'not-allowed',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                            transition: 'all 0.2s',
+                          }}
+                        >
+                          {projectLoading
+                            ? <><i className="ti ti-loader-2" style={{ fontSize: 16, animation: 'spin 0.8s linear infinite' }} /> Генерирую...</>
+                            : <><i className="ti ti-sparkles" style={{ fontSize: 16 }} /> Сгенерировать описание</>
+                          }
+                        </button>
+                      </>
+                    )}
+
+                    {mode === 'bid' && (
+                      <>
+                        <div>
+                          <FieldLabel>Название проекта *</FieldLabel>
+                          <input
+                            className="input" placeholder="Разработка мобильного приложения на Flutter"
+                            value={bidForm.projectTitle}
+                            onChange={e => setBidForm(f => ({ ...f, projectTitle: e.target.value }))}
+                            style={{ margin: 0 }}
+                          />
+                        </div>
+                        <div>
+                          <FieldLabel>Описание проекта</FieldLabel>
+                          <textarea
+                            value={bidForm.projectDescription}
+                            onChange={e => setBidForm(f => ({ ...f, projectDescription: e.target.value }))}
+                            placeholder="Вставь описание из объявления заказчика..."
+                            rows={4} className="input" style={{ resize: 'vertical', lineHeight: 1.6 }}
+                          />
+                        </div>
+                        <div>
+                          <FieldLabel>Мои навыки / опыт</FieldLabel>
+                          <input
+                            className="input" placeholder="Flutter, Dart, Firebase — 4 года, 30+ приложений"
+                            value={bidForm.skills}
+                            onChange={e => setBidForm(f => ({ ...f, skills: e.target.value }))}
+                            style={{ margin: 0 }}
+                          />
+                        </div>
+                        <button
+                          onClick={generateBid}
+                          disabled={!bidForm.projectTitle.trim() || bidLoading}
+                          style={{
+                            marginTop: 'auto', padding: '12px 0', borderRadius: 12, border: 'none',
+                            background: bidForm.projectTitle.trim() && !bidLoading ? 'var(--accent)' : isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.07)',
+                            color: bidForm.projectTitle.trim() && !bidLoading ? '#fff' : 'var(--text-muted)',
+                            fontSize: 14, fontWeight: 600, cursor: bidForm.projectTitle.trim() && !bidLoading ? 'pointer' : 'not-allowed',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                            transition: 'all 0.2s',
+                          }}
+                        >
+                          {bidLoading
+                            ? <><i className="ti ti-loader-2" style={{ fontSize: 16, animation: 'spin 0.8s linear infinite' }} /> Пишу заявку...</>
+                            : <><i className="ti ti-sparkles" style={{ fontSize: 16 }} /> Написать заявку</>
+                          }
+                        </button>
+                      </>
+                    )}
                   </div>
 
-                  {/* Result or loading */}
-                  {projectLoading && !projectResult && (
-                    <div style={{ background: 'var(--bg-card)', border: '0.5px solid rgba(127,119,221,0.2)', borderRadius: 18, padding: 24, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 14, minHeight: 200 }}>
-                      <div style={{ width: 52, height: 52, borderRadius: 14, background: 'rgba(127,119,221,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <i className="ti ti-loader-2" style={{ fontSize: 26, color: 'var(--accent)', animation: 'spin 0.8s linear infinite' }} />
-                      </div>
-                      <div style={{ fontSize: 14, color: 'var(--text-muted)', textAlign: 'center' }}>Генерирую описание...<br /><span style={{ fontSize: 12 }}>обычно 3–5 секунд</span></div>
-                    </div>
-                  )}
+                  {/* ── Result card ── */}
+                  <div style={{
+                    background: 'var(--bg-card)',
+                    border: `0.5px solid ${(mode === 'project' ? projectResult : bidResult) ? 'rgba(127,119,221,0.35)' : 'var(--border)'}`,
+                    borderRadius: 18,
+                    padding: 24,
+                    display: 'flex', flexDirection: 'column',
+                    transition: 'border-color 0.3s',
+                  }}>
 
-                  {projectResult && !projectLoading && (
-                    <div style={{ background: 'var(--bg-card)', border: '0.5px solid rgba(127,119,221,0.3)', borderRadius: 18, padding: 24, display: 'flex', flexDirection: 'column' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16, flexShrink: 0 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 7, fontSize: 12, fontWeight: 600, color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: 0.5 }}>
-                          <i className="ti ti-sparkles" style={{ fontSize: 14 }} />Готовое описание
+                    {/* Loading state */}
+                    {(mode === 'project' ? projectLoading : bidLoading) && (
+                      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16 }}>
+                        <div style={{
+                          width: 56, height: 56, borderRadius: 16,
+                          background: 'linear-gradient(135deg, rgba(127,119,221,0.2), rgba(93,202,165,0.1))',
+                          border: '0.5px solid rgba(127,119,221,0.25)',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        }}>
+                          <i className="ti ti-loader-2" style={{ fontSize: 26, color: 'var(--accent)', animation: 'spin 0.8s linear infinite' }} />
                         </div>
-                        <button onClick={() => copyText(projectResult, 'project')} style={{ display: 'flex', alignItems: 'center', gap: 5, background: copied === 'project' ? 'rgba(29,158,117,0.1)' : 'none', border: `0.5px solid ${copied === 'project' ? 'rgba(29,158,117,0.3)' : 'var(--border)'}`, borderRadius: 8, padding: '5px 12px', fontSize: 12, color: copied === 'project' ? 'var(--accent-green)' : 'var(--text-muted)', cursor: 'pointer', transition: 'all 0.2s' }}>
-                          <i className={`ti ti-${copied === 'project' ? 'check' : 'copy'}`} style={{ fontSize: 12 }} />
-                          {copied === 'project' ? 'Скопировано!' : 'Копировать'}
+                        <div style={{ textAlign: 'center' }}>
+                          <div style={{ fontSize: 14, fontWeight: 500, color: 'var(--text-secondary)', marginBottom: 4 }}>
+                            {mode === 'project' ? 'Генерирую описание...' : 'Пишу заявку...'}
+                          </div>
+                          <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>обычно 3–5 секунд</div>
+                        </div>
+                        <div style={{ display: 'flex', gap: 5 }}>
+                          {[0, 1, 2].map(n => (
+                            <span key={n} style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--accent)', display: 'inline-block', animation: 'bounce 1s ease infinite', animationDelay: `${n * 0.15}s`, opacity: 0.6 }} />
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Empty state */}
+                    {!(mode === 'project' ? projectLoading || projectResult : bidLoading || bidResult) && (
+                      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 14 }}>
+                        <div style={{
+                          width: 64, height: 64, borderRadius: 18,
+                          background: 'linear-gradient(135deg, rgba(127,119,221,0.1), rgba(93,202,165,0.07))',
+                          border: '0.5px solid rgba(127,119,221,0.15)',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        }}>
+                          <i className="ti ti-sparkles" style={{ fontSize: 28, color: 'var(--accent)', opacity: 0.5 }} />
+                        </div>
+                        <div style={{ textAlign: 'center', maxWidth: 220 }}>
+                          <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 6 }}>
+                            Результат появится здесь
+                          </div>
+                          <div style={{ fontSize: 12, color: 'var(--text-muted)', lineHeight: 1.6 }}>
+                            Заполните форму слева и нажмите кнопку генерации
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Result content */}
+                    {(mode === 'project' ? projectResult && !projectLoading : bidResult && !bidLoading) && (
+                      <>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16, flexShrink: 0 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+                            <div style={{ width: 28, height: 28, borderRadius: 8, background: 'rgba(127,119,221,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                              <i className="ti ti-sparkles" style={{ fontSize: 14, color: 'var(--accent)' }} />
+                            </div>
+                            <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                              {mode === 'project' ? 'Готовое описание' : 'Готовая заявка'}
+                            </span>
+                          </div>
+                          <button
+                            onClick={() => copyText(mode === 'project' ? projectResult : bidResult, mode)}
+                            style={{
+                              display: 'flex', alignItems: 'center', gap: 5,
+                              background: copied === mode ? 'rgba(29,158,117,0.1)' : 'none',
+                              border: `0.5px solid ${copied === mode ? 'rgba(29,158,117,0.3)' : 'var(--border)'}`,
+                              borderRadius: 8, padding: '5px 12px', fontSize: 12,
+                              color: copied === mode ? 'var(--accent-green)' : 'var(--text-muted)',
+                              cursor: 'pointer', transition: 'all 0.2s',
+                            }}
+                          >
+                            <i className={`ti ti-${copied === mode ? 'check' : 'copy'}`} style={{ fontSize: 12 }} />
+                            {copied === mode ? 'Скопировано!' : 'Копировать'}
+                          </button>
+                        </div>
+                        <div style={{ fontSize: 14, lineHeight: 1.75, overflowY: 'auto', flex: 1 }}>
+                          {formatMessage(mode === 'project' ? projectResult : bidResult)}
+                        </div>
+                        <button
+                          onClick={() => mode === 'project' ? setProjectResult('') : setBidResult('')}
+                          style={{
+                            marginTop: 16, padding: '8px 0', borderRadius: 9, border: '0.5px solid var(--border)',
+                            background: 'transparent', color: 'var(--text-muted)', fontSize: 12,
+                            cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                            flexShrink: 0, transition: 'all 0.15s',
+                          }}
+                          onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(127,119,221,0.3)'; e.currentTarget.style.color = 'var(--text-secondary)' }}
+                          onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--text-muted)' }}
+                        >
+                          <i className="ti ti-refresh" style={{ fontSize: 13 }} /> Сгенерировать снова
                         </button>
-                      </div>
-                      <div style={{ fontSize: 14, lineHeight: 1.75, overflowY: 'auto', flex: 1 }}>
-                        {formatMessage(projectResult)}
-                      </div>
-                    </div>
-                  )}
+                      </>
+                    )}
+                  </div>
                 </div>
               </div>
             )}
 
-            {/* ── BID MODE ── */}
-            {mode === 'bid' && (
-              <div style={{ flex: 1, overflowY: 'auto', padding: '28px 36px' }}>
-                <div style={{ marginBottom: 22 }}>
-                  <h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: 22, fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.5px', marginBottom: 4 }}>Написать заявку</h2>
-                  <p style={{ fontSize: 13, color: 'var(--text-muted)' }}>AI напишет убедительный cover letter который выделит вас среди других кандидатов</p>
-                </div>
-
-                <div style={{ display: 'grid', gridTemplateColumns: bidResult || bidLoading ? '1fr 1fr' : 'minmax(0, 560px)', gap: 24 }}>
-                  {/* Form */}
-                  <div style={{ background: 'var(--bg-card)', border: '0.5px solid var(--border)', borderRadius: 18, padding: 24, display: 'flex', flexDirection: 'column', gap: 16 }}>
-                    <Input label="Название проекта *" placeholder="Разработка мобильного приложения на Flutter" value={bidForm.projectTitle} onChange={e => setBidForm(f => ({ ...f, projectTitle: e.target.value }))} />
-                    <div>
-                      <label style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)', display: 'block', marginBottom: 6 }}>Описание проекта</label>
-                      <textarea value={bidForm.projectDescription} onChange={e => setBidForm(f => ({ ...f, projectDescription: e.target.value }))} placeholder="Вставь описание из объявления заказчика..." rows={4} className="input" style={{ resize: 'vertical', lineHeight: 1.6 }} />
-                    </div>
-                    <Input label="Мои навыки / опыт" placeholder="Flutter, Dart, Firebase — 4 года, 30+ приложений" value={bidForm.skills} onChange={e => setBidForm(f => ({ ...f, skills: e.target.value }))} />
-                    <Button variant="primary" icon="sparkles" loading={bidLoading} onClick={generateBid} disabled={!bidForm.projectTitle.trim()}>
-                      Написать заявку
-                    </Button>
-                  </div>
-
-                  {/* Loading */}
-                  {bidLoading && !bidResult && (
-                    <div style={{ background: 'var(--bg-card)', border: '0.5px solid rgba(127,119,221,0.2)', borderRadius: 18, padding: 24, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 14, minHeight: 200 }}>
-                      <div style={{ width: 52, height: 52, borderRadius: 14, background: 'rgba(127,119,221,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <i className="ti ti-loader-2" style={{ fontSize: 26, color: 'var(--accent)', animation: 'spin 0.8s linear infinite' }} />
-                      </div>
-                      <div style={{ fontSize: 14, color: 'var(--text-muted)', textAlign: 'center' }}>Пишу заявку...<br /><span style={{ fontSize: 12 }}>обычно 3–5 секунд</span></div>
-                    </div>
-                  )}
-
-                  {/* Result */}
-                  {bidResult && !bidLoading && (
-                    <div style={{ background: 'var(--bg-card)', border: '0.5px solid rgba(127,119,221,0.3)', borderRadius: 18, padding: 24, display: 'flex', flexDirection: 'column' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16, flexShrink: 0 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 7, fontSize: 12, fontWeight: 600, color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: 0.5 }}>
-                          <i className="ti ti-sparkles" style={{ fontSize: 14 }} />Готовая заявка
-                        </div>
-                        <button onClick={() => copyText(bidResult, 'bid')} style={{ display: 'flex', alignItems: 'center', gap: 5, background: copied === 'bid' ? 'rgba(29,158,117,0.1)' : 'none', border: `0.5px solid ${copied === 'bid' ? 'rgba(29,158,117,0.3)' : 'var(--border)'}`, borderRadius: 8, padding: '5px 12px', fontSize: 12, color: copied === 'bid' ? 'var(--accent-green)' : 'var(--text-muted)', cursor: 'pointer', transition: 'all 0.2s' }}>
-                          <i className={`ti ti-${copied === 'bid' ? 'check' : 'copy'}`} style={{ fontSize: 12 }} />
-                          {copied === 'bid' ? 'Скопировано!' : 'Копировать'}
-                        </button>
-                      </div>
-                      <div style={{ fontSize: 14, lineHeight: 1.75, overflowY: 'auto', flex: 1 }}>
-                        {formatMessage(bidResult)}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-
-          </div>
+          </main>
         </div>
       </div>
     </div>

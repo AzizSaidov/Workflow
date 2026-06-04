@@ -178,6 +178,15 @@ export default function ProjectDetail() {
       .catch(() => {})
   }, [id, user?.id])
 
+  useEffect(() => {
+    if (!user || !project) return
+    if (project.status === 'completed') {
+      reviewsApi.getMyReview(id)
+        .then(r => { if (r.data) setMyReview(r.data) })
+        .catch(() => {})
+    }
+  }, [id, project?.status, user?.id])
+
   const toggleFav = async () => {
     if (favLoading) return
     const removing = isFavorited
@@ -690,7 +699,7 @@ export default function ProjectDetail() {
                     </div>
                   </div>
                   <form onSubmit={submitDelivery} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-                    <AITextarea label="Описание выполненной работы *" value={deliveryForm.delivery_description} onChange={e => setDeliveryForm(f => ({ ...f, delivery_description: e.target.value }))} placeholder="Что сделано, как проверить, особые замечания..." rows={4} aiContext={{ mode: 'free' }} />
+                    <AITextarea label="Описание выполненной работы *" value={deliveryForm.delivery_description} onChange={e => setDeliveryForm(f => ({ ...f, delivery_description: e.target.value }))} placeholder="Что сделано, как проверить, особые замечания..." rows={4} aiContext={{ mode: 'deliver', projectTitle: project?.title || '', projectDescription: project?.description || '' }} />
                     <Input label="GitHub репозиторий" placeholder="https://github.com/..." value={deliveryForm.delivery_github_url} onChange={e => setDeliveryForm(f => ({ ...f, delivery_github_url: e.target.value }))} icon="brand-github" />
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                       <Input label="Pull Request" placeholder="https://github.com/.../pull/..." value={deliveryForm.delivery_pr_url} onChange={e => setDeliveryForm(f => ({ ...f, delivery_pr_url: e.target.value }))} icon="git-pull-request" />
@@ -805,8 +814,7 @@ export default function ProjectDetail() {
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                       <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
                         {[1,2,3,4,5].map(s => (
-                          <i key={s} className="ti ti-star-filled"
-                            style={{ fontSize: 24, color: s <= myReview.rating ? '#EF9F27' : 'rgba(255,255,255,0.1)' }} />
+                          <span key={s} style={{ fontSize: 24, lineHeight: 1, color: s <= myReview.rating ? '#EF9F27' : 'rgba(255,255,255,0.12)' }}>★</span>
                         ))}
                         <span style={{ marginLeft: 8, fontSize: 13, color: '#EF9F27', fontWeight: 600 }}>
                           {['', 'Плохо', 'Ниже среднего', 'Нормально', 'Хорошо', 'Отлично'][myReview.rating]}

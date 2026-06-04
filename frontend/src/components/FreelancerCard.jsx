@@ -69,9 +69,8 @@ export default function FreelancerCard({ freelancer, isFavorited, onFavoriteTogg
         {rating > 0 && (
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
             <div style={{ display: 'flex', gap: 2 }}>
-              {Array.from({ length: 5 }).map((_, i) => (
-                <i key={i} className={`ti ti-star${i < Math.round(rating) ? '-filled' : ''}`}
-                  style={{ fontSize: 13, color: i < Math.round(rating) ? '#FBBF24' : 'var(--border)' }} />
+              {[1,2,3,4,5].map(s => (
+                <span key={s} style={{ fontSize: 13, lineHeight: 1, color: s <= Math.round(rating) ? '#FBBF24' : 'rgba(251,191,36,0.2)' }}>★</span>
               ))}
             </div>
             <span style={{ fontFamily: 'Syne, sans-serif', fontSize: 13, fontWeight: 700, color: 'var(--text-primary)' }}>

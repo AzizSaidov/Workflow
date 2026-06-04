@@ -43,39 +43,32 @@ export default function AITextarea({
     try {
       let result = ''
 
-      if (action === 'generate' && aiContext?.mode === 'bid') {
-        const { data } = await aiApi.helpBid(
-          aiContext.projectTitle || '',
-          aiContext.projectDescription || '',
-          aiContext.skills || []
-        )
-        result = data.cover_letter
-
-      } else if (action === 'generate' && aiContext?.mode === 'project') {
-        const { data } = await aiApi.helpProject(
-          aiContext.projectTitle || '',
-          value || '',
-          aiContext.category || '',
-          aiContext.budget || ''
-        )
-        result = data.description
-
-      } else if (action === 'improve') {
-        const { data } = await aiApi.chat(
-          `Исправь грамматику и стиль текста, НЕ меняя смысл, факты, числа и намерение автора. Верни только исправленный текст без пояснений:\n\n${value}`
-        )
-        result = data.text
-
-      } else if (action === 'shorten') {
-        const { data } = await aiApi.chat(
-          `Сократи этот текст вдвое, сохранив всю ключевую информацию, числа и факты. Не добавляй ничего нового. Верни только сокращённый текст без комментариев:\n\n${value}`
-        )
-        result = data.text
-
-      } else if (action === 'translate') {
-        const { data } = await aiApi.chat(
-          `Переведи этот текст на английский язык. Верни только перевод без комментариев:\n\n${value}`
-        )
+      if (action === 'generate') {
+        const mode = aiContext?.mode
+        if (mode === 'bid') {
+          const { data } = await aiApi.helpBid(
+            aiContext.projectTitle || '',
+            aiContext.projectDescription || '',
+            aiContext.skills || []
+          )
+          result = data.cover_letter
+        } else if (mode === 'project') {
+          const { data } = await aiApi.helpProject(
+            aiContext.projectTitle || '',
+            value || '',
+            aiContext.category || '',
+            aiContext.budget || ''
+          )
+          result = data.description
+        } else if (mode === 'deliver') {
+          const { data } = await aiApi.helpDeliver(
+            aiContext.projectTitle || '',
+            aiContext.projectDescription || ''
+          )
+          result = data.text
+        }
+      } else if (action === 'improve' || action === 'shorten' || action === 'translate') {
+        const { data } = await aiApi.editText(value, action)
         result = data.text
       }
 
@@ -90,14 +83,21 @@ export default function AITextarea({
     }
   }
 
-  const canGenerate = aiContext?.mode === 'bid' || aiContext?.mode === 'project'
+  const mode = aiContext?.mode
+  const canGenerate = mode === 'bid' || mode === 'project' || mode === 'deliver'
   const canEdit = value && value.trim().length > 10
 
+  const GENERATE_LABELS = {
+    bid:     { icon: 'sparkles', label: 'Написать заявку' },
+    project: { icon: 'sparkles', label: 'Сгенерировать описание' },
+    deliver: { icon: 'sparkles', label: 'Описать выполненную работу' },
+  }
+
   const menuItems = [
-    canGenerate && { action: 'generate', icon: 'sparkles', label: aiContext?.mode === 'bid' ? 'Generate cover letter' : 'Generate description', highlight: true },
-    canEdit && { action: 'improve', icon: 'wand', label: 'Improve text' },
-    canEdit && { action: 'shorten', icon: 'arrows-minimize', label: 'Shorten' },
-    canEdit && { action: 'translate', icon: 'language', label: 'Translate to English' },
+    canGenerate && { action: 'generate', highlight: true, ...(GENERATE_LABELS[mode] || GENERATE_LABELS.bid) },
+    canEdit && { action: 'improve',   icon: 'wand',           label: 'Улучшить текст' },
+    canEdit && { action: 'shorten',   icon: 'arrows-minimize', label: 'Сократить' },
+    canEdit && { action: 'translate', icon: 'language',        label: 'Перевести на English' },
   ].filter(Boolean)
 
   return (
@@ -171,7 +171,7 @@ export default function AITextarea({
               </div>
               {menuItems.length === 0 ? (
                 <div style={{ padding: '8px 14px', fontSize: 12, color: 'var(--text-muted)' }}>
-                  Type something first to use AI editing
+                  Введите текст, чтобы использовать AI
                 </div>
               ) : menuItems.map(item => (
                 <button
