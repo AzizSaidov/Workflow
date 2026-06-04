@@ -77,6 +77,8 @@ def update_my_profile(data: ProfileUpdate, current_user: User, db: Session) -> d
         setattr(profile, field, value)
     db.commit()
     db.refresh(profile)
+    from achievements.views import check_and_grant
+    check_and_grant(current_user, db)
     return _build_profile_response(profile, db)
 
 
@@ -110,6 +112,8 @@ def add_skill(data: SkillAddRequest, current_user: User, db: Session) -> dict:
     link = SkillToProfile(profile_id=profile.id, skill_id=data.skill_id)
     db.add(link)
     db.commit()
+    from achievements.views import check_and_grant
+    check_and_grant(current_user, db)
     return _build_profile_response(profile, db)
 
 

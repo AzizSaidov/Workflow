@@ -32,6 +32,8 @@ def register(data: UserCreate, db: Session = Depends(get_db)):
 @users_router.post("/login", response_model=TokenResponse)
 def login(data: LoginRequest, db: Session = Depends(get_db)):
     user, access_token, refresh_token = login_user(data, db)
+    from achievements.views import check_and_grant
+    check_and_grant(user, db)
     return TokenResponse(
         access_token=access_token,
         refresh_token=refresh_token,

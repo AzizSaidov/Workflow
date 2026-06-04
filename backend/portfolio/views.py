@@ -26,6 +26,8 @@ def create_item(data: PortfolioCreate, current_user: User, db: Session) -> dict:
     db.add(item)
     db.commit()
     db.refresh(item)
+    from achievements.views import check_and_grant
+    check_and_grant(current_user, db)
     return _to_response(item, db)
 
 

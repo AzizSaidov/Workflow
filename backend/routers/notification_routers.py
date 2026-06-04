@@ -14,6 +14,9 @@ from utils import get_dushanbe_time
 
 notifications_router = APIRouter(prefix="/api/notifications", tags=["notifications"])
 
+# Separate router without prefix so WS lands at /ws/notifications/{user_id}
+notifications_ws_router = APIRouter()
+
 
 @notifications_router.get("/", response_model=list[NotificationResponse])
 def my_notifications(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
@@ -40,7 +43,7 @@ def delete_one(notif_id: UUID, db: Session = Depends(get_db), current_user: User
     delete_notification(notif_id, current_user, db)
 
 
-@notifications_router.websocket("/ws/notifications/{user_id}")
+@notifications_ws_router.websocket("/ws/notifications/{user_id}")
 async def notification_ws(user_id: UUID, ws: WebSocket, token: str = Query(...)):
     token_user_id = decode_token(token)
     if not token_user_id or token_user_id != str(user_id):
@@ -58,14 +61,21 @@ async def notification_ws(user_id: UUID, ws: WebSocket, token: str = Query(...))
         notifs_to_send = [
             {"id": str(n.id), "type": n.type, "title": n.title,
              "message": n.message, "is_read": n.is_read,
-             "created_at": n.created_at.isoformat()}
+             "created_at": n.created_at.isoformat(),
+             "icon": n.icon, "color": n.color, "points": n.points}
             for n in unread
         ]
     finally:
         db.close()
 
-    for payload in notifs_to_send:
-        await ws.send_json(payload)
+    try:
+        for payload in notifs_to_send:
+            await ws.send_json(payload)
+        # Signal end of initial batch — client suppresses toasts before this
+        await ws.send_json({"type": "init_done"})
+    except (WebSocketDisconnect, Exception):
+        notif_manager.disconnect(str(user_id), ws)
+        return
 
     last_check = get_dushanbe_time()
     try:
@@ -84,7 +94,8 @@ async def notification_ws(user_id: UUID, ws: WebSocket, token: str = Query(...))
                 new_payloads = [
                     {"id": str(n.id), "type": n.type, "title": n.title,
                      "message": n.message, "is_read": n.is_read,
-                     "created_at": n.created_at.isoformat()}
+                     "created_at": n.created_at.isoformat(),
+                     "icon": n.icon, "color": n.color, "points": n.points}
                     for n in new
                 ]
             finally:

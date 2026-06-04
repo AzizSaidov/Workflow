@@ -170,6 +170,7 @@ def change_user_role(user_id: UUID, new_role: str, db: Session) -> User:
 def verify_user(user_id: UUID, db: Session) -> User:
     from profiles.models import FreelancerProfile
     from client_profiles.models import ClientProfile
+    from achievements.views import check_and_grant
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
@@ -179,8 +180,15 @@ def verify_user(user_id: UUID, db: Session) -> User:
     client_profile = db.query(ClientProfile).filter(ClientProfile.user_id == user_id).first()
     if client_profile:
         client_profile.is_verified = True
+    create_notification(
+        user_id=user_id, type=NotificationType.system,
+        title="Профиль верифицирован",
+        message="Администратор верифицировал ваш профиль. Теперь вы отображаетесь как проверенный специалист.",
+        db=db,
+    )
     db.commit()
     db.refresh(user)
+    check_and_grant(user, db)
     return user
 
 

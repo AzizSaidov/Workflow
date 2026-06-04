@@ -1,6 +1,6 @@
 import uuid
 import enum
-from sqlalchemy import Column, String, Text, Boolean, Enum, ForeignKey, DateTime
+from sqlalchemy import Column, String, Text, Boolean, Enum, ForeignKey, DateTime, Integer
 from sqlalchemy.dialects.postgresql import UUID
 from database import Base
 from utils import get_dushanbe_time
@@ -15,6 +15,7 @@ class NotificationType(str, enum.Enum):
     project_disputed = "project_disputed"
     revision_requested = "revision_requested"
     achievement = "achievement"
+    system = "system"
 
 
 class Notification(Base):
@@ -27,3 +28,6 @@ class Notification(Base):
     message = Column(Text, nullable=False)
     is_read = Column(Boolean, nullable=False, default=False)
     created_at = Column(DateTime(timezone=True), default=get_dushanbe_time)
+    icon = Column(String, nullable=True)
+    color = Column(String, nullable=True)
+    points = Column(Integer, nullable=True)

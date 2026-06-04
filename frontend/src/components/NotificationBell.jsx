@@ -43,7 +43,9 @@ function groupNotifs(list) {
 }
 
 function fmtTime(iso) {
+  if (!iso) return 'только что'
   const d = new Date(iso)
+  if (isNaN(d.getTime())) return 'только что'
   const now = new Date()
   const diffMin = Math.floor((now - d) / 60000)
   if (diffMin < 1)  return 'только что'

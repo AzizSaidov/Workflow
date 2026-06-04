@@ -26,6 +26,8 @@ def create_certification(data: CertificationCreate, current_user: User, db: Sess
     db.add(cert)
     db.commit()
     db.refresh(cert)
+    from achievements.views import check_and_grant
+    check_and_grant(current_user, db)
     return cert
 
 

@@ -11,7 +11,7 @@ from routers.review_routers import reviews_router
 from routers.profile_routers import profiles_router
 from routers.stats_routers import stats_router
 from routers.media_routers import media_router
-from routers.notification_routers import notifications_router
+from routers.notification_routers import notifications_router, notifications_ws_router
 from routers.ai_routers import ai_router
 from routers.search_routers import search_router
 from routers.report_routers import reports_router
@@ -54,6 +54,7 @@ app.include_router(profiles_router)
 app.include_router(stats_router)
 app.include_router(media_router)
 app.include_router(notifications_router)
+app.include_router(notifications_ws_router)
 app.include_router(ai_router)
 app.include_router(search_router)
 app.include_router(reports_router)

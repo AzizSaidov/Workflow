@@ -58,6 +58,8 @@ def update_user(data: UserUpdate, current_user: User, db: Session) -> User:
         setattr(current_user, field, value)
     db.commit()
     db.refresh(current_user)
+    from achievements.views import check_and_grant
+    check_and_grant(current_user, db)
     return current_user
 
 

@@ -103,6 +103,14 @@ def release(tx_id: UUID, client: User, db: Session) -> Transaction:
     )
     db.commit()
     db.refresh(tx)
+    from achievements.views import check_and_grant
+    from users.models import User as UserModel
+    freelancer_user = db.query(UserModel).filter(UserModel.id == tx.freelancer_id).first()
+    client_user = db.query(UserModel).filter(UserModel.id == tx.client_id).first()
+    if freelancer_user:
+        check_and_grant(freelancer_user, db)
+    if client_user:
+        check_and_grant(client_user, db)
     return tx
 
 

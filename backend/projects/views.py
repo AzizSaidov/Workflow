@@ -66,6 +66,8 @@ def create_project(data: ProjectCreate, client: User, db: Session) -> Project:
         db.add(ProjectSkill(project_id=project.id, skill_id=sid))
     db.commit()
     db.refresh(project)
+    from achievements.views import check_and_grant
+    check_and_grant(client, db)
     return project
 
 

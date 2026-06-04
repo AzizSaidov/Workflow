@@ -968,6 +968,11 @@ def seed():
         print(f"\n  Projects: {len(projects)} total")
         print(f"  Users:    {len(clients)} clients + {len(freelancers)} freelancers + 1 admin")
 
+        # Mark all seed notifications as read so users start with clean bell
+        db.query(Notification).update({"is_read": True}, synchronize_session=False)
+        db.commit()
+        print("\nSeed complete!\n")
+
     except Exception as e:
         db.rollback()
         print(f"\nSEED FAILED: {e}")

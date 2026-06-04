@@ -60,6 +60,11 @@ def create_review(data: ReviewCreate, reviewer: User, db: Session) -> Review:
 
     db.commit()
     db.refresh(review)
+    from achievements.views import check_and_grant
+    check_and_grant(reviewer, db)
+    reviewee_user = db.query(User).filter(User.id == data.reviewee_id).first()
+    if reviewee_user:
+        check_and_grant(reviewee_user, db)
     return _enrich(review, reviewer)
 
 

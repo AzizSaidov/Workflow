@@ -38,6 +38,8 @@ def create_bid(project_id: UUID, data: BidCreate, freelancer: User, db: Session)
     )
     db.commit()
     db.refresh(bid)
+    from achievements.views import check_and_grant
+    check_and_grant(freelancer, db)
     return bid
 
 

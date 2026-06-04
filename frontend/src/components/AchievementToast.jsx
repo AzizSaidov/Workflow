@@ -1,121 +1,142 @@
 import { useEffect, useState } from 'react'
 
-export default function AchievementToast({ achievement, onClose }) {
-  const [visible, setVisible] = useState(false)
+const CARD_HEIGHT = 92
+const GAP = 10
+const DURATION = 5500
+
+export default function AchievementToast({ achievement, index, onClose }) {
+  const [phase, setPhase] = useState('enter') // enter | visible | exit
 
   useEffect(() => {
-    // Trigger animation on mount
-    const t1 = setTimeout(() => setVisible(true), 10)
-    const t2 = setTimeout(() => {
-      setVisible(false)
-      setTimeout(onClose, 400)
-    }, 5000)
-    return () => { clearTimeout(t1); clearTimeout(t2) }
+    const t1 = setTimeout(() => setPhase('visible'), 20)
+    const t2 = setTimeout(() => setPhase('exit'), DURATION)
+    const t3 = setTimeout(onClose, DURATION + 420)
+    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3) }
   }, [])
+
+  const bottom = 28 + index * (CARD_HEIGHT + GAP)
+
+  const slideStyle = phase === 'enter'
+    ? { transform: 'translateX(120%)', opacity: 0 }
+    : phase === 'exit'
+      ? { transform: 'translateX(120%)', opacity: 0 }
+      : { transform: 'translateX(0)', opacity: 1 }
+
+  const color = achievement.color || '#7F77DD'
 
   return (
     <>
       <style>{`
-        @keyframes achievSlideIn {
-          from { transform: translateX(120%); opacity: 0; }
-          to   { transform: translateX(0);    opacity: 1; }
+        @keyframes ach-shine {
+          0%   { transform: translateX(-100%) skewX(-15deg); opacity: 0; }
+          50%  { opacity: 0.5; }
+          100% { transform: translateX(300%) skewX(-15deg); opacity: 0; }
         }
-        @keyframes achievSlideOut {
-          from { transform: translateX(0);    opacity: 1; }
-          to   { transform: translateX(120%); opacity: 0; }
-        }
-        @keyframes achievProgress {
+        @keyframes ach-progress {
           from { width: 100%; }
           to   { width: 0%; }
         }
       `}</style>
 
-      <div style={{
-        position: 'fixed',
-        bottom: 28,
-        right: 28,
-        zIndex: 9999,
-        width: 320,
-        borderRadius: 18,
-        background: 'var(--bg-card)',
-        border: '1px solid rgba(127,119,221,0.4)',
-        boxShadow: '0 8px 40px rgba(0,0,0,0.4), 0 0 0 1px rgba(127,119,221,0.15)',
-        overflow: 'hidden',
-        animation: visible
-          ? 'achievSlideIn 0.4s ease-out forwards'
-          : 'achievSlideOut 0.4s ease-in forwards',
-      }}>
-        <div style={{ padding: '16px 18px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+      <div
+        onClick={() => { setPhase('exit'); setTimeout(onClose, 420) }}
+        style={{
+          position: 'fixed',
+          bottom,
+          right: 28,
+          zIndex: 99999,
+          width: 320,
+          borderRadius: 16,
+          background: 'linear-gradient(135deg, #111120 0%, #18182c 100%)',
+          border: `1px solid ${color}44`,
+          boxShadow: `0 16px 48px rgba(0,0,0,0.6), 0 0 0 1px ${color}22, 0 0 24px ${color}18`,
+          overflow: 'hidden',
+          cursor: 'pointer',
+          transition: 'transform 0.42s cubic-bezier(0.22,1,0.36,1), opacity 0.42s cubic-bezier(0.22,1,0.36,1), bottom 0.3s ease',
+          ...slideStyle,
+        }}
+      >
+        {/* Top color border */}
+        <div style={{ height: 3, background: `linear-gradient(90deg, ${color}00, ${color}, ${color}00)` }} />
 
-          {/* Top row */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <span style={{
-              fontSize: 10, fontWeight: 600, color: 'var(--text-muted)',
-              letterSpacing: '1px', textTransform: 'uppercase', fontFamily: 'DM Sans, sans-serif',
+        {/* Shine sweep */}
+        {phase === 'visible' && (
+          <div style={{
+            position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+            pointerEvents: 'none', overflow: 'hidden',
+          }}>
+            <div style={{
+              position: 'absolute', top: 0, left: 0, width: '40%', height: '100%',
+              background: `linear-gradient(90deg, transparent, ${color}18, transparent)`,
+              animation: 'ach-shine 0.7s ease-out 0.1s both',
+            }} />
+          </div>
+        )}
+
+        <div style={{ padding: '12px 14px 0', display: 'flex', alignItems: 'center', gap: 12 }}>
+          {/* Icon badge */}
+          <div style={{
+            width: 48, height: 48, borderRadius: 14, flexShrink: 0,
+            background: `${color}18`,
+            border: `1.5px solid ${color}40`,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            boxShadow: `0 0 16px ${color}30`,
+          }}>
+            <i className={`ti ti-${achievement.icon || 'trophy'}`} style={{ fontSize: 24, color }} />
+          </div>
+
+          {/* Text */}
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{
+              fontSize: 10, fontWeight: 700, color: color,
+              letterSpacing: '1.2px', textTransform: 'uppercase',
+              fontFamily: 'DM Sans, sans-serif', marginBottom: 3,
             }}>
               Достижение получено
-            </span>
-            <button
-              onClick={() => { setVisible(false); setTimeout(onClose, 400) }}
-              style={{
-                background: 'none', border: 'none', cursor: 'pointer',
-                color: 'var(--text-muted)', fontSize: 16, lineHeight: 1,
-                padding: '0 2px', display: 'flex', alignItems: 'center',
-                transition: 'color 0.15s',
-              }}
-              onMouseEnter={e => e.currentTarget.style.color = 'var(--text-primary)'}
-              onMouseLeave={e => e.currentTarget.style.color = 'var(--text-muted)'}
-            >
-              ×
-            </button>
-          </div>
-
-          {/* Middle row: icon + text */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+            </div>
             <div style={{
-              width: 44, height: 44, borderRadius: '50%', flexShrink: 0,
-              background: `${achievement.color}22`,
-              border: `1.5px solid ${achievement.color}55`,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 14,
+              color: '#fff', lineHeight: 1.2, marginBottom: 2,
+              whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
             }}>
-              <i className={`ti ti-${achievement.icon}`} style={{ fontSize: 22, color: achievement.color }} />
+              {achievement.name}
             </div>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{
-                fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 15,
-                color: 'var(--text-primary)', marginBottom: 3, lineHeight: 1.2,
-              }}>
-                {achievement.name}
-              </div>
-              <div style={{
-                fontSize: 12, color: 'var(--text-muted)',
-                fontFamily: 'DM Sans, sans-serif', lineHeight: 1.4,
-                overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-              }}>
-                {achievement.description}
-              </div>
+            <div style={{
+              fontSize: 11, color: 'rgba(255,255,255,0.5)',
+              fontFamily: 'DM Sans, sans-serif', lineHeight: 1.35,
+              whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+            }}>
+              {achievement.description}
             </div>
           </div>
 
-          {/* Points row */}
+          {/* Points badge */}
           {achievement.points > 0 && (
             <div style={{
-              fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 13,
-              color: achievement.color,
+              flexShrink: 0,
+              background: `${color}22`,
+              border: `1px solid ${color}44`,
+              borderRadius: 8,
+              padding: '4px 8px',
+              fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 13,
+              color,
             }}>
-              +{achievement.points} очков
+              +{achievement.points}
             </div>
           )}
         </div>
 
         {/* Progress bar */}
-        <div style={{ height: 2, background: 'rgba(255,255,255,0.06)' }}>
-          <div style={{
-            height: '100%',
-            background: achievement.color,
-            animation: 'achievProgress 5s linear forwards',
-          }} />
+        <div style={{ margin: '10px 14px 0', height: 2, background: 'rgba(255,255,255,0.07)', borderRadius: 1 }}>
+          {phase === 'visible' && (
+            <div style={{
+              height: '100%', borderRadius: 1,
+              background: `linear-gradient(90deg, ${color}88, ${color})`,
+              animation: `ach-progress ${DURATION}ms linear forwards`,
+            }} />
+          )}
         </div>
+        <div style={{ height: 10 }} />
       </div>
     </>
   )

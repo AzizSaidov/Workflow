@@ -101,7 +101,7 @@ ACHIEVEMENT_DEFINITIONS = [
     # ── General ──────────────────────────────────────────────────────────────
     dict(key="profile_filled",   name="Полный профиль",       description="Заполнил аватар, имя и описание",
          icon="user-check",       color="#7F77DD", points=20,  category="general"),
-    dict(key="rising_star",      name="Восходящая звезда",    description="Первые 30 дней на платформе",
+    dict(key="rising_star",      name="Восходящая звезда",    description="Заполнил профиль в первые 30 дней",
          icon="rocket",           color="#AFA9EC", points=15,  category="general"),
     dict(key="year_member",      name="Годовщина",            description="1 год на платформе",
          icon="calendar-event",   color="#7F77DD", points=50,  category="general"),
@@ -133,6 +133,9 @@ def _grant(user_id, key: str, db: Session) -> bool:
             type=NotificationType.achievement,
             title=f"Новое достижение: {ach.name}",
             message=ach.description,
+            icon=ach.icon,
+            color=ach.color,
+            points=ach.points,
         ))
         db.flush()
         return True
@@ -297,8 +300,9 @@ def _check_general(user: User, db: Session):
     # ── Дни на платформе ─────────────────────────────────────────────────────
     if user.created_at:
         now = get_dushanbe_time()
-        days_on_platform = (now - user.created_at.replace(tzinfo=timezone.utc)).days
-        if days_on_platform <= 30:
+        created = user.created_at if user.created_at.tzinfo else user.created_at.replace(tzinfo=timezone.utc)
+        days_on_platform = (now - created).days
+        if user.avatar_url and user.bio and user.full_name and days_on_platform <= 30:
             _grant(user.id, "rising_star", db)
         if days_on_platform >= 365:
             _grant(user.id, "year_member", db)
