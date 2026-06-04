@@ -4,6 +4,7 @@ from fastapi import HTTPException, status
 from client_profiles.models import ClientProfile
 from client_profiles.schemas import ClientProfileUpdate
 from users.models import User, UserRole
+from projects.models import Project
 
 
 def get_client_profile(user_id: UUID, db: Session) -> ClientProfile:
@@ -11,6 +12,10 @@ def get_client_profile(user_id: UUID, db: Session) -> ClientProfile:
     if not profile:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Client profile not found")
     return profile
+
+
+def get_client_projects(user_id: UUID, db: Session) -> list[Project]:
+    return db.query(Project).filter(Project.client_id == user_id).order_by(Project.created_at.desc()).all()
 
 
 def update_my_client_profile(data: ClientProfileUpdate, current_user: User, db: Session) -> ClientProfile:

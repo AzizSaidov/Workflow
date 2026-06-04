@@ -11,6 +11,8 @@ celery_app = Celery(
     include=["tasks.notification_tasks"],
 )
 
+from celery.schedules import crontab
+
 celery_app.conf.update(
     task_serializer="json",
     result_serializer="json",
@@ -19,4 +21,10 @@ celery_app.conf.update(
     enable_utc=True,
     task_track_started=True,
     worker_prefetch_multiplier=1,
+    beat_schedule={
+        "check-deadlines-daily": {
+            "task": "tasks.notification_tasks.check_deadlines",
+            "schedule": crontab(hour=9, minute=0),  # каждый день в 09:00 Душанбе
+        },
+    },
 )

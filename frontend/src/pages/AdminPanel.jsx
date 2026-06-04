@@ -113,6 +113,7 @@ export default function AdminPanel() {
                 )
               })}
             </nav>
+
           </div>
 
           {/* ── Main content ─────────────────────────────────────────── */}

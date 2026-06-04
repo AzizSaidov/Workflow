@@ -20,11 +20,22 @@ import Button from '../components/Button'
 import Avatar from '../components/Avatar'
 import BidCard from '../components/BidCard'
 import Input from '../components/Input'
+import ReportModal from '../components/ReportModal'
 import AITextarea from '../components/AITextarea'
 import { aiApi } from '../api/ai'
+import { useSEO } from '../hooks/useSEO'
 
 const TYPE_LABEL = { fixed: 'Фиксированная цена', hourly: 'Почасовая' }
 const LEVEL_LABEL = { entry: 'Начинающий', intermediate: 'Средний', expert: 'Эксперт' }
+
+function deadlineInfo(deadline) {
+  if (!deadline) return null
+  const days = Math.ceil((new Date(deadline) - new Date()) / 86400000)
+  if (days < 0)  return { label: `Просрочен на ${Math.abs(days)} дн.`, color: '#F87171', bg: 'rgba(248,113,113,0.12)', icon: 'alarm' }
+  if (days === 0) return { label: 'Сегодня!', color: '#F87171', bg: 'rgba(248,113,113,0.12)', icon: 'alarm' }
+  if (days <= 3)  return { label: `${days} дн.`, color: '#FBBF24', bg: 'rgba(251,191,36,0.12)', icon: 'clock-exclamation' }
+  return { label: new Date(deadline).toLocaleDateString('ru-RU'), color: 'var(--accent-green)', bg: 'rgba(29,158,117,0.1)', icon: 'calendar-event' }
+}
 const CONTRACT_STATUS_LABEL = { active: 'Активный', completed: 'Завершён', disputed: 'Оспаривается', cancelled: 'Отменён' }
 const CONTRACT_STATUS_COLOR = { active: 'var(--accent-green)', completed: 'var(--accent)', disputed: '#F87171', cancelled: 'var(--text-muted)' }
 
@@ -105,6 +116,10 @@ export default function ProjectDetail() {
   const toast = useToastStore(s => s.show)
 
   const [project, setProject] = useState(null)
+  useSEO({
+    title: project?.title || 'Проект',
+    description: project?.description ? project.description.slice(0, 120) : undefined,
+  })
   const [bids, setBids] = useState([])
   const [myBid, setMyBid] = useState(undefined)
   const [clientData, setClientData] = useState(null)
@@ -123,6 +138,9 @@ export default function ProjectDetail() {
   const [aiRankLoading, setAiRankLoading] = useState(false)
   const [aiRankedOrder, setAiRankedOrder] = useState(null)
   const [showAllBids, setShowAllBids] = useState(false)
+
+  const [revisions, setRevisions] = useState([])
+  const [showRevisionHistory, setShowRevisionHistory] = useState(false)
 
   const [deliveryForm, setDeliveryForm] = useState({ delivery_description: '', delivery_github_url: '', delivery_pr_url: '', delivery_demo_url: '' })
   const [deliveryLoading, setDeliveryLoading] = useState(false)
@@ -145,6 +163,7 @@ export default function ProjectDetail() {
   const [isFavorited, setIsFavorited] = useState(false)
   const [favHov, setFavHov] = useState(false)
   const [favLoading, setFavLoading] = useState(false)
+  const [reportOpen, setReportOpen] = useState(false)
 
   const [showDisputeConfirm, setShowDisputeConfirm] = useState(false)
   const [disputeLoading, setDisputeLoading] = useState(false)
@@ -159,11 +178,13 @@ export default function ProjectDetail() {
       projectsApi.getOne(id),
       bidsApi.getForProject(id).catch(() => ({ data: [] })),
       filesFetch,
-    ]).then(([p, b, f]) => {
+      projectsApi.getRevisions(id).catch(() => ({ data: [] })),
+    ]).then(([p, b, f, rev]) => {
       const proj = p.data
       setProject(proj)
       setBids(b.data || [])
       setProjectFiles(f.data || [])
+      setRevisions(rev.data || [])
       if (proj?.client_id) client.get(`/users/${proj.client_id}`).then(r => setClientData(r.data)).catch(() => {})
       if (proj?.assigned_freelancer_id) client.get(`/users/${proj.assigned_freelancer_id}`).then(r => setAssignedUser(r.data)).catch(() => {})
     }).finally(() => setLoading(false))
@@ -457,12 +478,20 @@ export default function ProjectDetail() {
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, marginBottom: 14 }}>
                     <Tag status={project.status} />
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                      {project.deadline && (
-                        <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: 'var(--text-muted)' }}>
-                          <i className="ti ti-calendar-event" style={{ color: 'var(--accent-green)', fontSize: 13 }} />
-                          {new Date(project.deadline).toLocaleDateString('ru-RU')}
-                        </span>
-                      )}
+                      {project.deadline && (() => {
+                        const dl = deadlineInfo(project.deadline)
+                        return (
+                          <span style={{
+                            display: 'flex', alignItems: 'center', gap: 5, fontSize: 11, fontWeight: 600,
+                            padding: '3px 9px', borderRadius: 20,
+                            color: dl.color, background: dl.bg,
+                            border: `0.5px solid ${dl.color}40`,
+                          }}>
+                            <i className={`ti ti-${dl.icon}`} style={{ fontSize: 12 }} />
+                            {dl.label}
+                          </span>
+                        )
+                      })()}
                       <span style={{ fontSize: 12, color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: 4 }}>
                         <i className="ti ti-clock" style={{ fontSize: 12 }} />
                         {new Date(project.created_at).toLocaleDateString('ru-RU')}
@@ -470,9 +499,26 @@ export default function ProjectDetail() {
                     </div>
                   </div>
                   {/* Title */}
-                  <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 24, fontWeight: 800, letterSpacing: '-0.8px', color: 'var(--text-primary)', lineHeight: 1.25, marginBottom: 14 }}>
-                    {project.title}
-                  </h1>
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginBottom: 14 }}>
+                    <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 24, fontWeight: 800, letterSpacing: '-0.8px', color: 'var(--text-primary)', lineHeight: 1.25, margin: 0, flex: 1 }}>
+                      {project.title}
+                    </h1>
+                    {revisions.length > 0 && (
+                      <span
+                        onClick={() => setShowRevisionHistory(v => !v)}
+                        title="История доработок"
+                        style={{
+                          display: 'flex', alignItems: 'center', gap: 5, flexShrink: 0,
+                          fontSize: 11, fontWeight: 600, padding: '4px 10px', borderRadius: 20, marginTop: 4,
+                          background: 'rgba(251,191,36,0.1)', border: '0.5px solid rgba(251,191,36,0.3)',
+                          color: '#FBBF24', cursor: 'pointer',
+                        }}
+                      >
+                        <i className="ti ti-history" style={{ fontSize: 12 }} />
+                        Доработок: {revisions.length}
+                      </span>
+                    )}
+                  </div>
                   {/* Budget + tags row */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
                     <div style={{ display: 'flex', alignItems: 'baseline', gap: 3, background: 'rgba(127,119,221,0.1)', border: '0.5px solid rgba(127,119,221,0.2)', borderRadius: 10, padding: '6px 12px' }}>
@@ -491,6 +537,22 @@ export default function ProjectDetail() {
                       <span style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 12, color: 'var(--text-muted)' }}>
                         <i className="ti ti-users" style={{ fontSize: 13 }} />{bids.length} заявок
                       </span>
+                      {user && !isOwner && (
+                        <button
+                          onClick={() => setReportOpen(true)}
+                          title="Пожаловаться на проект"
+                          style={{
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            width: 32, height: 32, borderRadius: 9,
+                            background: 'none', border: '0.5px solid var(--border)',
+                            cursor: 'pointer', color: 'var(--text-muted)', transition: 'all 0.15s',
+                          }}
+                          onMouseEnter={e => { e.currentTarget.style.color = '#F87171'; e.currentTarget.style.background = 'rgba(248,113,113,0.1)'; e.currentTarget.style.borderColor = 'rgba(248,113,113,0.3)' }}
+                          onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-muted)'; e.currentTarget.style.background = 'none'; e.currentTarget.style.borderColor = 'var(--border)' }}
+                        >
+                          <i className="ti ti-flag" style={{ fontSize: 15 }} />
+                        </button>
+                      )}
                       {user && (
                         <button
                           onClick={toggleFav}
@@ -683,6 +745,53 @@ export default function ProjectDetail() {
                     {project.delivery_pr_url && <a href={project.delivery_pr_url} target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 12px', borderRadius: 8, fontSize: 12, background: 'rgba(255,255,255,0.04)', border: '0.5px solid var(--border)', color: 'var(--text-secondary)', textDecoration: 'none' }}><i className="ti ti-git-pull-request" style={{ fontSize: 14 }} />Pull Request</a>}
                     {project.delivery_demo_url && <a href={project.delivery_demo_url} target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 12px', borderRadius: 8, fontSize: 12, background: 'rgba(255,255,255,0.04)', border: '0.5px solid var(--border)', color: 'var(--text-secondary)', textDecoration: 'none' }}><i className="ti ti-world" style={{ fontSize: 14 }} />Демо</a>}
                   </div>
+                </div>
+              )}
+
+              {/* ── История доработок ── */}
+              {revisions.length > 0 && (isOwner || isAssignedFreelancer) && (
+                <div style={{ background: 'var(--bg-card)', border: '0.5px solid var(--border)', borderRadius: 16, overflow: 'hidden' }}>
+                  <button
+                    onClick={() => setShowRevisionHistory(v => !v)}
+                    style={{
+                      width: '100%', padding: '14px 20px', background: 'none', border: 'none',
+                      display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer',
+                      textAlign: 'left',
+                    }}
+                  >
+                    <i className="ti ti-history" style={{ fontSize: 16, color: 'var(--accent)', flexShrink: 0 }} />
+                    <span style={{ flex: 1, fontFamily: 'Syne, sans-serif', fontSize: 13, fontWeight: 700, color: 'var(--text-primary)' }}>
+                      История доработок
+                    </span>
+                    <span style={{
+                      fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 20,
+                      background: 'rgba(127,119,221,0.15)', color: 'var(--accent)',
+                    }}>
+                      {revisions.length}
+                    </span>
+                    <i className={`ti ti-chevron-${showRevisionHistory ? 'up' : 'down'}`} style={{ fontSize: 14, color: 'var(--text-muted)' }} />
+                  </button>
+                  {showRevisionHistory && (
+                    <div style={{ borderTop: '0.5px solid var(--border)', padding: '12px 20px 16px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+                      {revisions.map((rev, i) => (
+                        <div key={rev.id} style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+                          <div style={{
+                            width: 28, height: 28, borderRadius: 8, flexShrink: 0, marginTop: 2,
+                            background: 'rgba(251,191,36,0.1)', border: '0.5px solid rgba(251,191,36,0.25)',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          }}>
+                            <span style={{ fontFamily: 'Syne, sans-serif', fontSize: 11, fontWeight: 800, color: '#FBBF24' }}>{i + 1}</span>
+                          </div>
+                          <div style={{ flex: 1 }}>
+                            <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 4 }}>
+                              {new Date(rev.created_at).toLocaleDateString('ru-RU', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                            </div>
+                            <p style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6, margin: 0 }}>{rev.comment}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -1258,7 +1367,7 @@ Where "order" is bid indices from best to worst.`
                   {/* Заказчик */}
                   <div>
                     <div style={{ fontSize: 10, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 7 }}>Заказчик</div>
-                    <Link to={`/profile/${project.client_id}`} style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none', padding: '6px 8px', borderRadius: 9, margin: '-6px -8px', transition: 'background 0.15s' }}
+                    <Link to={`/client/${project.client_id}`} style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none', padding: '6px 8px', borderRadius: 9, margin: '-6px -8px', transition: 'background 0.15s' }}
                       onMouseEnter={e => e.currentTarget.style.background = isDark ? 'rgba(255,255,255,0.04)' : 'rgba(59,91,219,0.04)'}
                       onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
                       <div style={{ position: 'relative', flexShrink: 0 }}>
@@ -1371,6 +1480,15 @@ Where "order" is bid indices from best to worst.`
         </div>
       </div>
       <Footer />
+      {project && (
+        <ReportModal
+          open={reportOpen}
+          onClose={() => setReportOpen(false)}
+          reportedUserId={project.client_id}
+          projectId={project.id}
+          targetName={`проект "${project.title}"`}
+        />
+      )}
     </div>
   )
 }

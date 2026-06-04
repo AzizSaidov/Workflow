@@ -46,6 +46,16 @@ class ProgressUpdate(BaseModel):
     progress_percent: int
 
 
+class ProjectRevisionResponse(BaseModel):
+    id: UUID
+    project_id: UUID
+    requested_by: UUID
+    comment: str
+    created_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
 class ProjectResponse(BaseModel):
     id: UUID
     client_id: UUID

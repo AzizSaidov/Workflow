@@ -1,6 +1,7 @@
 /* ========= RESET ========= */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
+body { background: var(--bg); min-height: 100vh; }
 
 /* ========= ANIMATABLE CSS VARIABLES ========= */
 /* @property makes CSS vars themselves transition — all var()-consumers get smooth theme switch */
@@ -46,6 +47,7 @@ html { scroll-behavior: smooth; }
     --accent-light 0.35s ease,
     --border-hover 0.35s ease;
 }
+
 
 /* ========= LIGHT THEME ========= */
 [data-theme="light"] {

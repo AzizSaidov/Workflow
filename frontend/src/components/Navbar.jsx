@@ -5,6 +5,7 @@ import useThemeStore from '../store/themeStore'
 import ThemeToggle from './ThemeToggle'
 import Avatar from './Avatar'
 import NotificationBell from './NotificationBell'
+import Logo from './Logo'
 
 // Role-based nav config
 function getNavLinks(user) {
@@ -88,14 +89,7 @@ export default function Navbar() {
       transition: 'background 0.3s, border-color 0.3s',
     }}>
       {/* Logo */}
-      <Link to="/" style={{ textDecoration: 'none', flexShrink: 0 }}>
-        <span style={{
-          fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 20,
-          letterSpacing: '-0.5px', color: 'var(--text-primary)',
-        }}>
-          work<span style={{ color: 'var(--accent)' }}>flow</span>
-        </span>
-      </Link>
+      <Logo size="sm" />
 
       {/* Center nav */}
       <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>

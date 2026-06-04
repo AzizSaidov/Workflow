@@ -5,8 +5,8 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func
 from categories.models import Category
 from fastapi import HTTPException, status
-from profiles.models import FreelancerProfile, SkillToProfile, ProfileLanguage, ProfileLike
-from profiles.schemas import ProfileUpdate, SkillAddRequest, LanguageAddRequest, SkillInProfile, LanguageInProfile
+from profiles.models import FreelancerProfile, SkillToProfile, ProfileLanguage, ProfileLike, ProfileCategory
+from profiles.schemas import ProfileUpdate, SkillAddRequest, LanguageAddRequest, CategoryAddRequest, SkillInProfile, LanguageInProfile, CategoryInProfile
 from users.models import User, UserRole
 from skills.models import Skill
 from languages.models import Language
@@ -39,6 +39,17 @@ def _build_profile_response(profile: FreelancerProfile, db: Session) -> dict:
 
     category = db.query(Category).filter(Category.id == profile.category_id).first() if profile.category_id else None
 
+    cat_links = (
+        db.query(ProfileCategory, Category)
+        .join(Category, Category.id == ProfileCategory.category_id)
+        .filter(ProfileCategory.profile_id == profile.id)
+        .all()
+    )
+    categories = [
+        CategoryInProfile(id=link.id, category_id=cat.id, name=cat.name, slug=cat.slug)
+        for link, cat in cat_links
+    ]
+
     return {
         "id": profile.id,
         "user_id": profile.user_id,
@@ -55,6 +66,7 @@ def _build_profile_response(profile: FreelancerProfile, db: Session) -> dict:
         "category_name": category.name if category else None,
         "skills": skills,
         "languages": languages,
+        "categories": categories,
         "is_online": bool(_redis.exists(f"online:{profile.user_id}")),
     }
 
@@ -83,11 +95,15 @@ def update_my_profile(data: ProfileUpdate, current_user: User, db: Session) -> d
 
 
 def get_top_freelancers(db: Session, category_slug: str | None = None) -> list[dict]:
+    from sqlalchemy import or_
     query = db.query(FreelancerProfile).filter(FreelancerProfile.total_jobs > 0)
     if category_slug:
         category = db.query(Category).filter(Category.slug == category_slug).first()
         if category:
-            query = query.filter(FreelancerProfile.category_id == category.id)
+            m2m_ids = [r.profile_id for r in db.query(ProfileCategory).filter(ProfileCategory.category_id == category.id).all()]
+            query = query.filter(
+                or_(FreelancerProfile.category_id == category.id, FreelancerProfile.id.in_(m2m_ids))
+            )
     profiles = query.order_by(
         (FreelancerProfile.rating * func.ln(func.greatest(FreelancerProfile.total_jobs, 0) + 2)).desc()
     ).limit(50).all()
@@ -167,6 +183,43 @@ def remove_language(language_id: UUID, current_user: User, db: Session) -> dict:
     ).first()
     if not link:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Language not in profile")
+    db.delete(link)
+    db.commit()
+    return _build_profile_response(profile, db)
+
+
+def add_category(data: CategoryAddRequest, current_user: User, db: Session) -> dict:
+    if current_user.role != UserRole.freelancer:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only freelancers can add categories")
+    profile = db.query(FreelancerProfile).filter(FreelancerProfile.user_id == current_user.id).first()
+    if not profile:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Profile not found")
+    cat = db.query(Category).filter(Category.id == data.category_id).first()
+    if not cat:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Category not found")
+    exists = db.query(ProfileCategory).filter(
+        ProfileCategory.profile_id == profile.id,
+        ProfileCategory.category_id == data.category_id,
+    ).first()
+    if exists:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Category already added")
+    db.add(ProfileCategory(profile_id=profile.id, category_id=data.category_id))
+    db.commit()
+    return _build_profile_response(profile, db)
+
+
+def remove_category(category_id: UUID, current_user: User, db: Session) -> dict:
+    if current_user.role != UserRole.freelancer:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only freelancers can remove categories")
+    profile = db.query(FreelancerProfile).filter(FreelancerProfile.user_id == current_user.id).first()
+    if not profile:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Profile not found")
+    link = db.query(ProfileCategory).filter(
+        ProfileCategory.profile_id == profile.id,
+        ProfileCategory.category_id == category_id,
+    ).first()
+    if not link:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Category not in profile")
     db.delete(link)
     db.commit()
     return _build_profile_response(profile, db)

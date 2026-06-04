@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
 import Globe from './Globe'
+import Logo from './Logo'
 import { statsApi } from '../api/stats'
 
 // Sun rays: angle = CSS rotate() from vertical-down, sun is at top-right
@@ -104,8 +104,8 @@ export default function AuthLeft({ isDark }) {
     <div style={{
       width: '52%', minHeight: '100vh', position: 'relative',
       background: isDark
-        ? 'linear-gradient(175deg, #03030C 0%, #06061A 30%, #09091F 62%, #040410 100%)'
-        : 'linear-gradient(148deg, #1A5CA8 0%, #3880C8 12%, #68AEDF 26%, #A8D4F0 42%, #E8F4FF 56%, #FFF8E4 68%, #FFE896 80%, #FFD020 90%, #FFBE00 100%)',
+          ? 'linear-gradient(175deg, #03030C 0%, #06061A 30%, #09091F 62%, #040410 100%)'
+          : 'linear-gradient(148deg, #1A5CA8 0%, #3880C8 12%, #68AEDF 26%, #A8D4F0 42%, #E8F4FF 56%, #FFF8E4 68%, #FFE896 80%, #FFD020 90%, #FFBE00 100%)',
       display: 'flex', alignItems: 'center', justifyContent: 'center',
       overflow: 'hidden', flexShrink: 0,
     }}>
@@ -162,8 +162,6 @@ export default function AuthLeft({ isDark }) {
         {/* Warm horizon bloom */}
         <div style={{ position:'absolute', bottom:0, left:0, right:0, height:'44%', background:'linear-gradient(to top, rgba(255,155,8,0.30) 0%, rgba(255,185,35,0.12) 48%, transparent 100%)', pointerEvents:'none', zIndex:0 }} />
 
-        {/* Thin horizon line glow */}
-        <div style={{ position:'absolute', bottom:'26%', left:0, right:0, height:'2px', background:'linear-gradient(90deg, transparent 0%, rgba(255,195,40,0.45) 35%, rgba(255,175,20,0.55) 55%, transparent 100%)', pointerEvents:'none', zIndex:0 }} />
 
         {/* Atmospheric scatter — diffuse left side brightening */}
         <div style={{ position:'absolute', top:'15%', left:0, width:'55%', height:'60%', background:'radial-gradient(ellipse at 0% 50%, rgba(255,230,100,0.07) 0%, transparent 70%)', pointerEvents:'none', zIndex:0 }} />
@@ -238,12 +236,8 @@ export default function AuthLeft({ isDark }) {
       </>}
 
       {/* ═══════════════ LOGO ═══════════════ */}
-      <div style={{ position:'absolute', top:32, left:36, zIndex:6 }}>
-        <Link to="/" style={{ textDecoration:'none' }}>
-          <span style={{ fontFamily:'Syne, sans-serif', fontWeight:800, fontSize:22, letterSpacing:'-0.5px', color: isDark ? '#fff' : '#091426' }}>
-            work<span style={{ color: isDark ? '#7F77DD' : '#2448CC' }}>flow</span>
-          </span>
-        </Link>
+      <div style={{ position:'absolute', top:28, left:32, zIndex:6 }}>
+        <Logo size="sm" isDark={isDark} />
       </div>
 
       {/* ═══════════════ GLOBE ═══════════════ */}

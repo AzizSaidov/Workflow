@@ -2,7 +2,7 @@ from uuid import UUID
 from sqlalchemy.orm import Session
 from sqlalchemy import or_
 from fastapi import HTTPException, status
-from projects.models import Project, ProjectStatus, ProjectSkill
+from projects.models import Project, ProjectStatus, ProjectSkill, ProjectRevision
 from projects.schemas import ProjectCreate, ProjectUpdate, DeliverySubmit, ClientFeedback, ProgressUpdate
 from users.models import User, UserRole
 from notifications.models import NotificationType
@@ -225,6 +225,12 @@ def request_revision(project_id: UUID, data: ClientFeedback, client: User, db: S
     project.client_feedback = data.client_feedback
     project.status = ProjectStatus.in_progress
     project.delivery_submitted_at = None
+    revision = ProjectRevision(
+        project_id=project_id,
+        requested_by=client.id,
+        comment=data.client_feedback,
+    )
+    db.add(revision)
     if project.assigned_freelancer_id:
         create_notification(
             user_id=project.assigned_freelancer_id,
@@ -236,3 +242,12 @@ def request_revision(project_id: UUID, data: ClientFeedback, client: User, db: S
     db.commit()
     db.refresh(project)
     return project
+
+
+def get_revisions(project_id: UUID, db: Session) -> list[ProjectRevision]:
+    return (
+        db.query(ProjectRevision)
+        .filter(ProjectRevision.project_id == project_id)
+        .order_by(ProjectRevision.created_at.asc())
+        .all()
+    )

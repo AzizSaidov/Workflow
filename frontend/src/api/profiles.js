@@ -8,6 +8,8 @@ export const profilesApi = {
   removeSkill: (skillId) => client.delete(`/profiles/me/skills/${skillId}`),
   addLanguage: (languageId, level) => client.post('/profiles/me/languages', { language_id: languageId, level }),
   removeLanguage: (languageId) => client.delete(`/profiles/me/languages/${languageId}`),
+  addCategory: (categoryId) => client.post('/profiles/me/categories', { category_id: categoryId }),
+  removeCategory: (categoryId) => client.delete(`/profiles/me/categories/${categoryId}`),
   toggleLike: (userId) => client.post(`/profiles/${userId}/like`),
   getLikes: (userId) => client.get(`/profiles/${userId}/likes`),
 }

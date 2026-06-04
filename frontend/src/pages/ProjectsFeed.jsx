@@ -5,6 +5,7 @@ import useAuthStore from '../store/authStore'
 import { projectsApi } from '../api/projects'
 import { categoriesApi } from '../api/categories'
 import { favoritesApi } from '../api/favorites'
+import { useSEO } from '../hooks/useSEO'
 import StarBackground from '../components/StarBackground'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
@@ -94,6 +95,7 @@ function ProjectRow({ project, userId }) {
 }
 
 export default function ProjectsFeed() {
+  useSEO({ title: 'Проекты', description: 'Тысячи проектов для фрилансеров. Фильтруй по категории, бюджету и опыту.' })
   const { isDark } = useThemeStore()
   const { user }   = useAuthStore()
   const toast      = useToastStore(s => s.show)

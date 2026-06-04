@@ -5,6 +5,7 @@ import useAuthStore from '../store/authStore'
 import { profilesApi, usersApi } from '../api/profiles'
 import { categoriesApi } from '../api/categories'
 import useToastStore from '../store/toastStore'
+import { useSEO } from '../hooks/useSEO'
 import StarBackground from '../components/StarBackground'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
@@ -49,7 +50,10 @@ function FreelancerRow({ user, profile }) {
             </div>
           )}
           <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
-            {(profile?.skills || []).slice(0, 4).map(s => (
+            {(profile?.categories || []).slice(0, 2).map(c => (
+              <Tag key={c.id} color="green" style={{ fontSize: 10, padding: '1px 7px' }}>{c.name}</Tag>
+            ))}
+            {(profile?.skills || []).slice(0, 3).map(s => (
               <Tag key={s.id} color="purple" style={{ fontSize: 10, padding: '1px 7px' }}>{s.name}</Tag>
             ))}
           </div>
@@ -97,6 +101,7 @@ function FreelancerRow({ user, profile }) {
 }
 
 export default function FreelancersPage() {
+  useSEO({ title: 'Таланты', description: 'Лучшие фрилансеры на платформе Workflow. Фильтруй по категории, рейтингу и ставке.' })
   const { isDark } = useThemeStore()
   const { user }   = useAuthStore()
   const toast      = useToastStore(s => s.show)

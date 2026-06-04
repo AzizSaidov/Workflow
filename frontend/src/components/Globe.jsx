@@ -12,6 +12,14 @@ export default function Globe({
   const globeRef = useRef()
   const { isDark } = useThemeStore()
   const [loaded, setLoaded] = useState(false)
+  const [textureFading, setTextureFading] = useState(false)
+
+  useEffect(() => {
+    if (!loaded) return
+    setTextureFading(true)
+    const t = setTimeout(() => setTextureFading(false), 320)
+    return () => clearTimeout(t)
+  }, [isDark])
 
   useEffect(() => {
     if (!globeRef.current) return
@@ -84,6 +92,9 @@ export default function Globe({
           from { transform: translate(-50%,-50%) rotateX(82deg) rotateZ(220deg); }
           to   { transform: translate(-50%,-50%) rotateX(82deg) rotateZ(580deg); }
         }
+        /* clip the WebGL canvas to a circle — kills square shadow and bg bleed */
+        .globe-canvas-clip { border-radius: 50%; overflow: hidden; background: transparent !important; }
+        .globe-canvas-clip canvas { outline: none !important; display: block !important; box-shadow: none !important; border-radius: 50%; }
       `}</style>
 
       {/* Deep space glow */}
@@ -150,7 +161,7 @@ export default function Globe({
       {!loaded && <GlobeSkeleton size={width} isDark={isDark} />}
 
       {/* Globe — always rendered so onGlobeReady fires */}
-      <div style={{ position: 'relative', zIndex: 1, opacity: loaded ? 1 : 0, transition: 'opacity 0.7s ease' }}>
+      <div style={{ position: 'relative', zIndex: 1, opacity: loaded ? (textureFading ? 0.15 : 1) : 0, transition: textureFading ? 'opacity 0.18s ease' : 'opacity 0.7s ease', clipPath: 'circle(50% at 50% 50%)', WebkitClipPath: 'circle(50% at 50% 50%)' }}>
         <GlobeGL
           ref={globeRef}
           width={width}
@@ -202,10 +213,11 @@ export default function Globe({
         <div style={{
           position: 'absolute', inset: 0,
           background: isDark
-            ? `radial-gradient(circle, transparent 48%, rgba(${fadeRgb},0.3) 66%, rgba(${fadeRgb},0.72) 82%, rgba(${fadeRgb},0.95) 100%)`
-            : `radial-gradient(circle, transparent 38%, rgba(${fadeRgb},0.45) 54%, rgba(${fadeRgb},0.88) 70%, rgba(${fadeRgb},1) 82%)`,
+            ? `radial-gradient(circle, transparent 44%, rgba(${fadeRgb},0.35) 62%, rgba(${fadeRgb},0.80) 78%, rgba(${fadeRgb},0.98) 100%)`
+            : `radial-gradient(circle, transparent 36%, rgba(${fadeRgb},0.5) 52%, rgba(${fadeRgb},0.90) 68%, rgba(${fadeRgb},1) 80%)`,
           pointerEvents: 'none', zIndex: 2,
           borderRadius: '50%',
+          overflow: 'hidden',
         }} />
       )}
 

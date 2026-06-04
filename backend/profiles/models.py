@@ -52,6 +52,14 @@ class ProfileLanguage(Base):
     level = Column(Enum(LanguageLevel), nullable=False)
 
 
+class ProfileCategory(Base):
+    __tablename__ = "profile_categories"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    profile_id = Column(UUID(as_uuid=True), ForeignKey("freelancer_profiles.id"), nullable=False)
+    category_id = Column(UUID(as_uuid=True), ForeignKey("categories.id"), nullable=False)
+
+
 class ProfileLike(Base):
     __tablename__ = "profile_likes"
 

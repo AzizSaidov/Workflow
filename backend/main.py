@@ -1,3 +1,5 @@
+from contextlib import asynccontextmanager
+import asyncio
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from database import Base, engine
@@ -27,9 +29,15 @@ from routers.admin_routers import admin_router
 from routers.achievement_routers import achievements_router
 from routers.skill_routers import skills_router
 
-Base.metadata.create_all(bind=engine)
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    Base.metadata.create_all(bind=engine)
+    try:
+        yield
+    except asyncio.CancelledError:
+        pass
 
-app = FastAPI(title="Workflow API", version="5.0.0")
+app = FastAPI(title="Workflow API", version="5.0.0", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,

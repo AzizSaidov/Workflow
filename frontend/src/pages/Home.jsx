@@ -5,6 +5,7 @@ import useAuthStore from '../store/authStore'
 import { statsApi } from '../api/stats'
 import { authApi } from '../api/auth'
 import { categoriesApi } from '../api/categories'
+import { useSEO } from '../hooks/useSEO'
 import StarBackground from '../components/StarBackground'
 import Globe from '../components/Globe'
 import Navbar from '../components/Navbar'
@@ -112,6 +113,7 @@ function SkillMarquee({ isDark }) {
 }
 
 export default function Home() {
+  useSEO({ title: 'Workflow — Фриланс-платформа', description: 'Найди лучших фрилансеров или опубликуй проект. Безопасная оплата через эскроу.' })
   const { isDark } = useThemeStore()
   const { user, setUser } = useAuthStore()
   const [stats, setStats] = useState(null)

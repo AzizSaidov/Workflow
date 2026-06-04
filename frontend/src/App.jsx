@@ -19,6 +19,7 @@ import Favorites from './pages/Favorites'
 import AIAssistant from './pages/AIAssistant'
 import MyWork from './pages/MyWork'
 import Achievements from './pages/Achievements'
+import ClientProfile from './pages/ClientProfile'
 
 export default function App() {
   return (
@@ -34,6 +35,7 @@ export default function App() {
         <Route path="/projects" element={<ProjectsFeed />} />
         <Route path="/projects/:id" element={<ProjectDetail />} />
         <Route path="/profile/:id" element={<Profile />} />
+        <Route path="/client/:id" element={<ClientProfile />} />
         <Route path="/achievements" element={<Achievements />} />
 
         {/* Protected */}

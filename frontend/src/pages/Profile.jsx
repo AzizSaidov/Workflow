@@ -21,6 +21,8 @@ import { certificationsApi } from '../api/certifications'
 import { favoritesApi } from '../api/favorites'
 import { categoriesApi } from '../api/categories'
 import useToastStore from '../store/toastStore'
+import ReportModal from '../components/ReportModal'
+import { useSEO } from '../hooks/useSEO'
 
 const LEVEL_LABEL = { basic: 'Базовый', conversational: 'Разговорный', fluent: 'Свободный', native: 'Родной' }
 const EMPTY_PORTFOLIO = { title: '', description: '', project_url: '', image_url: '' }
@@ -175,6 +177,10 @@ export default function Profile() {
   const toast = useToastStore(s => s.show)
 
   const [userData, setUserData] = useState(null)
+  useSEO({
+    title: userData?.full_name ? `${userData.full_name} — Фрилансер` : 'Профиль',
+    description: profile?.bio ? profile.bio.slice(0, 120) : undefined,
+  })
   const [profile, setProfile] = useState(null)
   const [portfolio, setPortfolio] = useState([])
   const [reviews, setReviews] = useState([])
@@ -188,6 +194,7 @@ export default function Profile() {
   const [likesCount, setLikesCount] = useState(0)
   const [isLiked, setIsLiked] = useState(false)
   const [likeLoading, setLikeLoading] = useState(false)
+  const [reportOpen, setReportOpen] = useState(false)
   const [clientProjects, setClientProjects] = useState([])
   const [activeTab, setActiveTab] = useState('about')
   const [editMode, setEditMode] = useState(false)
@@ -275,6 +282,8 @@ export default function Profile() {
 
   const handleAddSkill = async (skillId) => { try { await profilesApi.addSkill(skillId); load() } catch {} }
   const handleRemoveSkill = async (skillId) => { try { await profilesApi.removeSkill(skillId); load() } catch {} }
+  const handleAddCategory = async (categoryId) => { try { await profilesApi.addCategory(categoryId); load() } catch {} }
+  const handleRemoveCategory = async (categoryId) => { try { await profilesApi.removeCategory(categoryId); load() } catch {} }
   const handleAddLanguage = async (langId, level) => { try { await profilesApi.addLanguage(langId, level); load() } catch {} }
   const handleRemoveLanguage = async (langId) => { try { await profilesApi.removeLanguage(langId); load() } catch {} }
 
@@ -507,25 +516,43 @@ export default function Profile() {
                     ? <Rating value={profile.rating} count={profile.total_jobs} size={13} />
                     : <span />
                   }
-                  {/* Likes counter */}
-                  <button
-                    onClick={me?.id !== id ? toggleLike : undefined}
-                    disabled={likeLoading || me?.id === id}
-                    style={{
-                      display: 'flex', alignItems: 'center', gap: 4,
-                      background: 'none', border: 'none',
-                      cursor: me?.id === id ? 'default' : 'pointer',
-                      padding: '3px 6px', borderRadius: 6,
-                      color: isLiked ? '#F87171' : 'var(--text-muted)',
-                      transition: 'color 0.15s',
-                      fontSize: 12,
-                    }}
-                    onMouseEnter={e => { if (me?.id !== id) e.currentTarget.style.color = '#F87171' }}
-                    onMouseLeave={e => { e.currentTarget.style.color = isLiked ? '#F87171' : 'var(--text-muted)' }}
-                  >
-                    <span style={{ fontSize: 13, lineHeight: 1 }}>{isLiked ? '♥' : '♡'}</span>
-                    {likesCount > 0 && <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 600 }}>{likesCount}</span>}
-                  </button>
+                  {/* Likes + report row */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <button
+                      onClick={me?.id !== id ? toggleLike : undefined}
+                      disabled={likeLoading || me?.id === id}
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: 4,
+                        background: 'none', border: 'none',
+                        cursor: me?.id === id ? 'default' : 'pointer',
+                        padding: '3px 6px', borderRadius: 6,
+                        color: isLiked ? '#F87171' : 'var(--text-muted)',
+                        transition: 'color 0.15s',
+                        fontSize: 12,
+                      }}
+                      onMouseEnter={e => { if (me?.id !== id) e.currentTarget.style.color = '#F87171' }}
+                      onMouseLeave={e => { e.currentTarget.style.color = isLiked ? '#F87171' : 'var(--text-muted)' }}
+                    >
+                      <span style={{ fontSize: 13, lineHeight: 1 }}>{isLiked ? '♥' : '♡'}</span>
+                      {likesCount > 0 && <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 600 }}>{likesCount}</span>}
+                    </button>
+                    {me && me.id !== id && (
+                      <button
+                        onClick={() => setReportOpen(true)}
+                        title="Пожаловаться"
+                        style={{
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          width: 26, height: 26, borderRadius: 6,
+                          background: 'none', border: '0.5px solid transparent',
+                          cursor: 'pointer', color: 'var(--text-muted)', transition: 'all 0.15s',
+                        }}
+                        onMouseEnter={e => { e.currentTarget.style.color = '#F87171'; e.currentTarget.style.background = 'rgba(248,113,113,0.1)'; e.currentTarget.style.borderColor = 'rgba(248,113,113,0.3)' }}
+                        onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-muted)'; e.currentTarget.style.background = 'none'; e.currentTarget.style.borderColor = 'transparent' }}
+                      >
+                        <i className="ti ti-flag" style={{ fontSize: 13 }} />
+                      </button>
+                    )}
+                  </div>
                 </div>
 
                 {/* Action buttons */}
@@ -573,6 +600,16 @@ export default function Profile() {
                   <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 10 }}>Навыки</div>
                   <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
                     {uniqueSkills.map(s => <Tag key={s.id} color="purple" style={{ fontSize: 11 }}>{s.name}</Tag>)}
+                  </div>
+                </div>
+              )}
+
+              {/* Categories */}
+              {isFreelancer && profile?.categories?.length > 0 && (
+                <div style={{ background: 'var(--bg-card)', border: '0.5px solid var(--border)', borderRadius: 14, padding: '14px 16px' }}>
+                  <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 10 }}>Специализация</div>
+                  <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
+                    {profile.categories.map(c => <Tag key={c.id} color="green" style={{ fontSize: 11 }}>{c.name}</Tag>)}
                   </div>
                 </div>
               )}
@@ -683,6 +720,30 @@ export default function Profile() {
                     <div style={{ background: 'var(--bg-card)', border: '0.5px solid var(--border)', borderRadius: 16, padding: 20 }}>
                       <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 12 }}>Навыки</div>
                       <SkillSelector selected={uniqueSkills} onAdd={handleAddSkill} onRemove={handleRemoveSkill} />
+                    </div>
+                  )}
+
+                  {/* Categories editor (own profile) */}
+                  {isFreelancer && isOwnProfile && (
+                    <div style={{ background: 'var(--bg-card)', border: '0.5px solid var(--border)', borderRadius: 16, padding: 20 }}>
+                      <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 12 }}>Специализация</div>
+                      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 10 }}>
+                        {(profile?.categories || []).map(c => (
+                          <button key={c.id} onClick={() => handleRemoveCategory(c.category_id)} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '4px 10px', borderRadius: 20, fontSize: 12, fontWeight: 500, background: 'rgba(29,158,117,0.1)', border: '0.5px solid rgba(29,158,117,0.3)', color: 'var(--accent-green)', cursor: 'pointer' }}>
+                            {c.name} <i className="ti ti-x" style={{ fontSize: 11 }} />
+                          </button>
+                        ))}
+                      </div>
+                      <select
+                        onChange={e => { if (e.target.value) { handleAddCategory(e.target.value); e.target.value = '' } }}
+                        defaultValue=""
+                        style={{ width: '100%', padding: '8px 12px', borderRadius: 9, background: 'var(--bg)', border: '0.5px solid var(--border)', color: 'var(--text-secondary)', fontSize: 13, outline: 'none', cursor: 'pointer' }}
+                      >
+                        <option value="" disabled>+ Добавить специализацию</option>
+                        {categories.filter(c => !(profile?.categories || []).some(pc => pc.category_id === c.id)).map(c => (
+                          <option key={c.id} value={c.id}>{c.name}</option>
+                        ))}
+                      </select>
                     </div>
                   )}
 
@@ -989,6 +1050,12 @@ export default function Profile() {
         </div>
       </div>
       <Footer />
+      <ReportModal
+        open={reportOpen}
+        onClose={() => setReportOpen(false)}
+        reportedUserId={id}
+        targetName={user?.full_name || ''}
+      />
     </div>
   )
 }

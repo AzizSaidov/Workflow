@@ -95,6 +95,7 @@ export default function NotificationBell() {
     ws.onmessage = (e) => {
       try {
         const n = JSON.parse(e.data)
+        if (!n.id) return  // skip control messages (init_done, etc.)
         if (n.type === 'achievement' || n.notification_type === 'achievement') {
           setAchievementToast({
             name: n.title?.replace('Новое достижение: ', '') || n.title,

@@ -2,10 +2,11 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 from database import get_db
-from profiles.schemas import ProfileUpdate, ProfileResponse, SkillAddRequest, LanguageAddRequest
+from profiles.schemas import ProfileUpdate, ProfileResponse, SkillAddRequest, LanguageAddRequest, CategoryAddRequest
 from profiles.views import (
     get_profile, update_my_profile, get_top_freelancers,
     add_skill, remove_skill, add_language, remove_language,
+    add_category, remove_category,
     toggle_like, get_likes,
 )
 from users.permissions import get_current_user, get_optional_user
@@ -51,6 +52,16 @@ def add_language_to_profile(data: LanguageAddRequest, db: Session = Depends(get_
 @profiles_router.delete("/me/languages/{language_id}", response_model=ProfileResponse)
 def remove_language_from_profile(language_id: UUID, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     return remove_language(language_id, current_user, db)
+
+
+@profiles_router.post("/me/categories", response_model=ProfileResponse)
+def add_category_to_profile(data: CategoryAddRequest, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    return add_category(data, current_user, db)
+
+
+@profiles_router.delete("/me/categories/{category_id}", response_model=ProfileResponse)
+def remove_category_from_profile(category_id: UUID, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    return remove_category(category_id, current_user, db)
 
 
 @profiles_router.post("/{user_id}/like")

@@ -2,12 +2,12 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 from database import get_db
-from projects.schemas import ProjectCreate, ProjectUpdate, ProjectResponse, DeliverySubmit, ClientFeedback, ProgressUpdate
+from projects.schemas import ProjectCreate, ProjectUpdate, ProjectResponse, DeliverySubmit, ClientFeedback, ProgressUpdate, ProjectRevisionResponse
 from projects.views import (
     get_projects, create_project, get_my_projects, get_project,
     update_project, delete_project, deliver_project, request_revision,
     accept_delivery, get_featured_projects, get_projects_by_category, open_dispute,
-    update_project_progress,
+    update_project_progress, get_revisions,
 )
 from media.views import get_project_files
 from users.permissions import get_current_user, get_optional_user
@@ -89,6 +89,11 @@ def deliver(project_id: UUID, data: DeliverySubmit, db: Session = Depends(get_db
 @projects_router.put("/{project_id}/revision", response_model=ProjectResponse)
 def revision(project_id: UUID, data: ClientFeedback, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     return request_revision(project_id, data, current_user, db)
+
+
+@projects_router.get("/{project_id}/revisions", response_model=list[ProjectRevisionResponse])
+def list_revisions(project_id: UUID, db: Session = Depends(get_db), _: User | None = Depends(get_optional_user)):
+    return get_revisions(project_id, db)
 
 
 @projects_router.put("/{project_id}/accept-delivery", response_model=ProjectResponse)

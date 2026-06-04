@@ -93,3 +93,5 @@ def wallet_topup(
 @admin_router.get("/stats")
 def platform_stats(db: Session = Depends(get_db), _: User = Depends(check_admin)):
     return get_platform_stats(db)
+
+

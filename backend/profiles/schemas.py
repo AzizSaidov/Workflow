@@ -13,6 +13,15 @@ class ProfileUpdate(BaseModel):
     category_id: UUID | None = None
 
 
+class CategoryInProfile(BaseModel):
+    id: UUID
+    category_id: UUID
+    name: str
+    slug: str
+
+    model_config = {"from_attributes": True}
+
+
 class SkillInProfile(BaseModel):
     id: UUID
     skill_id: UUID
@@ -48,6 +57,7 @@ class ProfileResponse(BaseModel):
     category_name: str | None = None
     skills: list[SkillInProfile]
     languages: list[LanguageInProfile]
+    categories: list[CategoryInProfile] = []
 
     model_config = {"from_attributes": True}
 
@@ -59,3 +69,7 @@ class SkillAddRequest(BaseModel):
 class LanguageAddRequest(BaseModel):
     language_id: UUID
     level: LanguageLevel
+
+
+class CategoryAddRequest(BaseModel):
+    category_id: UUID
