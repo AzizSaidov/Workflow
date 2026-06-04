@@ -9,6 +9,13 @@ from profiles.models import FreelancerProfile
 from users.models import User, UserRole
 
 
+def _enrich(review: Review, reviewer: User | None) -> dict:
+    d = {c.key: getattr(review, c.key) for c in review.__table__.columns}
+    d['reviewer_name'] = reviewer.full_name if reviewer else 'Аноним'
+    d['reviewer_avatar_url'] = reviewer.avatar_url if reviewer else None
+    return d
+
+
 def create_review(data: ReviewCreate, reviewer: User, db: Session) -> Review:
     project = db.query(Project).filter(Project.id == data.project_id).first()
     if not project:
@@ -53,13 +60,29 @@ def create_review(data: ReviewCreate, reviewer: User, db: Session) -> Review:
 
     db.commit()
     db.refresh(review)
-    return review
+    return _enrich(review, reviewer)
 
 
-def get_user_reviews(user_id: UUID, db: Session) -> list[Review]:
-    return (
+def get_user_reviews(user_id: UUID, db: Session) -> list[dict]:
+    reviews = (
         db.query(Review)
         .filter(Review.reviewee_id == user_id)
         .order_by(Review.created_at.desc())
         .all()
     )
+    result = []
+    for r in reviews:
+        reviewer = db.query(User).filter(User.id == r.reviewer_id).first()
+        result.append(_enrich(r, reviewer))
+    return result
+
+
+def get_my_review(project_id: UUID, user_id: UUID, db: Session) -> dict | None:
+    r = db.query(Review).filter(
+        Review.project_id == project_id,
+        Review.reviewer_id == user_id,
+    ).first()
+    if not r:
+        return None
+    reviewer = db.query(User).filter(User.id == r.reviewer_id).first()
+    return _enrich(r, reviewer)

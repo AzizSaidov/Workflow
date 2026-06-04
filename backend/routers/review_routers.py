@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from database import get_db
 from reviews.schemas import ReviewCreate, ReviewResponse
-from reviews.views import create_review, get_user_reviews
+from reviews.views import create_review, get_user_reviews, get_my_review
 from users.permissions import get_current_user, get_optional_user
 from users.models import User
 from achievements.views import check_and_grant
@@ -24,3 +24,8 @@ def post_review(data: ReviewCreate, db: Session = Depends(get_db), current_user:
 @reviews_router.get("/user/{user_id}", response_model=list[ReviewResponse])
 def user_reviews(user_id: UUID, db: Session = Depends(get_db), _: User | None = Depends(get_optional_user)):
     return get_user_reviews(user_id, db)
+
+
+@reviews_router.get("/my/{project_id}", response_model=ReviewResponse | None)
+def my_review(project_id: UUID, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    return get_my_review(project_id, current_user.id, db)

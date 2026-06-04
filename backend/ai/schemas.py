@@ -35,3 +35,21 @@ class AIChatRequest(BaseModel):
 
 class AIChatResponse(BaseModel):
     text: str
+
+
+class EditTextRequest(BaseModel):
+    text: str
+    action: str   # 'improve' | 'shorten' | 'translate'
+
+
+class EditTextResponse(BaseModel):
+    text: str
+
+
+class HelpDeliverRequest(BaseModel):
+    project_title: str
+    project_description: str = ''
+
+
+class HelpDeliverResponse(BaseModel):
+    text: str

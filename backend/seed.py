@@ -211,7 +211,7 @@ def seed():
         admin, admin_w = make_user(
             "admin@workflow.com", "admin123", UserRole.client,
             "Admin", "Workflow platform administrator.", 38.56, 68.77,
-            "https://i.pravatar.cc/150?u=admin@workflow.com",
+            "https://randomuser.me/api/portraits/men/1.jpg",
         )
         admin.is_admin = True
         admin_w.balance = Decimal("50000")
@@ -223,7 +223,7 @@ def seed():
                 "name": "Timur Rashidov",
                 "bio": "Founder of TechCorp. Building IT products for emerging markets in Central Asia.",
                 "lat": 38.56, "lng": 68.77,
-                "avatar": "https://i.pravatar.cc/150?u=timur@techcorp.tj",
+                "avatar": "https://randomuser.me/api/portraits/men/15.jpg",
                 "company": "TechCorp", "website": "https://techcorp.tj",
                 "location": "Dushanbe, Tajikistan", "balance": Decimal("9500"),
             },
@@ -232,7 +232,7 @@ def seed():
                 "name": "Amina Usupova",
                 "bio": "Owner of GreenLeaf Digital. We help regional businesses grow online.",
                 "lat": 41.30, "lng": 69.24,
-                "avatar": "https://i.pravatar.cc/150?u=amina@greenleaf.com",
+                "avatar": "https://randomuser.me/api/portraits/women/44.jpg",
                 "company": "GreenLeaf Digital", "website": "https://greenleaf.com",
                 "location": "Tashkent, Uzbekistan", "balance": Decimal("4200"),
             },
@@ -241,7 +241,7 @@ def seed():
                 "name": "Damir Seitkali",
                 "bio": "CTO of PayEasy — building next-gen payment infrastructure for Kazakhstan.",
                 "lat": 43.22, "lng": 76.85,
-                "avatar": "https://i.pravatar.cc/150?u=damir@fintech.kz",
+                "avatar": "https://randomuser.me/api/portraits/men/32.jpg",
                 "company": "PayEasy", "website": "https://payeasy.kz",
                 "location": "Almaty, Kazakhstan", "balance": Decimal("11000"),
             },
@@ -250,7 +250,7 @@ def seed():
                 "name": "Sofia Muller",
                 "bio": "Art Director at Muller Design Studio. Partnering with European SaaS brands.",
                 "lat": 52.52, "lng": 13.40,
-                "avatar": "https://i.pravatar.cc/150?u=sofia@designstudio.de",
+                "avatar": "https://randomuser.me/api/portraits/women/47.jpg",
                 "company": "Muller Design Studio", "website": "https://muller.design",
                 "location": "Berlin, Germany", "balance": Decimal("7800"),
             },
@@ -259,7 +259,7 @@ def seed():
                 "name": "Chen Wei",
                 "bio": "CEO of AI Ventures. Investing in and building AI-first products for Asian markets.",
                 "lat": 31.23, "lng": 121.47,
-                "avatar": "https://i.pravatar.cc/150?u=chen@aiventures.cn",
+                "avatar": "https://randomuser.me/api/portraits/men/33.jpg",
                 "company": "AI Ventures", "website": "https://aiventures.cn",
                 "location": "Shanghai, China", "balance": Decimal("15000"),
             },
@@ -268,7 +268,7 @@ def seed():
                 "name": "Carlos Mendez",
                 "bio": "Founder of Agencia Digital. Full-service digital agency serving Latin American brands.",
                 "lat": 19.43, "lng": -99.13,
-                "avatar": "https://i.pravatar.cc/150?u=carlos@agencia.mx",
+                "avatar": "https://randomuser.me/api/portraits/men/11.jpg",
                 "company": "Agencia Digital", "website": "https://agencia.mx",
                 "location": "Mexico City, Mexico", "balance": Decimal("6300"),
             },
@@ -293,10 +293,10 @@ def seed():
             {
                 "email": "alexei@dev.ru", "pw": "pass123",
                 "name": "Alexei Voronov", "lat": 55.75, "lng": 37.62,
-                "avatar": "https://i.pravatar.cc/150?u=alexei@dev.ru",
+                "avatar": "https://randomuser.me/api/portraits/men/3.jpg",
                 "bio": "Full-stack developer, 7 years. React + FastAPI + PostgreSQL. 47 projects delivered on time.",
                 "title": "Senior Full-Stack Developer", "cat": "web-dev",
-                "rate": 55, "exp": 7, "rating": "4.87", "jobs": 47, "balance": "3200",
+                "rate": 55, "exp": 7, "rating": "4.80", "jobs": 47, "balance": "3200",
                 "verified": True, "resp": "within 1 hour",
                 "skills": ["react", "fastapi", "typescript", "postgresql", "docker", "redis"],
                 "langs": [("ru", "native"), ("en", "fluent")],
@@ -315,10 +315,10 @@ def seed():
             {
                 "email": "zara@flutter.dev", "pw": "pass123",
                 "name": "Zara Ismailova", "lat": 41.30, "lng": 69.24,
-                "avatar": "https://i.pravatar.cc/150?u=zara@flutter.dev",
+                "avatar": "https://randomuser.me/api/portraits/women/56.jpg",
                 "bio": "Mobile developer specializing in Flutter (iOS+Android) + Firebase backend. 31 shipped apps.",
                 "title": "Flutter / Mobile Developer", "cat": "mobile-dev",
-                "rate": 45, "exp": 4, "rating": "4.62", "jobs": 31, "balance": "1950",
+                "rate": 45, "exp": 4, "rating": "5.00", "jobs": 31, "balance": "1950",
                 "verified": True, "resp": "within 2 hours",
                 "skills": ["flutter", "react-native", "kotlin", "swift"],
                 "langs": [("ru", "native"), ("en", "conversational"), ("uz", "native")],
@@ -334,10 +334,10 @@ def seed():
             {
                 "email": "marco@design.it", "pw": "pass123",
                 "name": "Marco Ferrari", "lat": 41.90, "lng": 12.50,
-                "avatar": "https://i.pravatar.cc/150?u=marco@design.it",
+                "avatar": "https://randomuser.me/api/portraits/men/7.jpg",
                 "bio": "Senior UI/UX Designer & Brand Identity specialist. 9 years. Working with European and US startups.",
                 "title": "Senior UI/UX Designer", "cat": "design",
-                "rate": 75, "exp": 9, "rating": "4.95", "jobs": 89, "balance": "6800",
+                "rate": 75, "exp": 9, "rating": "4.83", "jobs": 89, "balance": "6800",
                 "verified": True, "resp": "within 30 minutes",
                 "skills": ["figma", "adobe-xd", "illustrator", "photoshop", "blender", "sketch"],
                 "langs": [("en", "native"), ("de", "fluent")],
@@ -357,10 +357,10 @@ def seed():
             {
                 "email": "aisha@ailab.kz", "pw": "pass123",
                 "name": "Aisha Bekova", "lat": 43.22, "lng": 76.85,
-                "avatar": "https://i.pravatar.cc/150?u=aisha@ailab.kz",
+                "avatar": "https://randomuser.me/api/portraits/women/49.jpg",
                 "bio": "Data Scientist & ML Engineer. NLP, computer vision, MLOps pipelines. PhD in Applied Math.",
                 "title": "Data Scientist & ML Engineer", "cat": "data-ai",
-                "rate": 65, "exp": 5, "rating": "4.73", "jobs": 22, "balance": "3600",
+                "rate": 65, "exp": 5, "rating": "4.80", "jobs": 22, "balance": "3600",
                 "verified": True, "resp": "within 3 hours",
                 "skills": ["python", "tensorflow", "pytorch", "pandas", "sql", "sklearn", "langchain"],
                 "langs": [("ru", "native"), ("en", "fluent"), ("kk", "native")],
@@ -379,10 +379,10 @@ def seed():
             {
                 "email": "bekzod@devops.uz", "pw": "pass123",
                 "name": "Bekzod Yusupov", "lat": 41.30, "lng": 69.24,
-                "avatar": "https://i.pravatar.cc/150?u=bekzod@devops.uz",
+                "avatar": "https://randomuser.me/api/portraits/men/14.jpg",
                 "bio": "Senior DevOps Engineer. Kubernetes, AWS/GCP, Terraform, CI/CD. 6 years in production infra.",
                 "title": "Senior DevOps / Cloud Engineer", "cat": "devops",
-                "rate": 60, "exp": 6, "rating": "4.41", "jobs": 38, "balance": "2200",
+                "rate": 60, "exp": 6, "rating": "4.00", "jobs": 38, "balance": "2200",
                 "verified": True, "resp": "within 1 hour",
                 "skills": ["docker", "kubernetes", "aws", "github-actions", "terraform", "linux", "grafana", "prometheus"],
                 "langs": [("ru", "fluent"), ("en", "fluent"), ("uz", "native")],
@@ -400,10 +400,10 @@ def seed():
             {
                 "email": "diana@content.ru", "pw": "pass123",
                 "name": "Diana Petrova", "lat": 55.75, "lng": 37.62,
-                "avatar": "https://i.pravatar.cc/150?u=diana@content.ru",
+                "avatar": "https://randomuser.me/api/portraits/women/28.jpg",
                 "bio": "Content strategist & copywriter. IT, fintech, e-commerce. 74 projects. Ex-editor at TechCrunch Russia.",
                 "title": "Content Strategist & Copywriter", "cat": "writing",
-                "rate": 32, "exp": 5, "rating": "4.15", "jobs": 74, "balance": "2400",
+                "rate": 32, "exp": 5, "rating": "4.00", "jobs": 74, "balance": "2400",
                 "verified": True, "resp": "within 30 minutes",
                 "skills": ["copywriting", "tech-writing", "translation-ru-en", "editing", "seo"],
                 "langs": [("ru", "native"), ("en", "fluent"), ("de", "conversational")],
@@ -418,7 +418,7 @@ def seed():
             {
                 "email": "ryan@security.io", "pw": "pass123",
                 "name": "Ryan Clarke", "lat": 51.51, "lng": -0.13,
-                "avatar": "https://i.pravatar.cc/150?u=ryan@security.io",
+                "avatar": "https://randomuser.me/api/portraits/men/61.jpg",
                 "bio": "Offensive security specialist. OSCP certified. 8 years of pentesting for banks and SaaS companies.",
                 "title": "Penetration Tester / Security Consultant", "cat": "security",
                 "rate": 90, "exp": 8, "rating": "4.88", "jobs": 34, "balance": "4500",
@@ -440,7 +440,7 @@ def seed():
             {
                 "email": "lena@video.de", "pw": "pass123",
                 "name": "Lena Braun", "lat": 48.14, "lng": 11.58,
-                "avatar": "https://i.pravatar.cc/150?u=lena@video.de",
+                "avatar": "https://randomuser.me/api/portraits/women/60.jpg",
                 "bio": "Motion designer & video editor. After Effects, Premiere Pro, Cinema 4D. 120+ videos for YouTube and ads.",
                 "title": "Motion Designer & Video Editor", "cat": "video",
                 "rate": 48, "exp": 6, "rating": "4.56", "jobs": 57, "balance": "1700",
@@ -461,7 +461,7 @@ def seed():
             {
                 "email": "arjun@backend.in", "pw": "pass123",
                 "name": "Arjun Sharma", "lat": 12.97, "lng": 77.59,
-                "avatar": "https://i.pravatar.cc/150?u=arjun@backend.in",
+                "avatar": "https://randomuser.me/api/portraits/men/25.jpg",
                 "bio": "Backend engineer specializing in Java/Spring Boot and Go microservices. 9 years, ex-Google engineer.",
                 "title": "Senior Backend Engineer (Java/Go)", "cat": "web-dev",
                 "rate": 70, "exp": 9, "rating": "4.79", "jobs": 41, "balance": "3900",
@@ -482,10 +482,10 @@ def seed():
             {
                 "email": "natasha@finance.ru", "pw": "pass123",
                 "name": "Natasha Volkova", "lat": 59.93, "lng": 30.32,
-                "avatar": "https://i.pravatar.cc/150?u=natasha@finance.ru",
+                "avatar": "https://randomuser.me/api/portraits/women/53.jpg",
                 "bio": "Financial analyst & accountant. IFRS, tax consulting, financial modeling for startups and enterprises.",
                 "title": "Financial Analyst & CPA", "cat": "finance",
-                "rate": 40, "exp": 10, "rating": "4.66", "jobs": 63, "balance": "2900",
+                "rate": 40, "exp": 10, "rating": "5.00", "jobs": 63, "balance": "2900",
                 "verified": True, "resp": "within 3 hours",
                 "skills": ["ifrs", "excel-vba", "financial-analysis", "1c", "gaap"],
                 "langs": [("ru", "native"), ("en", "fluent")],
@@ -684,6 +684,57 @@ def seed():
                  title="NLP Text Classification Pipeline",
                  desc="Multi-label text classifier for customer support tickets (10 categories, Chinese + English). BERT fine-tuning. REST API deployment on AWS.",
                  cat="data-ai", bmin=2500, bmax=4500, ptype="fixed", level="expert", dur="6 weeks"),
+
+            # ─── EXTRA COMPLETED (10) — for richer review history ────────────
+            dict(client=cl[3], freelancer=fr[0], status="completed", bid_price=2800, feat=False,
+                 title="React Analytics Dashboard",
+                 desc="Real-time analytics dashboard for marketing team. React + Recharts + FastAPI. Custom filters, CSV export, role-based access for 5 user types.",
+                 cat="web-dev", bmin=2200, bmax=3500, ptype="fixed", level="expert", dur="6 weeks"),
+
+            dict(client=cl[4], freelancer=fr[1], status="completed", bid_price=3400, feat=False,
+                 title="Fitness Tracker App (Flutter iOS+Android)",
+                 desc="Cross-platform fitness app with workout logging, progress charts, Apple Health / Google Fit integration, push notifications and offline mode.",
+                 cat="mobile-dev", bmin=2800, bmax=4500, ptype="fixed", level="expert", dur="2 months"),
+
+            dict(client=cl[0], freelancer=fr[2], status="completed", bid_price=1600, feat=False,
+                 title="Corporate Website Redesign",
+                 desc="Full redesign of 12-page corporate website. Figma prototypes → pixel-perfect HTML/CSS/JS. WCAG 2.1 AA accessibility, 97 Lighthouse score.",
+                 cat="design", bmin=1200, bmax=2200, ptype="fixed", level="intermediate", dur="4 weeks"),
+
+            dict(client=cl[1], freelancer=fr[4], status="completed", bid_price=2400, feat=False,
+                 title="AWS Infrastructure Migration",
+                 desc="Migrated on-premise infrastructure to AWS. EC2 + RDS + S3 + CloudFront. IaC with Terraform. Zero-downtime migration with 2-hour maintenance window.",
+                 cat="devops", bmin=1800, bmax=3200, ptype="fixed", level="expert", dur="3 weeks"),
+
+            dict(client=cl[2], freelancer=fr[5], status="completed", bid_price=580, feat=False,
+                 title="Technical Blog Articles (15 posts)",
+                 desc="15 SEO-optimized technical articles on fintech/API topics. 1500-2000 words each. Keyword research, meta descriptions, internal linking strategy.",
+                 cat="writing", bmin=400, bmax=800, ptype="fixed", level="intermediate", dur="5 weeks"),
+
+            dict(client=cl[4], freelancer=fr[9], status="completed", bid_price=1100, feat=False,
+                 title="Startup Financial Model (Series A)",
+                 desc="3-year financial model: P&L, Balance Sheet, Cash Flow with scenario analysis. Investor-ready pitch deck slides. Prepared for $6M Series A round.",
+                 cat="finance", bmin=800, bmax=1500, ptype="fixed", level="expert", dur="2 weeks"),
+
+            dict(client=cl[5], freelancer=fr[3], status="completed", bid_price=3100, feat=False,
+                 title="Customer Segmentation ML Model",
+                 desc="RFM segmentation + K-means clustering on 500k customer records. Actionable segments for marketing team. Python + Spark + interactive Tableau dashboard.",
+                 cat="data-ai", bmin=2500, bmax=4000, ptype="fixed", level="expert", dur="6 weeks"),
+
+            dict(client=cl[3], freelancer=fr[8], status="completed", bid_price=4300, feat=False,
+                 title="Event-Driven Architecture (Java + Kafka)",
+                 desc="Redesigned order processing system using event sourcing and CQRS. Java + Kafka + PostgreSQL. 10x throughput improvement. Comprehensive integration tests.",
+                 cat="web-dev", bmin=3500, bmax=5500, ptype="fixed", level="expert", dur="2 months"),
+
+            dict(client=cl[0], freelancer=fr[0], status="completed", bid_price=1900, feat=False,
+                 title="Internal Task Management Tool",
+                 desc="Kanban board with drag-and-drop, time tracking, team workload view, Slack notifications. React + FastAPI + PostgreSQL. Deployed on company servers.",
+                 cat="web-dev", bmin=1500, bmax=2500, ptype="fixed", level="intermediate", dur="5 weeks"),
+
+            dict(client=cl[5], freelancer=fr[2], status="completed", bid_price=1750, feat=False,
+                 title="Mobile App UI Design + Prototype",
+                 desc="Full UI design for iOS/Android travel app. 48 screens, design system with 90+ components, interactive Figma prototype, developer handoff package.",
+                 cat="design", bmin=1400, bmax=2200, ptype="fixed", level="expert", dur="5 weeks"),
         ]
 
         projects = []
@@ -711,27 +762,28 @@ def seed():
         db.flush()
 
         # ── BIDS + CONTRACTS + ESCROW ────────────────────────────────────────
-        # Open projects: add 2-3 pending bids from different freelancers
+        # Open projects: add 3-5 pending bids (indices shifted +10 for extra completed projects)
         open_project_bidders = {
-            13: [fr[0], fr[1]],       # AI chatbot
-            14: [fr[0], fr[8]],       # HR SaaS
-            15: [fr[5]],              # SEO articles
-            16: [fr[6]],              # Pentest
-            17: [fr[0], fr[8]],       # Trading dashboard
-            18: [fr[7]],              # Video ads
-            19: [fr[1], fr[2]],       # iOS app
-            20: [fr[5]],              # Google Ads
-            21: [fr[9]],              # Financial model
-            22: [fr[4]],              # Microservices migration
-            23: [fr[2]],              # Brand identity
-            24: [fr[3]],              # NLP pipeline
+            23: [fr[0], fr[1], fr[8]],       # AI chatbot
+            24: [fr[0], fr[8], fr[3]],        # HR SaaS
+            25: [fr[5], fr[9]],               # SEO articles
+            26: [fr[6]],                      # Pentest
+            27: [fr[0], fr[8], fr[1]],        # Trading dashboard
+            28: [fr[7], fr[1]],               # Video ads
+            29: [fr[1], fr[2]],               # iOS app
+            30: [fr[5]],                      # Google Ads
+            31: [fr[9], fr[5]],               # Financial model
+            32: [fr[4], fr[0]],               # Microservices migration
+            33: [fr[2], fr[7]],               # Brand identity
+            34: [fr[3], fr[0]],               # NLP pipeline
         }
 
         cover_letters = [
-            "Hello! I specialize in exactly this domain and have delivered 10+ similar projects. I can start immediately and guarantee quality on schedule.",
-            "I've reviewed your requirements carefully. My experience with similar systems spans 5 years — I'm confident I can deliver this within your budget and timeline.",
-            "This project is a great fit for my skillset. Attached portfolio shows directly relevant work. Happy to discuss technical details in a call.",
-            "Your project aligns perfectly with my background. I've built 3 similar systems in the past year. Let's connect to discuss approach and timeline.",
+            "I've delivered 10+ projects in this exact domain. Strong portfolio, available immediately, deadline-focused approach.",
+            "Reviewed your requirements carefully. My 5+ years of experience with similar systems means I can hit your timeline and budget.",
+            "Great fit for my skillset. Portfolio attached with directly relevant work. Happy to jump on a call to discuss technical details.",
+            "I've built 3 similar systems in the past year. Clean architecture, thorough testing, solid communication throughout.",
+            "This is exactly what I specialize in. I work async-first, deliver early, and document everything for future maintainability.",
         ]
 
         for i, (p_obj, pd) in enumerate(projects):
@@ -799,27 +851,58 @@ def seed():
 
         db.flush()
 
-        # ── REVIEWS (for all 6 completed projects) ───────────────────────────
-        # projects[0..5] are completed
+        # ── REVIEWS ──────────────────────────────────────────────────────────
+        # Original 6 completed (0-5) + extra 10 completed (25-34)
         review_data = [
-            # project 0 — CRM (cl[0] ↔ fr[0])
+            # ── project 0: CRM (cl[0]=Timur ↔ fr[0]=Alexei) ─────────────────
             (0, cl[0], fr[0], 5, "Alexei delivered everything perfectly. Code quality, deadlines, communication — all top-notch. Will definitely hire again."),
             (0, fr[0], cl[0], 5, "Timur is an excellent client. Clear requirements, fast feedback, fair payment on time. A pleasure to work with."),
-            # project 1 — ML Churn (cl[2] ↔ fr[3])
+            # ── project 1: ML Churn (cl[2]=Damir ↔ fr[3]=Aisha) ─────────────
             (1, cl[2], fr[3], 5, "Aisha is world-class. The churn model hit 94% precision — way above our expectations. Incredible work."),
-            (1, fr[3], cl[2], 4, "Interesting and technically challenging project. Requirements shifted a couple times but Damir is fair and responsive."),
-            # project 2 — Design System (cl[3] ↔ fr[2])
+            (1, fr[3], cl[2], 4, "Interesting and technically challenging project. Requirements shifted a couple of times but Damir is fair and responsive."),
+            # ── project 2: Design System (cl[3]=Sofia ↔ fr[2]=Marco) ─────────
             (2, cl[3], fr[2], 5, "Marco created exactly what we envisioned and more. The design system is simply brilliant. Our team loves it."),
             (2, fr[2], cl[3], 5, "Sofia is every designer's dream client. She knows exactly what she wants and deeply values quality craft."),
-            # project 3 — Security Audit (cl[1] ↔ fr[6])
+            # ── project 3: Security Audit (cl[1]=Amina ↔ fr[6]=Ryan) ─────────
             (3, cl[1], fr[6], 5, "Ryan found 22 vulnerabilities we had no idea about. His report was incredibly detailed and actionable. Saved us from a potential breach."),
             (3, fr[6], cl[1], 5, "Amina was professional and collaborative throughout. She took security seriously and implemented all recommendations quickly."),
-            # project 4 — Payment Microservices (cl[4] ↔ fr[8])
+            # ── project 4: Payment Microservices (cl[4]=Chen ↔ fr[8]=Arjun) ──
             (4, cl[4], fr[8], 5, "Arjun built a payment system that handles our peak load effortlessly. Clean architecture, comprehensive tests. Exceptional engineer."),
             (4, fr[8], cl[4], 4, "Chen is technically sharp and knows what he wants. Timeline was tight but we made it work. Great project overall."),
-            # project 5 — Explainer Video (cl[5] ↔ fr[7])
+            # ── project 5: Explainer Video (cl[5]=Carlos ↔ fr[7]=Lena) ───────
             (5, cl[5], fr[7], 5, "Lena's animation quality is stunning. The explainer video got 2M views in the first week after launch. Worth every dollar."),
             (5, fr[7], cl[5], 5, "Carlos gives clear creative direction and constructive feedback. The project was smooth and fun from start to finish."),
+
+            # ── project 25: Analytics Dashboard (cl[3]=Sofia ↔ fr[0]=Alexei) ─
+            (25, cl[3], fr[0], 4, "Alexei built a solid dashboard with excellent performance. A few minor UI tweaks were needed but overall great work and fast delivery."),
+            (25, fr[0], cl[3], 5, "Sofia provided crystal-clear design mockups and quick approvals. This kind of client makes every project enjoyable."),
+            # ── project 26: Fitness App (cl[4]=Chen ↔ fr[1]=Zara) ────────────
+            (26, cl[4], fr[1], 5, "Zara delivered a polished Flutter app ahead of schedule. Apple Health integration worked flawlessly. Very impressed with the code quality."),
+            (26, fr[1], cl[4], 5, "Chen has a deep technical understanding of mobile. Clear requirements and fast decision-making — exactly what a freelancer hopes for."),
+            # ── project 27: Corporate Website (cl[0]=Timur ↔ fr[2]=Marco) ────
+            (27, cl[0], fr[2], 5, "Marco transformed our outdated corporate site into something we're genuinely proud of. Lighthouse score 97 — wow. Highly recommended."),
+            (27, fr[2], cl[0], 4, "Timur knew what he wanted but the scope expanded mid-project. He was fair about it and adjusted the budget. Good client to work with."),
+            # ── project 28: AWS Migration (cl[1]=Amina ↔ fr[4]=Bekzod) ───────
+            (28, cl[1], fr[4], 4, "Bekzod executed the AWS migration with zero downtime. A few misunderstandings on scope early on, but he resolved them professionally."),
+            (28, fr[4], cl[1], 5, "Amina's team was well-prepared and responsive. The migration window was tight but everyone pulled together. Would work with her again."),
+            # ── project 29: Blog Articles (cl[2]=Damir ↔ fr[5]=Diana) ─────────
+            (29, cl[2], fr[5], 4, "Diana's articles are well-researched and the SEO structure is solid. Turnaround could be faster but quality is consistently good."),
+            (29, fr[5], cl[2], 5, "Damir gives detailed briefs and quick feedback. No ambiguity, no scope creep. This is how content projects should run."),
+            # ── project 30: Financial Model (cl[4]=Chen ↔ fr[9]=Natasha) ─────
+            (30, cl[4], fr[9], 5, "Natasha built a bulletproof financial model that impressed our Series A investors. Scenario analysis was especially insightful."),
+            (30, fr[9], cl[4], 5, "Chen provided all the business data I needed upfront. Clear vision, fast review cycles. The project ran perfectly."),
+            # ── project 31: Segmentation ML (cl[5]=Carlos ↔ fr[3]=Aisha) ─────
+            (31, cl[5], fr[3], 5, "Aisha's segmentation model revealed customer insights our marketing team never had before. The Tableau dashboard is used daily now."),
+            (31, fr[3], cl[5], 5, "Carlos trusted the process and let the data tell the story. The business impact was real and measurable. Great collaboration."),
+            # ── project 32: Kafka Architecture (cl[3]=Sofia ↔ fr[8]=Arjun) ───
+            (32, cl[3], fr[8], 5, "Arjun redesigned our entire order system and the results are remarkable — 10x throughput, zero errors in 3 months of production. Brilliant."),
+            (32, fr[8], cl[3], 4, "Sofia's project had ambitious requirements but she trusted the technical choices. Documentation and testing were thorough. Good project."),
+            # ── project 33: Task Tool (cl[0]=Timur ↔ fr[0]=Alexei) ───────────
+            (33, cl[0], fr[0], 5, "Third time working with Alexei and he keeps getting better. The internal tool is used by our whole team daily. Fast, clean, reliable code."),
+            (33, fr[0], cl[0], 5, "Timur is one of my best long-term clients. Clear vision, fast responses, and always pays on time. This is what freelancing should feel like."),
+            # ── project 34: Mobile UI Design (cl[5]=Carlos ↔ fr[2]=Marco) ────
+            (34, cl[5], fr[2], 5, "Marco's designs were so good the development team had zero questions. 48 screens delivered in 5 weeks with a full component library. Exceptional."),
+            (34, fr[2], cl[5], 5, "Carlos gave me full creative freedom within the brief. The outcome exceeded both our expectations. Looking forward to the next project."),
         ]
 
         for proj_idx, reviewer, reviewee, rating, comment in review_data:
@@ -827,6 +910,7 @@ def seed():
             db.add(Review(
                 project_id=p_obj.id, reviewer_id=reviewer.id,
                 reviewee_id=reviewee.id, rating=rating, comment=comment,
+                created_at=dt(proj_idx * 3 + 5),
             ))
 
         # ── ACHIEVEMENTS ─────────────────────────────────────────────────────

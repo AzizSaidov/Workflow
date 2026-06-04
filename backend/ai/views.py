@@ -215,6 +215,72 @@ Workflow — фриланс-биржа. Заказчики публикуют п
 • Будь дружелюбным, кратким и полезным"""
 
 
+# ─── Edit Text (improve / shorten / translate) ────────────────────────────────
+
+EDIT_SYSTEM = """You are a professional text editor. You ONLY edit text as instructed.
+You NEVER refuse, explain, comment, or add anything extra.
+You ONLY return the edited text in its original language (unless asked to translate).
+If the text is in Russian — return Russian. If in English — return English."""
+
+
+async def edit_text(text: str, action: str) -> str:
+    if action == 'improve':
+        instruction = (
+            "Исправь грамматику, пунктуацию и стиль текста. "
+            "НЕ меняй смысл, факты, числа и намерение автора. "
+            "Верни ТОЛЬКО исправленный текст без каких-либо пояснений:\n\n" + text
+        )
+    elif action == 'shorten':
+        instruction = (
+            "Сократи текст примерно вдвое, сохранив все ключевые факты, числа и суть. "
+            "Не добавляй ничего нового. "
+            "Верни ТОЛЬКО сокращённый текст без пояснений:\n\n" + text
+        )
+    elif action == 'translate':
+        instruction = (
+            "Переведи текст на английский язык. "
+            "Верни ТОЛЬКО перевод без пояснений:\n\n" + text
+        )
+    else:
+        raise HTTPException(status_code=400, detail=f"Unknown action: {action}")
+
+    return await _call([
+        {"role": "system", "content": EDIT_SYSTEM},
+        {"role": "user", "content": instruction},
+    ], max_tokens=800)
+
+
+# ─── Help Deliver ──────────────────────────────────────────────────────────────
+
+DELIVER_SYSTEM = """Ты помогаешь фрилансеру написать профессиональное описание сданной работы для заказчика на платформе Workflow.
+
+СТРУКТУРА (соблюдай):
+1. Что конкретно сделано — кратко и по делу (2-3 предложения)
+2. Технические детали: какой стек использован, как устроена архитектура (если уместно)
+3. Как запустить или проверить результат
+4. Важные замечания или ограничения (если есть)
+
+ПРАВИЛА:
+- Пиши на русском языке, от первого лица
+- Конкретно и профессионально, без воды
+- Объём: 100-180 слов
+- Выводи ТОЛЬКО готовый текст описания, без заголовков секций и пояснений"""
+
+
+async def help_deliver(project_title: str, project_description: str) -> str:
+    user_msg = (
+        f"Проект: {project_title}\n"
+        f"Описание задачи: {project_description or 'не указано'}\n\n"
+        "Напиши профессиональное описание сданной работы."
+    )
+    return await _call([
+        {"role": "system", "content": DELIVER_SYSTEM},
+        {"role": "user", "content": user_msg},
+    ], max_tokens=450)
+
+
+# ─── AI Chat (с историей) ─────────────────────────────────────────────────────
+
 async def ai_chat(message: str, history: list, context: str | None) -> str:
     messages = [{"role": "system", "content": WORKFLOW_GUIDE_PROMPT}]
 

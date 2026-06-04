@@ -3,8 +3,10 @@ from ai.schemas import (
     HelpProjectRequest, HelpProjectResponse,
     HelpBidRequest, HelpBidResponse,
     AIChatRequest, AIChatResponse,
+    EditTextRequest, EditTextResponse,
+    HelpDeliverRequest, HelpDeliverResponse,
 )
-from ai.views import help_project, help_bid, ai_chat
+from ai.views import help_project, help_bid, ai_chat, edit_text, help_deliver
 from users.permissions import get_current_user
 from users.models import User
 
@@ -27,3 +29,15 @@ async def ai_help_bid(data: HelpBidRequest, _: User = Depends(get_current_user))
 async def ai_chat_endpoint(data: AIChatRequest, _: User = Depends(get_current_user)):
     text = await ai_chat(data.message, data.history, data.context)
     return AIChatResponse(text=text)
+
+
+@ai_router.post("/edit-text", response_model=EditTextResponse)
+async def ai_edit_text(data: EditTextRequest, _: User = Depends(get_current_user)):
+    text = await edit_text(data.text, data.action)
+    return EditTextResponse(text=text)
+
+
+@ai_router.post("/help-deliver", response_model=HelpDeliverResponse)
+async def ai_help_deliver(data: HelpDeliverRequest, _: User = Depends(get_current_user)):
+    text = await help_deliver(data.project_title, data.project_description)
+    return HelpDeliverResponse(text=text)

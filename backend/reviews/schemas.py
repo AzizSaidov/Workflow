@@ -25,5 +25,7 @@ class ReviewResponse(BaseModel):
     rating: int
     comment: str
     created_at: datetime
+    reviewer_name: str = 'Аноним'
+    reviewer_avatar_url: str | None = None
 
     model_config = {"from_attributes": True}
