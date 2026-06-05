@@ -343,3 +343,100 @@ Workflow — фриланс-биржа на **FastAPI + React**, данные в
 комиссией 1%. Логика бэка — во `views.py` каждого модуля, маршруты — в `routers/`,
 состояние фронта — в **Zustand**, все запросы — через один axios-клиент с авто-refresh JWT.
 Часть фич (почасовая оплата, верификация, email, депозит) сделаны как фасад без полной логики.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Admin:        admin@workflow.com       / admin123
+# Client 1:     timur@techcorp.tj        / pass123
+# Client 2:     amina@greenleaf.com      / pass123
+# Client 3:     damir@fintech.kz         / pass123
+# Client 4:     sofia@designstudio.de    / pass123
+# Client 5:     chen@aiventures.cn       / pass123
+# Client 6:     carlos@agencia.mx        / pass123
+# Freelancer 1: alexei@dev.ru             / pass123
+# Freelancer 2: zara@flutter.dev          / pass123
+# Freelancer 3: marco@design.it           / pass123
+# Freelancer 4: aisha@ailab.kz            / pass123
+# Freelancer 5: bekzod@devops.uz          / pass123
+# Freelancer 6: diana@content.ru          / pass123
+# Freelancer 7: ryan@security.io          / pass123
+# Freelancer 8: lena@video.de             / pass123
+# Freelancer 9: arjun@backend.in          / pass123
+# Freelancer 10:natasha@finance.ru        / pass123
+
+
+  ┌─────────┬────────────────────────┬───────┐
+  │    #    │          Кто           │ Город │
+  ├─────────┼────────────────────────┼───────┤
+  │ admin   │ Miami, США             │       │
+  ├─────────┼────────────────────────┼───────┤
+  │ timur   │ New York, США          │       │
+  ├─────────┼────────────────────────┼───────┤
+  │ amina   │ Chicago, США           │       │
+  ├─────────┼────────────────────────┼───────┤
+  │ damir   │ Houston, США           │       │
+  ├─────────┼────────────────────────┼───────┤
+  │ carlos  │ Los Angeles, США       │       │
+  ├─────────┼────────────────────────┼───────┤
+  │ arjun   │ Seattle, США           │       │
+  ├─────────┼────────────────────────┼───────┤
+  │ ryan    │ London, UK             │       │
+  ├─────────┼────────────────────────┼───────┤
+  │ marco   │ Madrid, Spain          │       │
+  ├─────────┼────────────────────────┼───────┤
+  │ zara    │ Rome, Italy            │       │
+  ├─────────┼────────────────────────┼───────┤
+  │ lena    │ Vienna, Austria        │       │
+  ├─────────┼────────────────────────┼───────┤
+  │ bekzod  │ Warsaw, Poland         │       │
+  ├─────────┼────────────────────────┼───────┤
+  │ diana   │ Stockholm, Sweden      │       │
+  ├─────────┼────────────────────────┼───────┤
+  │ sofia   │ Berlin, Germany        │       │
+  ├─────────┼────────────────────────┼───────┤
+  │ alexei  │ Moscow, Russia         │       │
+  ├─────────┼────────────────────────┼───────┤
+  │ natasha │ St. Petersburg, Russia │       │
+  ├─────────┼────────────────────────┼───────┤
+  │ chen    │ Beijing, China         │       │
+  ├─────────┼────────────────────────┼───────┤
+  │ aisha   │ Shanghai, China        │       │
+  └─────────┴────────────────────────┴───────┘
+
+
+ 31 модель и 143 API эндпоинта (включая 2 WebSocket).
+
+  Модели по модулям:
+  - users — User
+  - profiles — FreelancerProfile, SkillToProfile, ProfileLanguage, ProfileCategory, ProfileLike
+  - projects — Project, ProjectSkill, ProjectRevision
+  - bids — Bid
+  - escrow — Transaction
+  - wallet — Wallet
+  - chats — Message, ChatHidden
+  - notifications — Notification
+  - achievements — Achievement, UserAchievement
+  - contracts — Contract
+  - disputes — DisputeMessage
+  - reports — Report
+  - reviews — Review
+  - portfolio — PortfolioItem, PortfolioLike
+  - media — ProjectFile
+  - favorites — Favorite
+  - client_profiles — ClientProfile
+  - certifications — Certification
+  - categories — Category
+  - skills — Skill
+  - languages — Language
+  - admin — AdminAuditLog
