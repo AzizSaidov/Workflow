@@ -18,6 +18,8 @@ def create_bid(project_id: UUID, data: BidCreate, freelancer: User, db: Session)
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found")
     if project.status != ProjectStatus.open:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Project is not open for bids")
+    if project.assigned_freelancer_id:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Проект уже не принимает заявки — исполнитель выбран")
     if float(data.price) <= 0:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Ставка должна быть больше нуля")
     if float(data.price) < float(project.budget_min):

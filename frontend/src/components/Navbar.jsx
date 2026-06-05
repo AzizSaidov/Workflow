@@ -94,12 +94,15 @@ export default function Navbar() {
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
         <Logo size="sm" />
         {winter && (
-          <span style={{
-            fontSize: 16, lineHeight: 1,
-            animation: 'snowfall 4s 0s linear infinite',
-            display: 'inline-block',
-            opacity: 0.85,
-          }}>❄</span>
+          <>
+            <style>{`@keyframes navFlake { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(2px) rotate(180deg); } }`}</style>
+            <span style={{
+              fontSize: 16, lineHeight: 1,
+              animation: 'navFlake 6s ease-in-out infinite',
+              display: 'inline-block',
+              opacity: 0.85,
+            }}>❄</span>
+          </>
         )}
       </div>
 

@@ -21,7 +21,12 @@ def get_projects(
     skill_id: UUID | None = None,
     search: str | None = None,
 ) -> list[Project]:
-    q = db.query(Project).filter(Project.status == ProjectStatus.open)
+    # status=open + ещё не назначен исполнитель: проект с принятой заявкой (ждёт эскроу)
+    # не должен висеть в общей ленте и принимать новые заявки (C4 в ТЗ)
+    q = db.query(Project).filter(
+        Project.status == ProjectStatus.open,
+        Project.assigned_freelancer_id.is_(None),
+    )
     if category:
         q = q.filter(Project.category == category)
     if category_id:

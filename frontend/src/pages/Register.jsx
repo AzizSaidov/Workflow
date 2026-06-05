@@ -24,6 +24,7 @@ export default function Register() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    if (loading) return
     setError('')
     if (form.password !== form.confirm) { setError('Пароли не совпадают'); return }
     if (form.password.length < 6) { setError('Минимум 6 символов'); return }

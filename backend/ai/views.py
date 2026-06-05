@@ -201,8 +201,25 @@ Workflow — фриланс-биржа. Заказчики публикуют п
 • /dashboard — Личный кабинет
 • /wallet — Кошелёк
 • /chats — Чаты
-• /ai — AI-ассистент (ты сейчас здесь)
+• /ai — AI-ассистент
 • /my-work — Мои работы (для фрилансеров)
+
+═══════════════════════════════════════
+СТРАНИЦА ПРОЕКТА /projects/:id — ЧТО ТАМ И ЧТО ДЕЛАТЬ
+═══════════════════════════════════════
+На странице проекта видно: описание, бюджет, статус, заявки, чат, файлы и блок эскроу.
+
+Если пользователь — ЗАКАЗЧИК (владелец проекта):
+• статус open, есть заявки → изучи их (кнопка «✨ AI Rank» отберёт лучших), прими одну
+• заявка принята → нажми «Заморозить в эскроу и запустить» (нужен баланс на /wallet)
+• статус delivered → проверь работу: «Принять и выплатить», «Запросить доработку» или «Открыть спор»
+
+Если пользователь — ФРИЛАНСЕР:
+• статус open и заявку ещё не подавал → подай заявку (ставка в рамках бюджета + cover letter, можно через ✨ AI)
+• заявку приняли → жди, пока заказчик запустит проект через эскроу
+• статус in_progress → работай, обновляй прогресс, общайся в чате, затем «Сдать работу»
+• статус delivered → ожидай решения заказчика
+• completed → можно оставить отзыв
 
 ═══════════════════════════════════════
 ПРАВИЛА ОТВЕТА
@@ -277,6 +294,33 @@ async def help_deliver(project_title: str, project_description: str) -> str:
         {"role": "system", "content": DELIVER_SYSTEM},
         {"role": "user", "content": user_msg},
     ], max_tokens=450)
+
+
+# ─── Rank Bids (AI-отбор заявок на странице проекта) ──────────────────────────
+
+RANK_SYSTEM = """You are an expert technical recruiter ranking freelancer bids for a client on the Workflow freelance platform.
+Evaluate each bid using the freelancer's REAL profile data (rating, completed jobs, hourly rate, skills) AND the quality and relevance of their proposal to THIS specific project.
+
+Reward: skills relevant to the task, proposals that show real understanding of the project, solid rating backed by real completed jobs, fair price within budget.
+Penalize: empty or generic proposals, irrelevant skills, price that ignores the budget.
+
+Return ONLY a valid JSON object — no markdown, no commentary, no code fences — in exactly this format:
+{"order":[0,1,2],"reasons":{"0":"короткая причина по-русски","1":"...","2":"..."}}
+"order" = bid indices from best to worst. "reasons" = one short sentence in Russian per bid index explaining its placement."""
+
+
+async def rank_bids(project_title: str, budget: str, description: str, bids_summary: str) -> str:
+    user_msg = (
+        f'Project: "{project_title}"\n'
+        f"Budget: {budget or 'N/A'}\n"
+        f"Description: {description or 'N/A'}\n\n"
+        f"Bids:\n{bids_summary}\n\n"
+        "Rank the bids from best to worst and return the JSON."
+    )
+    return await _call([
+        {"role": "system", "content": RANK_SYSTEM},
+        {"role": "user", "content": user_msg},
+    ], max_tokens=700)
 
 
 # ─── AI Chat (с историей) ─────────────────────────────────────────────────────

@@ -11,7 +11,20 @@ from wallet.models import Wallet
 from notifications.models import NotificationType
 from notifications.views import create_notification
 from utils import get_dushanbe_time
+from admin.models import AdminAuditLog
 
+
+def log_admin_action(admin, action, db, target_type=None, target_id=None, target_name=None, detail=None):
+    """Записать действие админа в журнал. Коммит — на стороне вызывающего (роутера)."""
+    db.add(AdminAuditLog(
+        admin_id=admin.id,
+        admin_name=getattr(admin, "full_name", None),
+        action=action,
+        target_type=target_type,
+        target_id=target_id,
+        target_name=target_name,
+        detail=detail,
+    ))
 
 
 def get_all_reports(db: Session) -> list[Report]:
@@ -211,16 +224,165 @@ def topup_wallet(user_id: UUID, amount: Decimal, reason: str, admin: User, db: S
 def get_platform_stats(db: Session) -> dict:
     from projects.models import ProjectStatus
     from escrow.models import EscrowStatus
+    from users.models import UserRole
     from sqlalchemy import func
+    from datetime import timedelta
+
     total_users = db.query(User).count()
+    total_clients = db.query(User).filter(User.role == UserRole.client).count()
+    total_freelancers = db.query(User).filter(User.role == UserRole.freelancer).count()
+    banned_users = db.query(User).filter(User.is_banned == True).count()
     total_projects = db.query(Project).count()
+    open_projects = db.query(Project).filter(Project.status == ProjectStatus.open).count()
     completed_projects = db.query(Project).filter(Project.status == ProjectStatus.completed).count()
     active_disputes = db.query(Transaction).filter(Transaction.status == EscrowStatus.disputed).count()
     total_released = db.query(func.sum(Transaction.amount)).filter(Transaction.status == EscrowStatus.released).scalar() or 0
+
+    rate = Decimal(os.getenv("PLATFORM_COMMISSION_RATE", "0.01"))
+    platform_revenue = float(Decimal(str(total_released)) * rate)
+
+    # 14-дневная динамика (бакетим в Python — без диалект-зависимостей)
+    now = get_dushanbe_time()
+    start = (now - timedelta(days=13)).date()
+    days = [start + timedelta(days=i) for i in range(14)]
+    u_rows = db.query(User.created_at).filter(User.created_at.isnot(None)).all()
+    p_rows = db.query(Project.created_at).filter(Project.created_at.isnot(None)).all()
+
+    def bucket(rows):
+        counts = {d: 0 for d in days}
+        for (ts,) in rows:
+            if not ts:
+                continue
+            d = ts.date()
+            if d in counts:
+                counts[d] += 1
+        return counts
+
+    u_counts = bucket(u_rows)
+    p_counts = bucket(p_rows)
+    timeseries = [
+        {"date": d.isoformat(), "users": u_counts[d], "projects": p_counts[d]}
+        for d in days
+    ]
+
     return {
         "total_users": total_users,
+        "total_clients": total_clients,
+        "total_freelancers": total_freelancers,
+        "banned_users": banned_users,
         "total_projects": total_projects,
+        "open_projects": open_projects,
         "completed_projects": completed_projects,
         "active_disputes": active_disputes,
         "total_released": float(total_released),
+        "platform_revenue": round(platform_revenue, 2),
+        "timeseries": timeseries,
     }
+
+
+# ─────────────────────────── ПРОЕКТЫ (модерация) ───────────────────────────
+
+def get_all_projects(db: Session) -> list[dict]:
+    from bids.models import Bid
+    rows = db.query(Project).order_by(Project.created_at.desc()).all()
+    result = []
+    for p in rows:
+        client = db.query(User).filter(User.id == p.client_id).first()
+        bids_count = db.query(Bid).filter(Bid.project_id == p.id).count()
+        result.append({
+            "id": p.id,
+            "title": p.title,
+            "status": p.status.value if hasattr(p.status, "value") else p.status,
+            "budget_min": float(p.budget_min) if p.budget_min is not None else None,
+            "budget_max": float(p.budget_max) if p.budget_max is not None else None,
+            "created_at": p.created_at,
+            "client_id": p.client_id,
+            "client_name": client.full_name if client else "—",
+            "assigned_freelancer_id": p.assigned_freelancer_id,
+            "bids_count": bids_count,
+            "is_featured": p.is_featured,
+        })
+    return result
+
+
+def hide_project(project_id: UUID, db: Session) -> Project:
+    project = db.query(Project).filter(Project.id == project_id).first()
+    if not project:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found")
+    project.status = ProjectStatus.cancelled
+    db.commit()
+    db.refresh(project)
+    return project
+
+
+def delete_project_admin(project_id: UUID, db: Session) -> dict:
+    from bids.models import Bid
+    from projects.models import ProjectSkill, ProjectRevision
+    from contracts.models import Contract
+    from reviews.models import Review
+    from favorites.models import Favorite
+    from media.models import ProjectFile
+
+    project = db.query(Project).filter(Project.id == project_id).first()
+    if not project:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found")
+    title = project.title
+
+    # зачищаем зависимости (FK без каскада), затем сам проект
+    db.query(Bid).filter(Bid.project_id == project_id).delete(synchronize_session=False)
+    db.query(ProjectSkill).filter(ProjectSkill.project_id == project_id).delete(synchronize_session=False)
+    db.query(ProjectRevision).filter(ProjectRevision.project_id == project_id).delete(synchronize_session=False)
+    db.query(Contract).filter(Contract.project_id == project_id).delete(synchronize_session=False)
+    db.query(Review).filter(Review.project_id == project_id).delete(synchronize_session=False)
+    db.query(Favorite).filter(Favorite.project_id == project_id).delete(synchronize_session=False)
+    db.query(ProjectFile).filter(ProjectFile.project_id == project_id).delete(synchronize_session=False)
+    db.query(Transaction).filter(Transaction.project_id == project_id).delete(synchronize_session=False)
+    db.query(Report).filter(Report.project_id == project_id).update({Report.project_id: None}, synchronize_session=False)
+
+    db.delete(project)
+    db.commit()
+    return {"id": str(project_id), "title": title, "deleted": True}
+
+
+# ─────────────────────────── ТРАНЗАКЦИИ / ЖУРНАЛ ───────────────────────────
+
+def get_all_transactions(db: Session) -> list[dict]:
+    from sqlalchemy.orm import aliased
+    ClientUser = aliased(User, name="c_user")
+    FreelancerUser = aliased(User, name="f_user")
+    rows = (
+        db.query(Transaction, Project, ClientUser, FreelancerUser)
+        .outerjoin(Project, Transaction.project_id == Project.id)
+        .outerjoin(ClientUser, Transaction.client_id == ClientUser.id)
+        .outerjoin(FreelancerUser, Transaction.freelancer_id == FreelancerUser.id)
+        .order_by(Transaction.created_at.desc())
+        .all()
+    )
+    result = []
+    for tx, project, client, freelancer in rows:
+        result.append({
+            "id": tx.id,
+            "project_id": tx.project_id,
+            "project_title": project.title if project else "—",
+            "client_name": client.full_name if client else "—",
+            "freelancer_name": freelancer.full_name if freelancer else "—",
+            "amount": float(tx.amount),
+            "status": tx.status.value if hasattr(tx.status, "value") else tx.status,
+            "created_at": tx.created_at,
+            "released_at": tx.released_at,
+        })
+    return result
+
+
+def get_audit_log(db: Session, limit: int = 200) -> list[dict]:
+    rows = db.query(AdminAuditLog).order_by(AdminAuditLog.created_at.desc()).limit(limit).all()
+    return [{
+        "id": r.id,
+        "admin_name": r.admin_name,
+        "action": r.action,
+        "target_type": r.target_type,
+        "target_id": r.target_id,
+        "target_name": r.target_name,
+        "detail": r.detail,
+        "created_at": r.created_at,
+    } for r in rows]

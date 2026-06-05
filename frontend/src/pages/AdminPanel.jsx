@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback, useRef } from 'react'
+import { Link } from 'react-router-dom'
 import useAuthStore from '../store/authStore'
 import useThemeStore from '../store/themeStore'
 import { adminApi } from '../api/admin'
@@ -14,9 +15,12 @@ import Button from '../components/Button'
 const NAV_ITEMS = [
   { key: 'stats',    icon: 'chart-bar',       label: 'Обзор' },
   { key: 'users',    icon: 'users',           label: 'Пользователи' },
+  { key: 'projects', icon: 'briefcase',       label: 'Проекты' },
   { key: 'wallets',  icon: 'wallet',          label: 'Кошельки' },
+  { key: 'finance',  icon: 'receipt',         label: 'Транзакции' },
   { key: 'disputes', icon: 'alert-triangle',  label: 'Споры' },
   { key: 'reports',  icon: 'flag',            label: 'Жалобы' },
+  { key: 'audit',    icon: 'history',         label: 'Журнал' },
   { key: 'settings', icon: 'settings',        label: 'Настройки' },
 ]
 
@@ -54,9 +58,12 @@ export default function AdminPanel() {
   const SECTION_COMPONENTS = {
     stats:    <StatsSection />,
     users:    <UsersSection />,
+    projects: <ProjectsSection />,
     wallets:  <WalletsSection />,
+    finance:  <TransactionsSection />,
     disputes: <DisputesSection />,
     reports:  <ReportsSection />,
+    audit:    <AuditSection />,
     settings: <SettingsSection />,
   }
 
@@ -142,41 +149,62 @@ function StatsSection() {
   }, [])
 
   const cards = stats ? [
-    { icon: 'users',            label: 'Пользователей',    value: stats.total_users,         color: 'var(--accent)',       bg: 'rgba(127,119,221,0.1)' },
-    { icon: 'briefcase',        label: 'Проектов',         value: stats.total_projects,       color: 'var(--accent-teal)',  bg: 'rgba(93,202,165,0.1)' },
-    { icon: 'circle-check',     label: 'Завершено',        value: stats.completed_projects,   color: 'var(--accent-green)', bg: 'rgba(29,158,117,0.1)' },
-    { icon: 'alert-triangle',   label: 'Активных споров',  value: stats.active_disputes,      color: '#EF9F27',             bg: 'rgba(239,159,39,0.1)' },
-    { icon: 'cash',             label: 'Выплачено ($)',    value: `$${Number(stats.total_released || 0).toLocaleString()}`, color: 'var(--accent-green)', bg: 'rgba(29,158,117,0.1)' },
+    { icon: 'users',          label: 'Пользователей',   value: stats.total_users,
+      sub: `${stats.total_clients ?? 0} заказч. · ${stats.total_freelancers ?? 0} фрил.`, color: 'var(--accent)',       bg: 'rgba(127,119,221,0.1)' },
+    { icon: 'briefcase',      label: 'Проектов',        value: stats.total_projects,
+      sub: `${stats.open_projects ?? 0} открыто · ${stats.completed_projects ?? 0} завершено`, color: 'var(--accent-teal)',  bg: 'rgba(93,202,165,0.1)' },
+    { icon: 'cash',           label: 'Выплачено',       value: `$${Number(stats.total_released || 0).toLocaleString()}`,
+      sub: 'через эскроу', color: 'var(--accent-green)', bg: 'rgba(29,158,117,0.1)' },
+    { icon: 'building-bank',  label: 'Доход платформы', value: `$${Number(stats.platform_revenue || 0).toLocaleString()}`,
+      sub: 'комиссия', color: '#EF9F27', bg: 'rgba(239,159,39,0.1)' },
+    { icon: 'alert-triangle', label: 'Активных споров', value: stats.active_disputes,
+      sub: stats.banned_users ? `${stats.banned_users} забанено` : 'нет блокировок', color: '#F87171', bg: 'rgba(248,113,113,0.1)' },
   ] : []
 
   return (
     <div>
-      <SectionHeader icon="chart-bar" title="Обзор платформы" sub="Ключевые показатели" />
+      <SectionHeader icon="chart-bar" title="Обзор платформы" sub="Ключевые показатели и динамика" />
 
       {loading ? <Spinner /> : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 16 }}>
-          {cards.map(({ icon, label, value, color, bg }) => (
-            <div key={label} style={{
-              background: 'var(--bg-card)', border: '0.5px solid var(--border)',
-              borderRadius: 18, padding: '22px 24px',
-              transition: 'border-color 0.2s',
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
-                <div style={{ width: 36, height: 36, borderRadius: 10, background: bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <i className={`ti ti-${icon}`} style={{ fontSize: 18, color }} />
-                </div>
-                <span style={{ fontSize: 12, color: 'var(--text-muted)', lineHeight: 1.3 }}>{label}</span>
-              </div>
-              <div style={{
-                fontFamily: 'Syne, sans-serif', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.5px', lineHeight: 1,
-                fontSize: String(value ?? '').length > 7 ? 18 : String(value ?? '').length > 5 ? 22 : 28,
-                overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+        <>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(190px, 1fr))', gap: 16, marginBottom: 20 }}>
+            {cards.map(({ icon, label, value, sub, color, bg }) => (
+              <div key={label} style={{
+                background: 'var(--bg-card)', border: '0.5px solid var(--border)',
+                borderRadius: 18, padding: '20px 22px',
               }}>
-                {value ?? '—'}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
+                  <div style={{ width: 36, height: 36, borderRadius: 10, background: bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <i className={`ti ti-${icon}`} style={{ fontSize: 18, color }} />
+                  </div>
+                  <span style={{ fontSize: 12, color: 'var(--text-muted)', lineHeight: 1.3 }}>{label}</span>
+                </div>
+                <div style={{
+                  fontFamily: 'Syne, sans-serif', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.5px', lineHeight: 1,
+                  fontSize: String(value ?? '').length > 7 ? 20 : 26,
+                  overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                }}>
+                  {value ?? '—'}
+                </div>
+                {sub && <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 6 }}>{sub}</div>}
+              </div>
+            ))}
+          </div>
+
+          {/* Chart */}
+          <div style={{ background: 'var(--bg-card)', border: '0.5px solid var(--border)', borderRadius: 18, padding: '22px 24px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 18, flexWrap: 'wrap', gap: 10 }}>
+              <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 15, color: 'var(--text-primary)' }}>
+                Динамика за 14 дней
+              </div>
+              <div style={{ display: 'flex', gap: 16 }}>
+                <Legend color="#7F77DD" label="Новые юзеры" />
+                <Legend color="#5DCAA5" label="Новые проекты" />
               </div>
             </div>
-          ))}
-        </div>
+            <AdminChart data={stats?.timeseries || []} />
+          </div>
+        </>
       )}
     </div>
   )
@@ -809,6 +837,20 @@ function ReportsSection() {
     finally { setActioning(null) }
   }
 
+  const [banningId, setBanningId] = useState(null)
+  const [banReason, setBanReason] = useState('')
+
+  const banFromReport = async (report) => {
+    setActioning(report.id)
+    try {
+      await adminApi.banUser(report.reported_user_id, banReason || 'Нарушение по жалобе')
+      await adminApi.resolveReport(report.id)
+      toast('Пользователь забанен, жалоба закрыта', 'success')
+      setBanningId(null); setBanReason(''); load()
+    } catch (e) { toast(e?.response?.data?.detail || 'Ошибка', 'error') }
+    finally { setActioning(null) }
+  }
+
   const filtered = reports.filter(r => filter === 'all' ? true : filter === 'open' ? r.status !== 'resolved' : r.status === 'resolved')
   const openCount = reports.filter(r => r.status !== 'resolved').length
 
@@ -850,47 +892,76 @@ function ReportsSection() {
               background: 'var(--bg-card)',
               border: `0.5px solid ${r.status === 'resolved' ? 'var(--border)' : 'rgba(239,68,68,0.22)'}`,
               borderRadius: 16, padding: '18px 22px',
-              display: 'flex', alignItems: 'flex-start', gap: 16,
             }}>
-              <div style={{
-                width: 40, height: 40, borderRadius: 11, flexShrink: 0,
-                background: r.status === 'resolved' ? 'rgba(29,158,117,0.1)' : 'rgba(239,68,68,0.1)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-              }}>
-                <i className={`ti ti-${r.status === 'resolved' ? 'check' : 'flag'}`} style={{
-                  fontSize: 18, color: r.status === 'resolved' ? 'var(--accent-green)' : '#F87171',
-                }} />
-              </div>
-              <div style={{ flex: 1 }}>
-                <div style={{ display: 'flex', gap: 8, marginBottom: 8, flexWrap: 'wrap' }}>
-                  <span style={{
-                    fontSize: 11, padding: '3px 10px', borderRadius: 7, fontWeight: 600,
-                    background: r.status === 'resolved' ? 'rgba(29,158,117,0.12)' : 'rgba(239,68,68,0.1)',
-                    color: r.status === 'resolved' ? 'var(--accent-green)' : '#F87171',
-                  }}>
-                    {r.status === 'resolved' ? 'Закрыта' : 'Открыта'}
-                  </span>
-                  <span style={{
-                    fontSize: 11, padding: '3px 10px', borderRadius: 7,
-                    background: 'rgba(127,119,221,0.1)', color: 'var(--accent)',
-                    fontWeight: 500,
-                  }}>
-                    {r.reason}
-                  </span>
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: 16 }}>
+                <div style={{
+                  width: 40, height: 40, borderRadius: 11, flexShrink: 0,
+                  background: r.status === 'resolved' ? 'rgba(29,158,117,0.1)' : 'rgba(239,68,68,0.1)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                }}>
+                  <i className={`ti ti-${r.status === 'resolved' ? 'check' : 'flag'}`} style={{
+                    fontSize: 18, color: r.status === 'resolved' ? 'var(--accent-green)' : '#F87171',
+                  }} />
                 </div>
-                {r.description && (
-                  <p style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: 6 }}>{r.description}</p>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: 'flex', gap: 8, marginBottom: 8, flexWrap: 'wrap' }}>
+                    <span style={{
+                      fontSize: 11, padding: '3px 10px', borderRadius: 7, fontWeight: 600,
+                      background: r.status === 'resolved' ? 'rgba(29,158,117,0.12)' : 'rgba(239,68,68,0.1)',
+                      color: r.status === 'resolved' ? 'var(--accent-green)' : '#F87171',
+                    }}>
+                      {r.status === 'resolved' ? 'Закрыта' : 'Открыта'}
+                    </span>
+                    <span style={{
+                      fontSize: 11, padding: '3px 10px', borderRadius: 7,
+                      background: 'rgba(127,119,221,0.1)', color: 'var(--accent)', fontWeight: 500,
+                    }}>
+                      {r.reason}
+                    </span>
+                  </div>
+                  {r.description && (
+                    <p style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: 8 }}>{r.description}</p>
+                  )}
+                  <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap', alignItems: 'center' }}>
+                    <Link to={`/profile/${r.reported_user_id}`} style={{ fontSize: 12, color: 'var(--accent)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 4 }}>
+                      <i className="ti ti-user" style={{ fontSize: 13 }} /> Нарушитель
+                    </Link>
+                    {r.project_id && (
+                      <Link to={`/projects/${r.project_id}`} style={{ fontSize: 12, color: 'var(--accent)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 4 }}>
+                        <i className="ti ti-briefcase" style={{ fontSize: 13 }} /> Проект
+                      </Link>
+                    )}
+                    <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>
+                      {new Date(r.created_at).toLocaleString('ru-RU', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                  </div>
+                </div>
+                {r.status !== 'resolved' && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8, flexShrink: 0 }}>
+                    <Button variant="outline" size="sm" icon="ban"
+                      onClick={() => { setBanningId(banningId === r.id ? null : r.id); setBanReason('') }}
+                      style={{ borderColor: 'rgba(248,113,113,0.4)', color: '#F87171' }}>
+                      Забанить
+                    </Button>
+                    <Button variant="outline" size="sm" icon="check"
+                      loading={actioning === r.id && banningId !== r.id}
+                      onClick={() => resolve(r.id)}>
+                      Закрыть
+                    </Button>
+                  </div>
                 )}
-                <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>
-                  {new Date(r.created_at).toLocaleString('ru-RU', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
-                </div>
               </div>
-              {r.status !== 'resolved' && (
-                <Button variant="outline" size="sm" icon="check"
-                  loading={actioning === r.id}
-                  onClick={() => resolve(r.id)}>
-                  Закрыть
-                </Button>
+
+              {banningId === r.id && (
+                <div style={{ marginTop: 14, paddingTop: 14, borderTop: '0.5px solid rgba(248,113,113,0.2)', display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+                  <input autoFocus value={banReason} onChange={e => setBanReason(e.target.value)}
+                    placeholder="Причина бана (попадёт в журнал)…" className="input" style={{ flex: 1, minWidth: 220, fontSize: 13 }} />
+                  <Button variant="primary" size="sm" icon="ban" loading={actioning === r.id}
+                    onClick={() => banFromReport(r)} style={{ background: '#EF4444', borderColor: '#EF4444' }}>
+                    Забанить и закрыть
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={() => { setBanningId(null); setBanReason('') }}>Отмена</Button>
+                </div>
               )}
             </div>
           ))}
@@ -1024,6 +1095,266 @@ function SectionHeader({ icon, title, sub }) {
         </h1>
         {sub && <p style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 2 }}>{sub}</p>}
       </div>
+    </div>
+  )
+}
+
+function Legend({ color, label }) {
+  return (
+    <span style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: 'var(--text-muted)' }}>
+      <span style={{ width: 10, height: 10, borderRadius: 3, background: color }} />
+      {label}
+    </span>
+  )
+}
+
+/* 14-дневный двойной line-chart (новые юзеры / новые проекты), чистый SVG без либ */
+function AdminChart({ data }) {
+  if (!data || data.length === 0) {
+    return <div style={{ height: 180, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)', fontSize: 13 }}>Нет данных</div>
+  }
+  const W = 720, H = 180, padX = 10, padY = 18
+  const n = data.length
+  const maxVal = Math.max(1, ...data.map(d => Math.max(d.users || 0, d.projects || 0)))
+  const x = i => padX + (i / Math.max(1, n - 1)) * (W - padX * 2)
+  const y = v => H - padY - ((v || 0) / maxVal) * (H - padY * 2)
+  const line = key => data.map((d, i) => `${i === 0 ? 'M' : 'L'} ${x(i).toFixed(1)} ${y(d[key]).toFixed(1)}`).join(' ')
+  const area = key => `${line(key)} L ${x(n - 1).toFixed(1)} ${(H - padY).toFixed(1)} L ${x(0).toFixed(1)} ${(H - padY).toFixed(1)} Z`
+  const fmt = iso => { const dt = new Date(iso); return `${dt.getDate()}.${dt.getMonth() + 1}` }
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} style={{ width: '100%', height: 'auto', display: 'block', overflow: 'visible' }}>
+      <defs>
+        <linearGradient id="acU" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#7F77DD" stopOpacity="0.28" />
+          <stop offset="100%" stopColor="#7F77DD" stopOpacity="0" />
+        </linearGradient>
+        <linearGradient id="acP" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#5DCAA5" stopOpacity="0.24" />
+          <stop offset="100%" stopColor="#5DCAA5" stopOpacity="0" />
+        </linearGradient>
+      </defs>
+      {[0.25, 0.5, 0.75].map(g => (
+        <line key={g} x1={padX} y1={padY + g * (H - padY * 2)} x2={W - padX} y2={padY + g * (H - padY * 2)}
+          style={{ stroke: 'var(--border)' }} strokeWidth="1" />
+      ))}
+      <path d={area('users')} fill="url(#acU)" />
+      <path d={area('projects')} fill="url(#acP)" />
+      <path d={line('users')} fill="none" stroke="#7F77DD" strokeWidth="2.2" strokeLinejoin="round" strokeLinecap="round" />
+      <path d={line('projects')} fill="none" stroke="#5DCAA5" strokeWidth="2.2" strokeLinejoin="round" strokeLinecap="round" />
+      <circle cx={x(n - 1)} cy={y(data[n - 1].users)} r="3.5" fill="#7F77DD" />
+      <circle cx={x(n - 1)} cy={y(data[n - 1].projects)} r="3.5" fill="#5DCAA5" />
+      {data.map((d, i) => (i % 3 === 0 || i === n - 1) ? (
+        <text key={i} x={x(i)} y={H - 3} fontSize="9" textAnchor="middle"
+          style={{ fill: 'var(--text-muted)' }} fontFamily="DM Sans, sans-serif">{fmt(d.date)}</text>
+      ) : null)}
+    </svg>
+  )
+}
+
+/* ─────────────────────────── PROJECTS (модерация) ─────────────────────────── */
+
+const PROJ_STATUS = {
+  open:        { label: 'Открыт',   color: '#1D9E75',       bg: 'rgba(29,158,117,0.12)' },
+  in_progress: { label: 'В работе', color: '#FBBF24',       bg: 'rgba(251,191,36,0.12)' },
+  delivered:   { label: 'Сдан',     color: 'var(--accent)', bg: 'rgba(127,119,221,0.12)' },
+  completed:   { label: 'Завершён', color: '#5DCAA5',       bg: 'rgba(93,202,165,0.12)' },
+  disputed:    { label: 'Спор',     color: '#F87171',       bg: 'rgba(248,113,113,0.12)' },
+  cancelled:   { label: 'Скрыт',    color: '#9CA3AF',       bg: 'rgba(156,163,175,0.12)' },
+}
+
+function ProjectsSection() {
+  const [projects, setProjects]       = useState([])
+  const [loading, setLoading]         = useState(true)
+  const [search, setSearch]           = useState('')
+  const [statusFilter, setStatusFilter] = useState('all')
+  const [actioning, setActioning]     = useState(null)
+  const [confirmDelete, setConfirmDelete] = useState(null)
+  const toast = useToastStore(s => s.show)
+
+  const load = () => {
+    setLoading(true)
+    adminApi.getProjects().then(r => setProjects(r.data || [])).catch(() => {}).finally(() => setLoading(false))
+  }
+  useEffect(load, [])
+
+  const hide = async (id) => {
+    setActioning(id)
+    try { await adminApi.hideProject(id); toast('Проект скрыт', 'success'); load() }
+    catch (e) { toast(e?.response?.data?.detail || 'Ошибка', 'error') } finally { setActioning(null) }
+  }
+  const del = async (id) => {
+    setActioning(id)
+    try { await adminApi.deleteProject(id); toast('Проект удалён', 'info'); setConfirmDelete(null); load() }
+    catch (e) { toast(e?.response?.data?.detail || 'Ошибка', 'error') } finally { setActioning(null) }
+  }
+
+  const filtered = projects.filter(p => {
+    if (statusFilter !== 'all' && p.status !== statusFilter) return false
+    if (search && !`${p.title} ${p.client_name}`.toLowerCase().includes(search.toLowerCase())) return false
+    return true
+  })
+
+  return (
+    <div>
+      <SectionHeader icon="briefcase" title="Проекты" sub={`Всего ${projects.length} · модерация контента`} />
+      <div style={{ display: 'flex', gap: 10, marginBottom: 18, flexWrap: 'wrap' }}>
+        <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Поиск по названию или заказчику…" className="input" style={{ flex: 1, minWidth: 220, fontSize: 13 }} />
+        <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className="input" style={{ fontSize: 13, maxWidth: 190 }}>
+          <option value="all">Все статусы</option>
+          {Object.entries(PROJ_STATUS).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
+        </select>
+      </div>
+      {loading ? <Spinner /> : filtered.length === 0 ? <Empty icon="briefcase-off" text="Проектов нет" /> : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {filtered.map(p => {
+            const s = PROJ_STATUS[p.status] || PROJ_STATUS.open
+            return (
+              <div key={p.id} style={{ background: 'var(--bg-card)', border: '0.5px solid var(--border)', borderRadius: 14, padding: '14px 18px', display: 'flex', alignItems: 'center', gap: 14 }}>
+                <span style={{ fontSize: 11, fontWeight: 600, padding: '3px 9px', borderRadius: 7, background: s.bg, color: s.color, flexShrink: 0 }}>{s.label}</span>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <Link to={`/projects/${p.id}`} style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)', textDecoration: 'none', display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {p.title}
+                  </Link>
+                  <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 2 }}>
+                    {p.client_name} · ${Number(p.budget_min).toLocaleString()}–${Number(p.budget_max).toLocaleString()} · {p.bids_count} заявок
+                  </div>
+                </div>
+                {confirmDelete === p.id ? (
+                  <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
+                    <Button variant="primary" size="sm" icon="trash" loading={actioning === p.id} onClick={() => del(p.id)} style={{ background: '#EF4444', borderColor: '#EF4444' }}>Точно удалить</Button>
+                    <Button variant="outline" size="sm" onClick={() => setConfirmDelete(null)}>Отмена</Button>
+                  </div>
+                ) : (
+                  <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
+                    {p.status !== 'cancelled' && (
+                      <Button variant="outline" size="sm" icon="eye-off" loading={actioning === p.id} onClick={() => hide(p.id)}>Скрыть</Button>
+                    )}
+                    <Button variant="outline" size="sm" icon="trash" onClick={() => setConfirmDelete(p.id)} style={{ borderColor: 'rgba(248,113,113,0.4)', color: '#F87171' }}>Удалить</Button>
+                  </div>
+                )}
+              </div>
+            )
+          })}
+        </div>
+      )}
+    </div>
+  )
+}
+
+/* ─────────────────────────── TRANSACTIONS (реестр) ─────────────────────────── */
+
+const TX_STATUS = {
+  frozen:   { label: 'Эскроу',    color: '#EF9F27',             bg: 'rgba(239,159,39,0.14)' },
+  released: { label: 'Выплачено', color: 'var(--accent-green)', bg: 'rgba(29,158,117,0.14)' },
+  refunded: { label: 'Возврат',   color: 'var(--accent)',       bg: 'rgba(127,119,221,0.14)' },
+  disputed: { label: 'Спор',      color: '#F87171',             bg: 'rgba(248,113,113,0.14)' },
+}
+
+function TransactionsSection() {
+  const [txs, setTxs]       = useState([])
+  const [loading, setLoading] = useState(true)
+  const [filter, setFilter] = useState('all')
+
+  useEffect(() => {
+    adminApi.getTransactions().then(r => setTxs(r.data || [])).catch(() => {}).finally(() => setLoading(false))
+  }, [])
+
+  const filtered = filter === 'all' ? txs : txs.filter(t => t.status === filter)
+  const turnover = txs.reduce((s, t) => s + Number(t.amount || 0), 0)
+
+  return (
+    <div>
+      <SectionHeader icon="receipt" title="Транзакции" sub={`${txs.length} операций · оборот $${turnover.toLocaleString()}`} />
+      <div style={{ display: 'flex', gap: 6, marginBottom: 18, flexWrap: 'wrap' }}>
+        {[['all', 'Все'], ['frozen', 'Эскроу'], ['released', 'Выплачено'], ['refunded', 'Возврат'], ['disputed', 'Спор']].map(([k, l]) => (
+          <button key={k} onClick={() => setFilter(k)} style={{
+            padding: '7px 14px', borderRadius: 10, fontSize: 13,
+            background: filter === k ? 'var(--accent)' : 'var(--bg-card)',
+            border: filter === k ? '0.5px solid var(--accent)' : '0.5px solid var(--border)',
+            color: filter === k ? '#fff' : 'var(--text-muted)', cursor: 'pointer', fontWeight: filter === k ? 600 : 400,
+          }}>{l}</button>
+        ))}
+      </div>
+      {loading ? <Spinner /> : filtered.length === 0 ? <Empty icon="receipt-off" text="Транзакций нет" /> : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {filtered.map(t => {
+            const s = TX_STATUS[t.status] || TX_STATUS.frozen
+            return (
+              <div key={t.id} style={{ background: 'var(--bg-card)', border: '0.5px solid var(--border)', borderRadius: 14, padding: '14px 18px', display: 'flex', alignItems: 'center', gap: 14 }}>
+                <span style={{ fontSize: 11, fontWeight: 600, padding: '3px 9px', borderRadius: 7, background: s.bg, color: s.color, flexShrink: 0 }}>{s.label}</span>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  {t.project_id ? (
+                    <Link to={`/projects/${t.project_id}`} style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)', textDecoration: 'none', display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t.project_title}</Link>
+                  ) : (
+                    <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>{t.project_title}</span>
+                  )}
+                  <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 2 }}>{t.client_name} → {t.freelancer_name}</div>
+                </div>
+                <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                  <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 15, color: 'var(--text-primary)' }}>${Number(t.amount).toLocaleString()}</div>
+                  <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 2 }}>{new Date(t.created_at).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' })}</div>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      )}
+    </div>
+  )
+}
+
+/* ─────────────────────────── AUDIT (журнал) ─────────────────────────── */
+
+const AUDIT_META = {
+  ban_user:        { icon: 'ban',                     color: '#F87171',             label: 'Бан' },
+  unban_user:      { icon: 'lock-open',               color: 'var(--accent-green)', label: 'Разбан' },
+  verify_user:     { icon: 'rosette-discount-check',  color: 'var(--accent-teal)',  label: 'Верификация' },
+  change_role:     { icon: 'user-edit',               color: 'var(--accent)',       label: 'Смена роли' },
+  grant_admin:     { icon: 'shield-check',            color: '#EF9F27',             label: 'Выдан админ' },
+  revoke_admin:    { icon: 'shield-off',              color: '#EF9F27',             label: 'Снят админ' },
+  topup:           { icon: 'wallet',                  color: 'var(--accent-green)', label: 'Пополнение' },
+  release_dispute: { icon: 'cash',                    color: 'var(--accent-green)', label: 'Спор: выплата' },
+  refund_dispute:  { icon: 'arrow-back-up',           color: 'var(--accent)',       label: 'Спор: возврат' },
+  resolve_report:  { icon: 'flag',                    color: 'var(--accent-green)', label: 'Жалоба закрыта' },
+  hide_project:    { icon: 'eye-off',                 color: '#9CA3AF',             label: 'Проект скрыт' },
+  delete_project:  { icon: 'trash',                   color: '#F87171',             label: 'Проект удалён' },
+}
+
+function AuditSection() {
+  const [log, setLog]       = useState([])
+  const [loading, setLoading] = useState(true)
+  useEffect(() => {
+    adminApi.getAuditLog().then(r => setLog(r.data || [])).catch(() => {}).finally(() => setLoading(false))
+  }, [])
+
+  return (
+    <div>
+      <SectionHeader icon="history" title="Журнал действий" sub="Кто из админов что сделал" />
+      {loading ? <Spinner /> : log.length === 0 ? <Empty icon="history" text="Журнал пуст" sub="Действия админов появятся здесь" /> : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+          {log.map(e => {
+            const m = AUDIT_META[e.action] || { icon: 'point', color: 'var(--text-muted)', label: e.action }
+            return (
+              <div key={e.id} style={{ background: 'var(--bg-card)', border: '0.5px solid var(--border)', borderRadius: 12, padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 14 }}>
+                <div style={{ width: 34, height: 34, borderRadius: 9, flexShrink: 0, background: 'rgba(127,119,221,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <i className={`ti ti-${m.icon}`} style={{ fontSize: 16, color: m.color }} />
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 13, color: 'var(--text-primary)' }}>
+                    <b style={{ fontWeight: 600 }}>{e.admin_name || 'Админ'}</b>
+                    <span style={{ color: 'var(--text-muted)' }}> · {m.label}</span>
+                    {e.target_name && <span style={{ color: 'var(--text-secondary)' }}> → {e.target_name}</span>}
+                  </div>
+                  {e.detail && <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 2 }}>{e.detail}</div>}
+                </div>
+                <div style={{ fontSize: 11, color: 'var(--text-muted)', flexShrink: 0 }}>
+                  {new Date(e.created_at).toLocaleString('ru-RU', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      )}
     </div>
   )
 }

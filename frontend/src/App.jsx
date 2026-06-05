@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { useEffect } from 'react'
 import ProtectedRoute from './components/ProtectedRoute'
 import Toast from './components/Toast'
@@ -25,6 +25,7 @@ import AIAssistant from './pages/AIAssistant'
 import MyWork from './pages/MyWork'
 import Achievements from './pages/Achievements'
 import ClientProfile from './pages/ClientProfile'
+import NotFound from './pages/NotFound'
 
 export default function App() {
   const setHolidayMode = useSiteStore(s => s.setHolidayMode)
@@ -84,7 +85,7 @@ export default function App() {
         <Route path="/my-work" element={<ProtectedRoute requireRole="freelancer"><MyWork /></ProtectedRoute>} />
         <Route path="/admin" element={<ProtectedRoute requireRole="admin"><AdminPanel /></ProtectedRoute>} />
 
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
   )

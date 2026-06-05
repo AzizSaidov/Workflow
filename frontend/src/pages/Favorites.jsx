@@ -217,7 +217,7 @@ function SavedUserCard({ user, profile, isFreelancer, onRemove }) {
             </div>
           )}
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            {profile?.rating > 0 && <Rating value={profile.rating} size={11} count={profile.reviews_count} />}
+            {profile?.rating > 0 && <Rating value={profile.rating} size={11} />}
             {profile?.total_jobs > 0 && (
               <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>
                 <i className="ti ti-briefcase" style={{ marginRight: 3, fontSize: 11 }} />

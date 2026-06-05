@@ -54,9 +54,9 @@ def create_review(data: ReviewCreate, reviewer: User, db: Session) -> Review:
         profile = db.query(FreelancerProfile).filter(FreelancerProfile.user_id == data.reviewee_id).first()
         if profile:
             avg = db.query(func.avg(Review.rating)).filter(Review.reviewee_id == data.reviewee_id).scalar()
-            count = db.query(func.count(Review.id)).filter(Review.reviewee_id == data.reviewee_id).scalar()
             profile.rating = round(float(avg), 2)
-            profile.total_jobs = count
+            # total_jobs принадлежит accept_delivery (счётчик завершённых проектов) —
+            # здесь его не трогаем, иначе он схлопывается до числа отзывов (см. C1 в ТЗ)
 
     db.commit()
     db.refresh(review)

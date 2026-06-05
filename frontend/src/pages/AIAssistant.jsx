@@ -107,7 +107,12 @@ export default function AIAssistant() {
       const history = prev.map(m => ({ role: m.role, content: m.text }))
       const next = [...prev, { role: 'user', text: msg }]
       setChatLoading(true)
-      aiApi.chat(msg, history)
+      const roleNote = user?.role === 'client'
+        ? '(Я заказчик на платформе. Учитывай мою роль в ответе.)'
+        : user?.role === 'freelancer'
+          ? '(Я фрилансер на платформе. Учитывай мою роль в ответе.)'
+          : null
+      aiApi.chat(msg, history, roleNote)
         .then(({ data }) => setMessages(m => [...m, { role: 'assistant', text: data.text }]))
         .catch(err => {
           const detail = err.response?.data?.detail

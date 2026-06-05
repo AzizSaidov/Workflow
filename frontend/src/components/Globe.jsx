@@ -218,7 +218,7 @@ export default function Globe({
           pointColor="color"
           pointAltitude={0.03}
           pointRadius="size"
-          pointLabel={p => p.role === 'snow' ? '' :
+          pointLabel={p => p.role === 'snow' ? false :
             `<div style="background:rgba(10,10,20,0.93);border:0.5px solid rgba(255,255,255,0.13);` +
             `border-radius:8px;padding:5px 11px;font-size:12px;color:#fff;pointer-events:none;` +
             `box-shadow:0 2px 12px rgba(0,0,0,0.5);">${p.label}</div>`

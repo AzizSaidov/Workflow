@@ -177,11 +177,11 @@ export default function Profile() {
   const toast = useToastStore(s => s.show)
 
   const [userData, setUserData] = useState(null)
+  const [profile, setProfile] = useState(null)
   useSEO({
     title: userData?.full_name ? `${userData.full_name} — Фрилансер` : 'Профиль',
-    description: profile?.bio ? profile.bio.slice(0, 120) : undefined,
+    description: userData?.bio ? userData.bio.slice(0, 120) : undefined,
   })
-  const [profile, setProfile] = useState(null)
   const [portfolio, setPortfolio] = useState([])
   const [reviews, setReviews] = useState([])
   const [achievements, setAchievements] = useState([])
@@ -1054,7 +1054,7 @@ export default function Profile() {
         open={reportOpen}
         onClose={() => setReportOpen(false)}
         reportedUserId={id}
-        targetName={user?.full_name || ''}
+        targetName={userData?.full_name || ''}
       />
     </div>
   )

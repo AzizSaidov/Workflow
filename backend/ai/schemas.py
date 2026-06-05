@@ -53,3 +53,14 @@ class HelpDeliverRequest(BaseModel):
 
 class HelpDeliverResponse(BaseModel):
     text: str
+
+
+class RankBidsRequest(BaseModel):
+    project_title: str
+    budget: str = ''
+    description: str = ''
+    bids_summary: str
+
+
+class RankBidsResponse(BaseModel):
+    text: str

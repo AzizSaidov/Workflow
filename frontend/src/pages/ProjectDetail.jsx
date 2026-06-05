@@ -1141,21 +1141,8 @@ export default function ProjectDetail() {
                                       return `Bid #${i}: ${b.freelancer_name || 'Freelancer'} | Rating: ${p?.rating ?? b.rating ?? 'N/A'}/5 | Completed: ${p?.completed_count ?? '?'} projects | Rate: $${p?.hourly_rate ?? '?'}/hr | Skills: ${skills}\nProposal: ${b.cover_letter || '(no letter)'}`
                                     }).join('\n\n')
 
-                                    const prompt = `You are ranking freelancer bids for a client. Analyze each bid based on the freelancer's REAL profile data and proposal quality.
-
-Project: "${project.title}"
-Budget: $${project.budget_min}–$${project.budget_max}
-Description: ${project.description?.slice(0, 300)}
-
-Bids:
-${bidsSummary}
-
-Return ONLY a valid JSON object in this exact format (no other text):
-{"order":[0,1,2],"reasons":{"0":"one sentence","1":"one sentence","2":"one sentence"}}
-
-Where "order" is bid indices from best to worst.`
-
-                                    const { data } = await aiApi.chat(prompt, '')
+                                    const budget = `$${project.budget_min}–$${project.budget_max}`
+                                    const { data } = await aiApi.rankBids(project.title, budget, project.description?.slice(0, 300) || '', bidsSummary)
                                     const text = data.text || ''
                                     const jsonMatch = text.match(/\{[\s\S]*\}/)
                                     if (jsonMatch) {

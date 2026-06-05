@@ -5,8 +5,9 @@ from ai.schemas import (
     AIChatRequest, AIChatResponse,
     EditTextRequest, EditTextResponse,
     HelpDeliverRequest, HelpDeliverResponse,
+    RankBidsRequest, RankBidsResponse,
 )
-from ai.views import help_project, help_bid, ai_chat, edit_text, help_deliver
+from ai.views import help_project, help_bid, ai_chat, edit_text, help_deliver, rank_bids
 from users.permissions import get_current_user
 from users.models import User
 
@@ -41,3 +42,9 @@ async def ai_edit_text(data: EditTextRequest, _: User = Depends(get_current_user
 async def ai_help_deliver(data: HelpDeliverRequest, _: User = Depends(get_current_user)):
     text = await help_deliver(data.project_title, data.project_description)
     return HelpDeliverResponse(text=text)
+
+
+@ai_router.post("/rank-bids", response_model=RankBidsResponse)
+async def ai_rank_bids(data: RankBidsRequest, _: User = Depends(get_current_user)):
+    text = await rank_bids(data.project_title, data.budget, data.description, data.bids_summary)
+    return RankBidsResponse(text=text)

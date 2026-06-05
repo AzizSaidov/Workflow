@@ -55,6 +55,7 @@ class ProfileResponse(BaseModel):
     github_url: str | None = None
     category_id: UUID | None = None
     category_name: str | None = None
+    is_online: bool = False
     skills: list[SkillInProfile]
     languages: list[LanguageInProfile]
     categories: list[CategoryInProfile] = []

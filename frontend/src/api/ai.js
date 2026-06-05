@@ -17,4 +17,8 @@ export const aiApi = {
 
   helpDeliver: (project_title, project_description = '') =>
     client.post('/ai/help-deliver', { project_title, project_description }),
+
+  // AI-ранжирование заявок на странице проекта (возвращает JSON-строку с order/reasons)
+  rankBids: (project_title, budget, description, bids_summary) =>
+    client.post('/ai/rank-bids', { project_title, budget, description, bids_summary }),
 }

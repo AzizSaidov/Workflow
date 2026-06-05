@@ -7,7 +7,7 @@ export const adminApi = {
   releaseDispute: (txId) => client.put(`/admin/disputes/${txId}/release`),
   refundDispute: (txId) => client.put(`/admin/disputes/${txId}/refund`),
   getUsers: () => client.get('/admin/users'),
-  banUser: (id) => client.put(`/admin/users/${id}/ban`),
+  banUser: (id, reason = '') => client.put(`/admin/users/${id}/ban`, { reason }),
   unbanUser: (id) => client.put(`/admin/users/${id}/unban`),
   verifyUser: (id) => client.put(`/admin/users/${id}/verify`),
   changeRole: (id, new_role) => client.put(`/admin/users/${id}/role`, { new_role }),
@@ -15,4 +15,10 @@ export const adminApi = {
   revokeAdmin: (id) => client.put(`/admin/users/${id}/revoke-admin`),
   getStats: () => client.get('/admin/stats'),
   topupWallet: (user_id, amount, reason) => client.post('/admin/wallet/topup', { user_id, amount, reason }),
+  // moderation / finance / audit
+  getProjects: () => client.get('/admin/projects'),
+  hideProject: (id) => client.put(`/admin/projects/${id}/hide`),
+  deleteProject: (id) => client.delete(`/admin/projects/${id}`),
+  getTransactions: () => client.get('/admin/transactions'),
+  getAuditLog: () => client.get('/admin/audit-log'),
 }
