@@ -210,7 +210,7 @@ def seed():
         # ── ADMIN ───────────────────────────────────────────────────────────
         admin, admin_w = make_user(
             "admin@workflow.com", "admin123", UserRole.client,
-            "Admin", "Workflow platform administrator.", 38.56, 68.77,
+            "Admin", "Workflow platform administrator.", 25.77, -80.19,
             "https://randomuser.me/api/portraits/men/52.jpg",
         )
         admin.is_admin = True
@@ -222,7 +222,7 @@ def seed():
                 "email": "timur@techcorp.tj", "pw": "pass123",
                 "name": "Timur Rashidov",
                 "bio": "Founder of TechCorp. Building IT products for emerging markets in Central Asia.",
-                "lat": 38.56, "lng": 68.77,
+                "lat": 40.71, "lng": -74.01,
                 "avatar": "https://randomuser.me/api/portraits/men/36.jpg",
                 "company": "TechCorp", "website": "https://techcorp.tj",
                 "location": "Dushanbe, Tajikistan", "balance": Decimal("10000"),
@@ -231,7 +231,7 @@ def seed():
                 "email": "amina@greenleaf.com", "pw": "pass123",
                 "name": "Amina Usupova",
                 "bio": "Owner of GreenLeaf Digital. We help regional businesses grow online.",
-                "lat": 41.30, "lng": 69.24,
+                "lat": 41.88, "lng": -87.63,
                 "avatar": "https://randomuser.me/api/portraits/women/52.jpg",
                 "company": "GreenLeaf Digital", "website": "https://greenleaf.com",
                 "location": "Tashkent, Uzbekistan", "balance": Decimal("4000"),
@@ -240,7 +240,7 @@ def seed():
                 "email": "damir@fintech.kz", "pw": "pass123",
                 "name": "Damir Seitkali",
                 "bio": "CTO of PayEasy — building next-gen payment infrastructure for Kazakhstan.",
-                "lat": 43.22, "lng": 76.85,
+                "lat": 29.76, "lng": -95.37,
                 "avatar": "https://randomuser.me/api/portraits/men/72.jpg",
                 "company": "PayEasy", "website": "https://payeasy.kz",
                 "location": "Almaty, Kazakhstan", "balance": Decimal("11000"),
@@ -258,7 +258,7 @@ def seed():
                 "email": "chen@aiventures.cn", "pw": "pass123",
                 "name": "Chen Wei",
                 "bio": "CEO of AI Ventures. Investing in and building AI-first products for Asian markets.",
-                "lat": 31.23, "lng": 121.47,
+                "lat": 39.91, "lng": 116.39,
                 "avatar": "https://randomuser.me/api/portraits/men/57.jpg",
                 "company": "AI Ventures", "website": "https://aiventures.cn",
                 "location": "Shanghai, China", "balance": Decimal("15000"),
@@ -267,7 +267,7 @@ def seed():
                 "email": "carlos@agencia.mx", "pw": "pass123",
                 "name": "Carlos Mendez",
                 "bio": "Founder of Agencia Digital. Full-service digital agency serving Latin American brands.",
-                "lat": 19.43, "lng": -99.13,
+                "lat": 34.05, "lng": -118.24,
                 "avatar": "https://randomuser.me/api/portraits/men/43.jpg",
                 "company": "Agencia Digital", "website": "https://agencia.mx",
                 "location": "Mexico City, Mexico", "balance": Decimal("6000"),
@@ -314,7 +314,7 @@ def seed():
             # 1
             {
                 "email": "zara@flutter.dev", "pw": "pass123",
-                "name": "Zara Ismailova", "lat": 41.30, "lng": 69.24,
+                "name": "Zara Ismailova", "lat": 41.90, "lng": 12.50,
                 "avatar": "https://randomuser.me/api/portraits/women/57.jpg",
                 "bio": "Mobile developer specializing in Flutter (iOS+Android) + Firebase backend. 31 shipped apps.",
                 "title": "Flutter / Mobile Developer", "cat": "mobile-dev",
@@ -333,7 +333,7 @@ def seed():
             # 2
             {
                 "email": "marco@design.it", "pw": "pass123",
-                "name": "Marco Ferrari", "lat": 41.90, "lng": 12.50,
+                "name": "Marco Ferrari", "lat": 40.42, "lng": -3.70,
                 "avatar": "https://randomuser.me/api/portraits/men/30.jpg",
                 "bio": "Senior UI/UX Designer & Brand Identity specialist. 9 years. Working with European and US startups.",
                 "title": "Senior UI/UX Designer", "cat": "design",
@@ -356,7 +356,7 @@ def seed():
             # 3
             {
                 "email": "aisha@ailab.kz", "pw": "pass123",
-                "name": "Aisha Bekova", "lat": 43.22, "lng": 76.85,
+                "name": "Aisha Bekova", "lat": 31.23, "lng": 121.47,
                 "avatar": "https://randomuser.me/api/portraits/women/40.jpg",
                 "bio": "Data Scientist & ML Engineer. NLP, computer vision, MLOps pipelines. PhD in Applied Math.",
                 "title": "Data Scientist & ML Engineer", "cat": "data-ai",
@@ -378,7 +378,7 @@ def seed():
             # 4
             {
                 "email": "bekzod@devops.uz", "pw": "pass123",
-                "name": "Bekzod Yusupov", "lat": 41.30, "lng": 69.24,
+                "name": "Bekzod Yusupov", "lat": 52.23, "lng": 21.01,
                 "avatar": "https://randomuser.me/api/portraits/men/10.jpg",
                 "bio": "Senior DevOps Engineer. Kubernetes, AWS/GCP, Terraform, CI/CD. 6 years in production infra.",
                 "title": "Senior DevOps / Cloud Engineer", "cat": "devops",
@@ -399,7 +399,7 @@ def seed():
             # 5
             {
                 "email": "diana@content.ru", "pw": "pass123",
-                "name": "Diana Petrova", "lat": 55.75, "lng": 37.62,
+                "name": "Diana Petrova", "lat": 59.33, "lng": 18.07,
                 "avatar": "https://randomuser.me/api/portraits/women/32.jpg",
                 "bio": "Content strategist & copywriter. IT, fintech, e-commerce. 74 projects. Ex-editor at TechCrunch Russia.",
                 "title": "Content Strategist & Copywriter", "cat": "writing",
@@ -439,7 +439,7 @@ def seed():
             # 7
             {
                 "email": "lena@video.de", "pw": "pass123",
-                "name": "Lena Braun", "lat": 48.14, "lng": 11.58,
+                "name": "Lena Braun", "lat": 48.21, "lng": 16.37,
                 "avatar": "https://randomuser.me/api/portraits/women/63.jpg",
                 "bio": "Motion designer & video editor. After Effects, Premiere Pro, Cinema 4D. 120+ videos for YouTube and ads.",
                 "title": "Motion Designer & Video Editor", "cat": "video",
@@ -460,7 +460,7 @@ def seed():
             # 8
             {
                 "email": "arjun@backend.in", "pw": "pass123",
-                "name": "Arjun Sharma", "lat": 12.97, "lng": 77.59,
+                "name": "Arjun Sharma", "lat": 47.61, "lng": -122.33,
                 "avatar": "https://randomuser.me/api/portraits/men/68.jpg",
                 "bio": "Backend engineer specializing in Java/Spring Boot and Go microservices. 9 years, ex-Google engineer.",
                 "title": "Senior Backend Engineer (Java/Go)", "cat": "web-dev",

@@ -92,11 +92,15 @@ export default function NotificationBell() {
     if (!user?.id || !accessToken) return
     const ws = createNotifWS(user.id, accessToken)
     wsRef.current = ws
+    let initDone = false
     ws.onmessage = (e) => {
       try {
         const n = JSON.parse(e.data)
-        if (!n.id) return  // skip control messages (init_done, etc.)
-        if (n.type === 'achievement' || n.notification_type === 'achievement') {
+        if (!n.id) {
+          if (n.type === 'init_done') initDone = true
+          return
+        }
+        if (initDone && (n.type === 'achievement' || n.notification_type === 'achievement')) {
           setAchievementToast({
             name: n.title?.replace('Новое достижение: ', '') || n.title,
             description: n.message,
@@ -109,7 +113,7 @@ export default function NotificationBell() {
           if (prev.find(x => x.id === n.id)) return prev
           return [n, ...prev]
         })
-        if (!n.is_read) setUnread(c => c + 1)
+        if (!n.is_read && initDone) setUnread(c => c + 1)
       } catch {}
     }
     return () => ws.close()

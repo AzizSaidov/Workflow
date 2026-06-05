@@ -136,10 +136,7 @@ export default function Home() {
       const locs = locRes.data || []
       const u = useAuthStore.getState().user
       if (u?.latitude && u?.longitude) {
-        const withoutDupe = locs.filter(p =>
-          !(Math.abs((p.lat || 0) - u.latitude) < 0.001 && Math.abs((p.lng || 0) - u.longitude) < 0.001)
-        )
-        setLocations([...withoutDupe, { lat: u.latitude, lng: u.longitude, role: 'me' }])
+        setLocations([...locs, { lat: u.latitude, lng: u.longitude, role: 'me' }])
       } else {
         setLocations(locs)
       }
@@ -163,10 +160,7 @@ export default function Home() {
   useEffect(() => {
     if (!user?.latitude || !user?.longitude) return
     setLocations(prev => {
-      const withoutMe = prev.filter(p =>
-        p.role !== 'me' &&
-        !(Math.abs((p.lat || 0) - user.latitude) < 0.001 && Math.abs((p.lng || 0) - user.longitude) < 0.001)
-      )
+      const withoutMe = prev.filter(p => p.role !== 'me')
       return [...withoutMe, { lat: user.latitude, lng: user.longitude, role: 'me' }]
     })
   }, [user?.latitude, user?.longitude])
