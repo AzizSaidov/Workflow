@@ -198,7 +198,7 @@ export default function Profile() {
   const [clientProjects, setClientProjects] = useState([])
   const [activeTab, setActiveTab] = useState('about')
   const [editMode, setEditMode] = useState(false)
-  const [editForm, setEditForm] = useState({ full_name: '', bio: '', title: '', experience_years: '', github_url: '', category_id: '' })
+  const [editForm, setEditForm] = useState({ full_name: '', bio: '', title: '', experience_years: '', hourly_rate: '', github_url: '' })
   const [categories, setCategories] = useState([])
   const [saving, setSaving] = useState(false)
   const [avatarUploading, setAvatarUploading] = useState(false)
@@ -232,7 +232,7 @@ export default function Profile() {
       setPortfolio(po.data || []); setReviews(rv.data || [])
       setAchievements(ua.data || [])
       if (p.data) {
-        setEditForm({ full_name: u.data?.full_name || '', bio: u.data?.bio || '', title: p.data.title || '', experience_years: p.data.experience_years || '', github_url: p.data.github_url || '', category_id: p.data.category_id || '' })
+        setEditForm({ full_name: u.data?.full_name || '', bio: u.data?.bio || '', title: p.data.title || '', experience_years: p.data.experience_years || '', hourly_rate: p.data.hourly_rate || '', github_url: p.data.github_url || '' })
         certificationsApi.getByProfile(p.data.id).then(r => setCertifications(r.data || [])).catch(() => {})
       }
     }).catch(() => setLoadError(true)).finally(() => setLoading(false))
@@ -264,7 +264,7 @@ export default function Profile() {
       if (editForm.full_name && editForm.full_name !== userData?.full_name) userUpdates.full_name = editForm.full_name
       if (editForm.bio !== (userData?.bio || '')) userUpdates.bio = editForm.bio
       if (Object.keys(userUpdates).length) await client.put('/users/me', userUpdates)
-      if (isFreelancer) await profilesApi.updateMe({ title: editForm.title || undefined, experience_years: parseInt(editForm.experience_years) || undefined, github_url: editForm.github_url || null, category_id: editForm.category_id || null })
+      if (isFreelancer) await profilesApi.updateMe({ title: editForm.title || undefined, hourly_rate: parseFloat(editForm.hourly_rate) || null, experience_years: parseInt(editForm.experience_years) || undefined, github_url: editForm.github_url || null })
       setEditMode(false); toast('Профиль сохранён', 'success'); load()
     } finally { setSaving(false) }
   }
@@ -330,6 +330,7 @@ export default function Profile() {
   const handleAddCert = async (e) => {
     e.preventDefault()
     if (!certAddForm.title.trim()) { toast('Укажите название', 'error'); return }
+    if (!profile?.id) { toast('Сначала сохраните профиль', 'error'); return }
     setCertAddLoading(true)
     try {
       await certificationsApi.create({ profile_id: profile.id, title: certAddForm.title, issuer: certAddForm.issuer || null, issue_date: certAddForm.issue_date || null, credential_url: certAddForm.credential_url || null })
@@ -488,10 +489,11 @@ export default function Profile() {
                   <Avatar src={userData?.avatar_url} name={userData?.full_name} size={96} />
                   {isOwnProfile && (
                     <>
-                      <label htmlFor="avatar-input" style={{ position: 'absolute', inset: 0, borderRadius: '50%', background: 'rgba(0,0,0,0)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'background 0.2s' }}
+                      <style>{`.avatar-edit-label:hover .avatar-cam { opacity: 1 !important; }`}</style>
+                      <label htmlFor="avatar-input" className="avatar-edit-label" style={{ position: 'absolute', inset: 0, borderRadius: '50%', background: 'rgba(0,0,0,0)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'background 0.2s' }}
                         onMouseEnter={e => e.currentTarget.style.background = 'rgba(0,0,0,0.5)'}
                         onMouseLeave={e => e.currentTarget.style.background = avatarUploading ? 'rgba(0,0,0,0.55)' : 'rgba(0,0,0,0)'}>
-                        {avatarUploading ? <i className="ti ti-loader-2" style={{ color: '#fff', fontSize: 20, animation: 'spin 0.8s linear infinite' }} /> : <i className="ti ti-camera" style={{ color: '#fff', fontSize: 20, opacity: 0 }} className="avatar-cam" />}
+                        {avatarUploading ? <i className="ti ti-loader-2" style={{ color: '#fff', fontSize: 20, animation: 'spin 0.8s linear infinite' }} /> : <i className="ti ti-camera avatar-cam" style={{ color: '#fff', fontSize: 20, opacity: 0, transition: 'opacity 0.2s' }} />}
                       </label>
                       <input id="avatar-input" type="file" accept="image/*" style={{ display: 'none' }} onChange={handleAvatarUpload} />
                     </>
@@ -686,19 +688,11 @@ export default function Profile() {
                           <textarea value={editForm.bio} onChange={e => setEditForm(f => ({ ...f, bio: e.target.value }))} rows={4} className="input" placeholder="Расскажи о себе..." style={{ resize: 'vertical', lineHeight: 1.6 }} />
                         </div>
                         {isFreelancer && (
-                          <>
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
-                              <Input label="Опыт (лет)" type="number" value={editForm.experience_years} onChange={e => setEditForm(f => ({ ...f, experience_years: e.target.value }))} />
-                              <Input label="GitHub URL" placeholder="https://github.com/username" value={editForm.github_url} onChange={e => setEditForm(f => ({ ...f, github_url: e.target.value }))} icon="brand-github" />
-                            </div>
-                            <div>
-                              <label style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)', display: 'block', marginBottom: 6 }}>Категория</label>
-                              <select value={editForm.category_id} onChange={e => setEditForm(f => ({ ...f, category_id: e.target.value }))} className="input" style={{ fontSize: 13 }}>
-                                <option value="">— не выбрана —</option>
-                                {categories.map(cat => <option key={cat.id} value={cat.id}>{cat.name}</option>)}
-                              </select>
-                            </div>
-                          </>
+                          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 14 }}>
+                            <Input label="Опыт (лет)" type="number" value={editForm.experience_years} onChange={e => setEditForm(f => ({ ...f, experience_years: e.target.value }))} />
+                            <Input label="Ставка ($/час)" type="number" placeholder="25" value={editForm.hourly_rate} onChange={e => setEditForm(f => ({ ...f, hourly_rate: e.target.value }))} icon="currency-dollar" />
+                            <Input label="GitHub URL" placeholder="https://github.com/username" value={editForm.github_url} onChange={e => setEditForm(f => ({ ...f, github_url: e.target.value }))} icon="brand-github" />
+                          </div>
                         )}
                         <div style={{ display: 'flex', gap: 10 }}>
                           <Button variant="green" size="sm" icon="check" loading={saving} onClick={handleSaveProfile}>Сохранить</Button>
@@ -715,16 +709,16 @@ export default function Profile() {
                     )
                   )}
 
-                  {/* Skills editor (own profile) */}
-                  {isFreelancer && isOwnProfile && (
+                  {/* Skills editor (own profile, edit mode only) */}
+                  {isFreelancer && isOwnProfile && editMode && (
                     <div style={{ background: 'var(--bg-card)', border: '0.5px solid var(--border)', borderRadius: 16, padding: 20 }}>
                       <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 12 }}>Навыки</div>
                       <SkillSelector selected={uniqueSkills} onAdd={handleAddSkill} onRemove={handleRemoveSkill} />
                     </div>
                   )}
 
-                  {/* Categories editor (own profile) */}
-                  {isFreelancer && isOwnProfile && (
+                  {/* Categories editor (own profile, edit mode only) */}
+                  {isFreelancer && isOwnProfile && editMode && (
                     <div style={{ background: 'var(--bg-card)', border: '0.5px solid var(--border)', borderRadius: 16, padding: 20 }}>
                       <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 12 }}>Специализация</div>
                       <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 10 }}>
@@ -747,8 +741,8 @@ export default function Profile() {
                     </div>
                   )}
 
-                  {/* Languages editor (own profile) */}
-                  {isFreelancer && isOwnProfile && (
+                  {/* Languages editor (own profile, edit mode only) */}
+                  {isFreelancer && isOwnProfile && editMode && (
                     <div style={{ background: 'var(--bg-card)', border: '0.5px solid var(--border)', borderRadius: 16, padding: 20 }}>
                       <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 12 }}>Языки</div>
                       <LanguageSelector selected={profile?.languages || []} onAdd={handleAddLanguage} onRemove={handleRemoveLanguage} />

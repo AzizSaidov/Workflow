@@ -2,9 +2,10 @@ import { useEffect, useState, useRef, useCallback } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import useThemeStore from '../store/themeStore'
 import useAuthStore from '../store/authStore'
+import useToastStore from '../store/toastStore'
 import { projectsApi } from '../api/projects'
 import { chatsApi, createChatWS } from '../api/chats'
-import client from '../api/client'
+import client, { API_ORIGIN } from '../api/client'
 import StarBackground from '../components/StarBackground'
 import Navbar from '../components/Navbar'
 import Avatar from '../components/Avatar'
@@ -139,17 +140,17 @@ function MessageBubble({ msg, isOwn, isDark, onDelete, onEdit }) {
           padding: kind === 'image' ? '6px 6px 4px' : '10px 14px',
         }}>
           {kind === 'image' && (
-            <a href={`http://localhost:8000${msg.file_url}`} target="_blank" rel="noopener noreferrer">
-              <img src={`http://localhost:8000${msg.file_url}`} alt="img"
+            <a href={`${API_ORIGIN}${msg.file_url}`} target="_blank" rel="noopener noreferrer">
+              <img src={`${API_ORIGIN}${msg.file_url}`} alt="img"
                 style={{ display: 'block', maxWidth: '100%', maxHeight: 220, borderRadius: 10, objectFit: 'cover', cursor: 'zoom-in' }} />
             </a>
           )}
           {kind === 'audio' && (
-            <audio key={msg.file_url} controls src={`http://localhost:8000${msg.file_url}`}
+            <audio key={msg.file_url} controls src={`${API_ORIGIN}${msg.file_url}`}
               style={{ display: 'block', width: '100%', minWidth: 220, height: 36 }} />
           )}
           {kind === 'file' && (
-            <a href={`http://localhost:8000${msg.file_url}`} download
+            <a href={`${API_ORIGIN}${msg.file_url}`} download
               style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--accent)', textDecoration: 'none', fontSize: 13 }}
             >
               <i className="ti ti-file-download" style={{ fontSize: 18, flexShrink: 0 }} />
@@ -190,6 +191,7 @@ function MessageBubble({ msg, isOwn, isDark, onDelete, onEdit }) {
 export default function ChatsPage() {
   const { isDark } = useThemeStore()
   const { user, accessToken } = useAuthStore()
+  const toast = useToastStore(s => s.show)
   const [searchParams] = useSearchParams()
   const [projects, setProjects] = useState([])
   const [partners, setPartners] = useState({})
@@ -199,6 +201,7 @@ export default function ChatsPage() {
   const [text, setText] = useState('')
   const [loading, setLoading] = useState(true)
   const [uploading, setUploading] = useState(false)
+  const [unreadChats, setUnreadChats] = useState(new Set())
   const [recording, setRecording] = useState(false)
   const [confirmDeleteId, setConfirmDeleteId] = useState(null)
 
@@ -249,6 +252,21 @@ export default function ChatsPage() {
       })
       setPartners(pMap)
       setLastMessages(lMap)
+
+      const userId = user?.id
+      const unread = new Set()
+      Object.entries(lMap).forEach(([pid, msg]) => {
+        if (!msg || String(msg.sender_id) === String(userId)) return
+        const stored = localStorage.getItem(`chat_read_${userId}_${pid}`)
+        const readAt = stored ? new Date(stored) : new Date(0)
+        if (new Date(msg.created_at) > readAt) unread.add(pid)
+      })
+      // mark initially selected chat as read
+      if (initial) {
+        localStorage.setItem(`chat_read_${userId}_${initial.id}`, new Date().toISOString())
+        unread.delete(initial.id)
+      }
+      setUnreadChats(unread)
     }).finally(() => setLoading(false))
   }, [user?.id])
 
@@ -268,6 +286,7 @@ export default function ChatsPage() {
         } else {
           setMessages(prev => [...prev, msg])
           setLastMessages(prev => ({ ...prev, [selectedId]: msg }))
+          localStorage.setItem(`chat_read_${user?.id}_${selectedId}`, new Date().toISOString())
         }
       } catch {}
     }
@@ -277,6 +296,30 @@ export default function ChatsPage() {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
+
+  useEffect(() => {
+    if (!user?.id || !accessToken) return
+    const poll = async () => {
+      try {
+        const { data } = await chatsApi.getLastMessages()
+        const userId = user.id
+        setLastMessages(prev => ({ ...prev, ...data }))
+        setUnreadChats(prev => {
+          const s = new Set(prev)
+          Object.entries(data).forEach(([pid, msg]) => {
+            if (!msg || String(msg.sender_id) === String(userId) || pid === selectedId) return
+            const stored = localStorage.getItem(`chat_read_${userId}_${pid}`)
+            const readAt = stored ? new Date(stored) : new Date(0)
+            if (new Date(msg.created_at) > readAt) s.add(pid)
+            else s.delete(pid)
+          })
+          return s
+        })
+      } catch {}
+    }
+    const id = setInterval(poll, 30000)
+    return () => clearInterval(id)
+  }, [user?.id, accessToken, selectedId])
 
   const sendWS = useCallback((payload) => {
     if (wsRef.current?.readyState === WebSocket.OPEN) wsRef.current.send(JSON.stringify(payload))
@@ -323,7 +366,9 @@ export default function ChatsPage() {
       const ext = file.name.split('.').pop().toLowerCase()
       const fileType = ['jpg','jpeg','png','gif','webp'].includes(ext) ? 'image' : 'file'
       sendWS({ content: '', file_url: data.url, file_type: fileType })
-    } catch {}
+    } catch (err) {
+      toast(err.response?.data?.detail || 'Не удалось загрузить файл', 'error')
+    }
     setUploading(false)
   }
 
@@ -398,11 +443,15 @@ export default function ChatsPage() {
             <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
               <i className="ti ti-messages" style={{ fontSize: 18, color: 'var(--accent)' }} />
               <span style={{ fontFamily: 'Syne, sans-serif', fontSize: 17, fontWeight: 700, color: 'var(--text-primary)' }}>Чаты</span>
-              {projects.length > 0 && (
+              {unreadChats.size > 0 ? (
+                <span style={{ marginLeft: 'auto', background: 'var(--accent)', color: '#fff', fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 10 }}>
+                  {unreadChats.size}
+                </span>
+              ) : projects.length > 0 ? (
                 <span style={{ marginLeft: 'auto', background: 'rgba(127,119,221,0.14)', color: 'var(--accent)', fontSize: 11, fontWeight: 600, padding: '2px 8px', borderRadius: 10 }}>
                   {projects.length}
                 </span>
-              )}
+              ) : null}
             </div>
           </div>
 
@@ -443,7 +492,11 @@ export default function ChatsPage() {
                   onMouseLeave={e => { const btn = e.currentTarget.querySelector('.del-btn'); if (btn) btn.style.opacity = '0' }}
                 >
                   <button
-                    onClick={() => setSelectedId(p.id)}
+                    onClick={() => {
+                      localStorage.setItem(`chat_read_${user?.id}_${p.id}`, new Date().toISOString())
+                      setUnreadChats(prev => { const s = new Set(prev); s.delete(p.id); return s })
+                      setSelectedId(p.id)
+                    }}
                     style={{
                       width: '100%', textAlign: 'left',
                       padding: '12px 40px 12px 14px',
@@ -454,7 +507,18 @@ export default function ChatsPage() {
                       transition: 'background 0.12s',
                     }}
                   >
-                    <Avatar src={partners[p.id]?.avatar_url} name={partnerName} size={44} style={{ flexShrink: 0, borderRadius: 13 }} />
+                    <div style={{ position: 'relative', flexShrink: 0 }}>
+                      <Avatar src={partners[p.id]?.avatar_url} name={partnerName} size={44} style={{ borderRadius: 13 }} />
+                      {unreadChats.has(p.id) && (
+                        <div style={{
+                          position: 'absolute', bottom: 1, right: 1,
+                          width: 10, height: 10, borderRadius: '50%',
+                          background: 'var(--accent)',
+                          border: `2px solid ${isDark ? '#07070E' : '#F8F7FF'}`,
+                          pointerEvents: 'none',
+                        }} />
+                      )}
+                    </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 3 }}>
                         <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 140 }}>
@@ -462,7 +526,12 @@ export default function ChatsPage() {
                         </span>
                         {lastTime && <span style={{ fontSize: 10, color: 'var(--text-muted)', flexShrink: 0, marginLeft: 6 }}>{lastTime}</span>}
                       </div>
-                      <div style={{ fontSize: 11, color: 'var(--text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      <div style={{
+                        fontSize: 11,
+                        color: unreadChats.has(p.id) ? 'var(--text-secondary)' : 'var(--text-muted)',
+                        fontWeight: unreadChats.has(p.id) ? 600 : 400,
+                        overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                      }}>
                         {preview}
                       </div>
                     </div>

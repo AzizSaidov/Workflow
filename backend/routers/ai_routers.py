@@ -22,7 +22,12 @@ async def ai_help_project(data: HelpProjectRequest, _: User = Depends(get_curren
 
 @ai_router.post("/help-bid", response_model=HelpBidResponse)
 async def ai_help_bid(data: HelpBidRequest, _: User = Depends(get_current_user)):
-    cover_letter = await help_bid(data.project_title, data.project_description, data.skills)
+    cover_letter = await help_bid(
+        data.project_title, data.project_description, data.skills,
+        data.freelancer_name, data.freelancer_title,
+        data.freelancer_bio, data.freelancer_jobs, data.freelancer_rating,
+        data.freelancer_notes,
+    )
     return HelpBidResponse(cover_letter=cover_letter)
 
 
@@ -40,7 +45,7 @@ async def ai_edit_text(data: EditTextRequest, _: User = Depends(get_current_user
 
 @ai_router.post("/help-deliver", response_model=HelpDeliverResponse)
 async def ai_help_deliver(data: HelpDeliverRequest, _: User = Depends(get_current_user)):
-    text = await help_deliver(data.project_title, data.project_description)
+    text = await help_deliver(data.project_title, data.project_description, data.work_notes, data.links)
     return HelpDeliverResponse(text=text)
 
 

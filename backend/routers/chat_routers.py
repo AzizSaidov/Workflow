@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, WebSocket, WebSocketDisconnect, Query
 from sqlalchemy.orm import Session
 from database import get_db, SessionLocal
 from chats.schemas import MessageResponse, MessageEdit
-from chats.views import get_history, save_message, edit_message, delete_message, hide_chat, get_hidden_project_ids, delete_chat
+from chats.views import get_history, save_message, edit_message, delete_message, hide_chat, get_hidden_project_ids, delete_chat, get_last_messages
 from chats.manager import manager
 from projects.models import Project
 from users.models import User
@@ -60,6 +60,22 @@ async def remove_message(
 @chats_router.delete("/api/chats/{project_id}", status_code=204)
 def delete_chat_route(project_id: UUID, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     delete_chat(project_id, current_user.id, db)
+
+
+@chats_router.get("/api/chats/last-messages")
+def last_messages_route(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    data = get_last_messages(current_user.id, db)
+    return {
+        pid: {
+            "id": str(msg.id),
+            "sender_id": str(msg.sender_id),
+            "content": msg.content,
+            "file_url": msg.file_url,
+            "file_type": msg.file_type,
+            "created_at": msg.created_at.isoformat(),
+        } if msg else None
+        for pid, msg in data.items()
+    }
 
 
 @chats_router.get("/api/chats/{project_id}", response_model=list[MessageResponse])

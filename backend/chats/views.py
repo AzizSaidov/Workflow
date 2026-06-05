@@ -72,3 +72,19 @@ def delete_chat(project_id: UUID, user_id: UUID, db: Session) -> None:
 def get_hidden_project_ids(user_id: UUID, db: Session) -> list[UUID]:
     rows = db.query(ChatHidden.project_id).filter(ChatHidden.user_id == user_id).all()
     return [r[0] for r in rows]
+
+
+def get_last_messages(user_id: UUID, db: Session) -> dict:
+    from projects.models import Project
+    from sqlalchemy import or_
+    active = db.query(Project).filter(
+        or_(Project.client_id == user_id, Project.assigned_freelancer_id == user_id),
+        Project.status.in_(['in_progress', 'delivered', 'completed'])
+    ).all()
+    result = {}
+    for proj in active:
+        msg = db.query(Message).filter(
+            Message.project_id == proj.id
+        ).order_by(Message.created_at.desc()).first()
+        result[str(proj.id)] = msg
+    return result

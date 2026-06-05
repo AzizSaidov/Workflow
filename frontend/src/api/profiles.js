@@ -3,6 +3,7 @@ import client from './client'
 export const profilesApi = {
   get: (userId) => client.get(`/profiles/${userId}`),
   getTop: (category) => client.get('/profiles/top', { params: category ? { category } : {} }),
+  getAll: (category) => client.get('/profiles/all', { params: category ? { category } : {} }),
   updateMe: (data) => client.put('/profiles/me', data),
   addSkill: (skillId) => client.post('/profiles/me/skills', { skill_id: skillId }),
   removeSkill: (skillId) => client.delete(`/profiles/me/skills/${skillId}`),

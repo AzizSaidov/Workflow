@@ -41,32 +41,6 @@ export default function Globe({
       label: l.role === 'me' ? 'Вы' : l.role === 'client' ? 'Заказчик' : 'Фрилансер',
     })), [locations])
 
-  // Snow particles scattered across the globe in winter mode
-  const SNOW_SEED = useMemo(() => {
-    const pts = []
-    // Polar caps — concentrated near 80–90°
-    for (let i = 0; i < 18; i++) {
-      pts.push({ lat:  (80 + Math.random() * 10),       lng: Math.random() * 360 - 180 })
-      pts.push({ lat: -(80 + Math.random() * 10),       lng: Math.random() * 360 - 180 })
-    }
-    // Mid-latitude snow
-    for (let i = 0; i < 20; i++) {
-      pts.push({ lat: Math.random() * 120 - 60, lng: Math.random() * 360 - 180 })
-    }
-    return pts
-  }, [])
-
-  const allPoints = useMemo(() => {
-    if (!winter) return points
-    const snowPts = SNOW_SEED.map(p => ({
-      ...p, role: 'snow',
-      color: `rgba(${200 + Math.floor(Math.random()*55)},${230 + Math.floor(Math.random()*25)},255,0.75)`,
-      size: 0.18 + Math.random() * 0.28,
-      label: '',
-    }))
-    return [...points, ...snowPts]
-  }, [points, winter, SNOW_SEED])
-
   const arcs = useMemo(() => {
     const clients = points.filter(p => p.role === 'client')
     const freelancers = points.filter(p => p.role === 'freelancer')
@@ -214,11 +188,11 @@ export default function Globe({
           atmosphereColor={atmoColor}
           atmosphereAltitude={atmoAlt}
 
-          pointsData={allPoints}
+          pointsData={points}
           pointColor="color"
           pointAltitude={0.03}
           pointRadius="size"
-          pointLabel={p => p.role === 'snow' ? false :
+          pointLabel={p =>
             `<div style="background:rgba(10,10,20,0.93);border:0.5px solid rgba(255,255,255,0.13);` +
             `border-radius:8px;padding:5px 11px;font-size:12px;color:#fff;pointer-events:none;` +
             `box-shadow:0 2px 12px rgba(0,0,0,0.5);">${p.label}</div>`
@@ -250,6 +224,16 @@ export default function Globe({
           onGlobeReady={() => setLoaded(true)}
         />
       </div>
+
+      {/* Specular sheen — soft fixed highlight for a glossier, more 3D sphere */}
+      {loaded && (
+        <div style={{
+          position: 'absolute', inset: 0, borderRadius: '50%',
+          background: `radial-gradient(circle at 33% 27%, rgba(255,255,255,${isDark ? 0.10 : 0.16}) 0%, rgba(255,255,255,${isDark ? 0.04 : 0.06}) 15%, transparent 42%)`,
+          mixBlendMode: 'soft-light',
+          pointerEvents: 'none', zIndex: 2,
+        }} />
+      )}
 
       {/* Vignette — edges fade to background */}
       {loaded && (

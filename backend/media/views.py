@@ -30,7 +30,7 @@ def _validate_and_save(file: UploadFile) -> tuple[str, str, str]:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Unsupported file type: {ext}")
     content = file.file.read()
     if len(content) > MAX_SIZE:
-        raise HTTPException(status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE, detail="File exceeds 10 MB limit")
+        raise HTTPException(status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE, detail="Файл превышает лимит 50 МБ")
     stored_name = f"{uuid_lib.uuid4()}{ext}"
     (UPLOAD_DIR / stored_name).write_bytes(content)
     return stored_name, file.filename or stored_name, ext.lstrip(".")
@@ -40,6 +40,10 @@ def upload_avatar(file: UploadFile, user: User, db: Session) -> str:
     stored_name, _, _ = _validate_and_save(file)
     user.avatar_url = f"/api/media/{stored_name}"
     db.commit()
+    # Avatar can be the final piece that completes the profile — re-check achievements
+    # (profile_filled / rising_star require avatar + bio + name).
+    from achievements.views import check_and_grant
+    check_and_grant(user, db)
     return user.avatar_url
 
 

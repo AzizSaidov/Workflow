@@ -21,7 +21,7 @@ from wallet.models import Wallet
 from categories.models import Category
 from skills.models import Skill
 from languages.models import Language
-from profiles.models import FreelancerProfile, SkillToProfile, ProfileLanguage, LanguageLevel, ProfileLike
+from profiles.models import FreelancerProfile, SkillToProfile, ProfileLanguage, LanguageLevel, ProfileLike, ProfileCategory
 from client_profiles.models import ClientProfile
 from projects.models import Project, ProjectStatus
 from bids.models import Bid, BidStatus
@@ -519,10 +519,13 @@ def seed():
                 is_verified=fd["verified"],
                 response_time=fd["resp"],
                 github_url=fd.get("github"),
-                category_id=cats[fd["cat"]].id if fd.get("cat") and fd["cat"] in cats else None,
             )
             db.add(fp)
             db.flush()
+
+            # Специализация (M2M) — заменяет прежнее одиночное поле category_id
+            if fd.get("cat") and fd["cat"] in cats:
+                db.add(ProfileCategory(profile_id=fp.id, category_id=cats[fd["cat"]].id))
 
             for sk in fd["skills"]:
                 if sk in skills:

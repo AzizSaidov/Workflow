@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 import useAuthStore from '../store/authStore'
 import useThemeStore from '../store/themeStore'
 import useSiteStore from '../store/siteStore'
+import { chatsApi } from '../api/chats'
 import ThemeToggle from './ThemeToggle'
 import Avatar from './Avatar'
 import NotificationBell from './NotificationBell'
@@ -53,6 +54,7 @@ export default function Navbar() {
   const navigate = useNavigate()
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
+  const [unreadChats, setUnreadChats] = useState(0)
   const menuRef = useRef(null)
 
   useEffect(() => {
@@ -60,6 +62,29 @@ export default function Navbar() {
     window.addEventListener('scroll', handler)
     return () => window.removeEventListener('scroll', handler)
   }, [])
+
+  // Global unread-chat indicator: poll last messages, compare against the per-chat
+  // read markers ChatsPage writes to localStorage. Re-checks on every navigation.
+  useEffect(() => {
+    if (!user?.id) { setUnreadChats(0); return }
+    let active = true
+    const check = async () => {
+      try {
+        const { data } = await chatsApi.getLastMessages()
+        let count = 0
+        Object.entries(data || {}).forEach(([pid, msg]) => {
+          if (!msg || String(msg.sender_id) === String(user.id)) return
+          const stored = localStorage.getItem(`chat_read_${user.id}_${pid}`)
+          const readAt = stored ? new Date(stored) : new Date(0)
+          if (new Date(msg.created_at) > readAt) count++
+        })
+        if (active) setUnreadChats(count)
+      } catch {}
+    }
+    check()
+    const id = setInterval(check, 20000)
+    return () => { active = false; clearInterval(id) }
+  }, [user?.id, location.pathname])
 
   useEffect(() => {
     const handler = (e) => {
@@ -124,6 +149,15 @@ export default function Navbar() {
               >
                 <i className={`ti ti-${icon}`} style={{ fontSize: 15, color: active ? 'var(--accent)' : 'inherit' }} />
                 {label}
+                {to === '/chats' && unreadChats > 0 && (
+                  <span style={{
+                    minWidth: 17, height: 17, borderRadius: 9, padding: '0 5px',
+                    background: '#F87171', color: '#fff', fontSize: 10, fontWeight: 700,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1,
+                  }}>
+                    {unreadChats > 9 ? '9+' : unreadChats}
+                  </span>
+                )}
               </div>
             </Link>
           )
@@ -180,7 +214,7 @@ export default function Navbar() {
 
                   {/* Menu items */}
                   {[
-                    !(user?.is_admin || user?.role === 'admin') && { to: `/profile/${user?.id}`, icon: 'user', label: 'Профиль' },
+                    !(user?.is_admin || user?.role === 'admin') && { to: user?.role === 'client' ? `/client/${user?.id}` : `/profile/${user?.id}`, icon: 'user', label: 'Профиль' },
                     { to: '/dashboard', icon: 'layout-dashboard', label: 'Дашборд' },
                     { to: '/wallet', icon: 'wallet', label: 'Кошелёк' },
                     { to: '/favorites', icon: 'heart', label: 'Избранное' },

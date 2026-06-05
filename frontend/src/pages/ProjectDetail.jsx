@@ -11,7 +11,7 @@ import { contractsApi } from '../api/contracts'
 import { escrowApi } from '../api/escrow'
 import { walletApi } from '../api/wallet'
 import { profilesApi } from '../api/profiles'
-import client from '../api/client'
+import client, { API_ORIGIN } from '../api/client'
 import StarBackground from '../components/StarBackground'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
@@ -127,6 +127,7 @@ export default function ProjectDetail() {
   const [projectFiles, setProjectFiles] = useState([])
   const [contract, setContract] = useState(null)
   const [wallet, setWallet] = useState(null)
+  const [myFreelancerProfile, setMyFreelancerProfile] = useState(null)
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState('bids')
 
@@ -142,8 +143,9 @@ export default function ProjectDetail() {
   const [revisions, setRevisions] = useState([])
   const [showRevisionHistory, setShowRevisionHistory] = useState(false)
 
-  const [deliveryForm, setDeliveryForm] = useState({ delivery_description: '', delivery_github_url: '', delivery_pr_url: '', delivery_demo_url: '' })
+  const [deliveryForm, setDeliveryForm] = useState({ delivery_description: '', delivery_github_url: '', delivery_pr_url: '', delivery_demo_url: '', delivery_file_url: '' })
   const [deliveryLoading, setDeliveryLoading] = useState(false)
+  const [deliveryFileUploading, setDeliveryFileUploading] = useState(false)
 
   const [showRevisionForm, setShowRevisionForm] = useState(false)
   const [revisionText, setRevisionText] = useState('')
@@ -239,6 +241,11 @@ export default function ProjectDetail() {
     walletApi.get().then(r => setWallet(r.data)).catch(() => {})
   }, [user?.id])
 
+  useEffect(() => {
+    if (!user || user.role !== 'freelancer') return
+    profilesApi.get(user.id).then(r => setMyFreelancerProfile(r.data)).catch(() => {})
+  }, [user?.id])
+
   // Switch to files tab when project is completed
   useEffect(() => {
     if (!project || !user) return
@@ -273,7 +280,7 @@ export default function ProjectDetail() {
   const acceptedBid = bids.find(b => b.status === 'accepted')
   const needsEscrow = isOwner && project.assigned_freelancer_id && project.status === 'open'
   const currentProgress = project.progress_percent ?? 0
-  const hasDelivery = project.delivery_description || project.delivery_github_url || project.delivery_pr_url || project.delivery_demo_url
+  const hasDelivery = project.delivery_description || project.delivery_github_url || project.delivery_pr_url || project.delivery_demo_url || project.delivery_file_url
   const isRevision = project.status === 'in_progress' && !!project.client_feedback
   const canUploadFile = (isOwner && !['cancelled', 'disputed'].includes(project.status)) ||
     (isAssignedFreelancer && ['in_progress', 'delivered', 'completed'].includes(project.status))
@@ -342,6 +349,7 @@ export default function ProjectDetail() {
         delivery_github_url: deliveryForm.delivery_github_url || null,
         delivery_pr_url: deliveryForm.delivery_pr_url || null,
         delivery_demo_url: deliveryForm.delivery_demo_url || null,
+        delivery_file_url: deliveryForm.delivery_file_url || null,
       })
       toast('Работа сдана! Ожидайте проверки.', 'success')
       load()
@@ -808,7 +816,56 @@ export default function ProjectDetail() {
                     </div>
                   </div>
                   <form onSubmit={submitDelivery} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-                    <AITextarea label="Описание выполненной работы *" value={deliveryForm.delivery_description} onChange={e => setDeliveryForm(f => ({ ...f, delivery_description: e.target.value }))} placeholder="Что сделано, как проверить, особые замечания..." rows={4} aiContext={{ mode: 'deliver', projectTitle: project?.title || '', projectDescription: project?.description || '' }} />
+                    <AITextarea label="Описание выполненной работы *" value={deliveryForm.delivery_description} onChange={e => setDeliveryForm(f => ({ ...f, delivery_description: e.target.value }))} placeholder="Кратко напишите что сделали — AI оформит это в аккуратный отчёт (он не придумывает за вас)" rows={4} aiContext={{
+  mode: 'deliver',
+  projectTitle: project.title,
+  projectDescription: project.description,
+  links: [
+    deliveryForm.delivery_github_url && `GitHub: ${deliveryForm.delivery_github_url}`,
+    deliveryForm.delivery_pr_url && `PR: ${deliveryForm.delivery_pr_url}`,
+    deliveryForm.delivery_demo_url && `Demo: ${deliveryForm.delivery_demo_url}`,
+  ].filter(Boolean).join(', '),
+}} />
+                    {/* File attachment */}
+                    <div>
+                      <label style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)', display: 'block', marginBottom: 6 }}>
+                        Файл с результатом <span style={{ color: 'var(--text-muted)', fontWeight: 400 }}>(необязательно)</span>
+                      </label>
+                      {deliveryForm.delivery_file_url ? (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', borderRadius: 10, background: 'rgba(29,158,117,0.07)', border: '0.5px solid rgba(29,158,117,0.3)' }}>
+                          <i className="ti ti-file-check" style={{ fontSize: 17, color: 'var(--accent-teal)', flexShrink: 0 }} />
+                          <span style={{ fontSize: 13, color: 'var(--accent-teal)', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            {deliveryForm.delivery_file_url.split('/').pop()}
+                          </span>
+                          <button type="button" onClick={() => setDeliveryForm(f => ({ ...f, delivery_file_url: '' }))}
+                            style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', fontSize: 16, padding: 0 }}>✕</button>
+                        </div>
+                      ) : (
+                        <label style={{ display: 'flex', alignItems: 'center', gap: 9, padding: '10px 14px', borderRadius: 10, border: '0.5px dashed rgba(127,119,221,0.35)', cursor: deliveryFileUploading ? 'not-allowed' : 'pointer', color: 'var(--text-muted)', fontSize: 13, transition: 'border-color 0.15s' }}
+                          onMouseEnter={e => { if (!deliveryFileUploading) e.currentTarget.style.borderColor = 'rgba(127,119,221,0.6)' }}
+                          onMouseLeave={e => e.currentTarget.style.borderColor = 'rgba(127,119,221,0.35)'}>
+                          {deliveryFileUploading
+                            ? <i className="ti ti-loader-2" style={{ fontSize: 16, animation: 'spin 0.8s linear infinite', color: 'var(--accent)' }} />
+                            : <i className="ti ti-upload" style={{ fontSize: 16 }} />}
+                          <span>{deliveryFileUploading ? 'Загружаем...' : 'Прикрепить файл (архив, PDF, документ...)'}</span>
+                          <input type="file" style={{ display: 'none' }} disabled={deliveryFileUploading}
+                            accept=".zip,.rar,.7z,.pdf,.docx,.doc,.txt,.md,.jpg,.jpeg,.png,.gif,.webp,.mp4,.fig,.sketch,.psd"
+                            onChange={async (e) => {
+                              const file = e.target.files?.[0]; if (!file) return
+                              e.target.value = ''
+                              setDeliveryFileUploading(true)
+                              try {
+                                const form = new FormData(); form.append('file', file)
+                                const { data } = await client.post('/media/upload', form, { headers: { 'Content-Type': undefined } })
+                                setDeliveryForm(f => ({ ...f, delivery_file_url: data.url }))
+                                toast('Файл загружен', 'success')
+                              } catch { toast('Ошибка загрузки файла', 'error') }
+                              finally { setDeliveryFileUploading(false) }
+                            }}
+                          />
+                        </label>
+                      )}
+                    </div>
                     <Input label="GitHub репозиторий" placeholder="https://github.com/..." value={deliveryForm.delivery_github_url} onChange={e => setDeliveryForm(f => ({ ...f, delivery_github_url: e.target.value }))} icon="brand-github" />
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                       <Input label="Pull Request" placeholder="https://github.com/.../pull/..." value={deliveryForm.delivery_pr_url} onChange={e => setDeliveryForm(f => ({ ...f, delivery_pr_url: e.target.value }))} icon="git-pull-request" />
@@ -833,6 +890,7 @@ export default function ProjectDetail() {
                   </div>
                   {project.delivery_description && <p style={{ fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.75, marginBottom: 16 }}>{project.delivery_description}</p>}
                   <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                    {project.delivery_file_url && <a href={`${API_ORIGIN}${project.delivery_file_url}`} download rel="noreferrer" style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 12px', borderRadius: 8, fontSize: 13, background: 'rgba(29,158,117,0.1)', border: '0.5px solid rgba(29,158,117,0.3)', color: 'var(--accent-teal)', textDecoration: 'none' }}><i className="ti ti-file-download" style={{ fontSize: 14 }} />{project.delivery_file_url.split('/').pop()}</a>}
                     {project.delivery_github_url && <a href={project.delivery_github_url} target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 12px', borderRadius: 8, fontSize: 13, background: 'rgba(255,255,255,0.04)', border: '0.5px solid var(--border)', color: 'var(--text-secondary)', textDecoration: 'none' }}><i className="ti ti-brand-github" style={{ fontSize: 14 }} />GitHub</a>}
                     {project.delivery_pr_url && <a href={project.delivery_pr_url} target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 12px', borderRadius: 8, fontSize: 13, background: 'rgba(255,255,255,0.04)', border: '0.5px solid var(--border)', color: 'var(--text-secondary)', textDecoration: 'none' }}><i className="ti ti-git-pull-request" style={{ fontSize: 14 }} />Pull Request</a>}
                     {project.delivery_demo_url && <a href={project.delivery_demo_url} target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 12px', borderRadius: 8, fontSize: 13, background: 'rgba(29,158,117,0.1)', border: '0.5px solid rgba(29,158,117,0.3)', color: 'var(--accent-teal)', textDecoration: 'none' }}><i className="ti ti-world" style={{ fontSize: 14 }} />Демо</a>}
@@ -1057,7 +1115,19 @@ export default function ProjectDetail() {
                             <h3 style={{ fontFamily: 'Syne, sans-serif', fontSize: 16, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 18 }}>Подать заявку</h3>
                             <form onSubmit={submitBid} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                               <Input label={`Ваша стоимость ($${Number(project.budget_min).toLocaleString()} – $${Number(project.budget_max).toLocaleString()})`} type="number" placeholder={`${project.budget_min} – ${project.budget_max}`} min={project.budget_min} max={project.budget_max} value={bidForm.price} onChange={e => setBidForm(f => ({ ...f, price: e.target.value }))} icon="currency-dollar" required />
-                              <AITextarea label="Cover letter" value={bidForm.cover_letter} onChange={e => setBidForm(f => ({ ...f, cover_letter: e.target.value }))} placeholder="Почему вы лучший кандидат для этого проекта?" rows={4} aiContext={{ mode: 'bid', projectTitle: project.title, projectDescription: project.description, skills: [] }} />
+                              <AITextarea label="Cover letter" value={bidForm.cover_letter} onChange={e => setBidForm(f => ({ ...f, cover_letter: e.target.value }))} placeholder="Почему вы лучший кандидат для этого проекта?" rows={4} aiContext={{
+  mode: 'bid',
+  projectTitle: project.title,
+  projectDescription: project.description,
+  skills: (myFreelancerProfile?.skills || []).map(s => s.name),
+  freelancerProfile: {
+    name: user?.full_name || '',
+    title: myFreelancerProfile?.title || '',
+    bio: user?.bio || '',
+    total_jobs: myFreelancerProfile?.total_jobs || 0,
+    rating: myFreelancerProfile?.rating || '',
+  },
+}} />
                               {bidError && <span style={{ fontSize: 13, color: '#F87171' }}>{bidError}</span>}
                               <Button type="submit" variant="primary" loading={bidLoading} icon="send">Отправить заявку</Button>
                             </form>

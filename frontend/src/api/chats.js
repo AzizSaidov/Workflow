@@ -2,6 +2,7 @@ import client from './client'
 
 export const chatsApi = {
   getHistory: (projectId) => client.get(`/chats/${projectId}`),
+  getLastMessages: () => client.get('/chats/last-messages'),
   deleteChat: (projectId) => client.delete(`/chats/${projectId}`),
   getHidden: () => client.get('/chats/hidden'),
   hideChat: (projectId) => client.post(`/chats/${projectId}/hide`),

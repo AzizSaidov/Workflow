@@ -22,6 +22,40 @@ function getTypeConfig(type) {
   return TYPE_CONFIG[type] || DEFAULT_TYPE
 }
 
+// ── Achievement toast helpers ──────────────────────────────────────────────
+// Показываем «стимовский» тост ровно один раз на каждое только что заработанное
+// достижение. Завязка на initDone хрупкая: Navbar (а с ним и WS) пере-монтируется
+// при каждом переходе между страницами, поэтому достижение, заработанное своим же
+// действием, приходило уже в init-батче нового подключения и подавлялось.
+// Решение: дедуп по localStorage + окно свежести, не зависящее от initDone.
+const FRESH_WINDOW_MS = 3 * 60 * 1000  // не всплывать для исторических (seed) достижений
+const SEEN_CAP = 200
+const MAX_VISIBLE_TOASTS = 5
+
+function loadSeenToasts(userId) {
+  try {
+    const raw = localStorage.getItem(`ach_toasted_${userId}`)
+    return new Set(raw ? JSON.parse(raw) : [])
+  } catch { return new Set() }
+}
+
+function saveSeenToasts(userId, set) {
+  try {
+    localStorage.setItem(`ach_toasted_${userId}`, JSON.stringify(Array.from(set).slice(-SEEN_CAP)))
+  } catch {}
+}
+
+function isAchievementNotif(n) {
+  return n.type === 'achievement' || n.notification_type === 'achievement'
+}
+
+function isFreshNotif(n) {
+  if (!n.created_at) return false
+  const t = new Date(n.created_at).getTime()
+  if (isNaN(t)) return false
+  return Date.now() - t < FRESH_WINDOW_MS
+}
+
 function groupNotifs(list) {
   const now = new Date()
   const todayStr = now.toDateString()
@@ -74,7 +108,8 @@ export default function NotificationBell() {
   const [notifs, setNotifs] = useState([])
   const [unread, setUnread] = useState(0)
   const [loading, setLoading] = useState(false)
-  const [achievementToast, setAchievementToast] = useState(null)
+  const [achievementToasts, setAchievementToasts] = useState([])
+  const seenToastsRef = useRef(null)
   const wsRef = useRef(null)
   const panelRef = useRef(null)
 
@@ -100,14 +135,23 @@ export default function NotificationBell() {
           if (n.type === 'init_done') initDone = true
           return
         }
-        if (initDone && (n.type === 'achievement' || n.notification_type === 'achievement')) {
-          setAchievementToast({
-            name: n.title?.replace('Новое достижение: ', '') || n.title,
-            description: n.message,
-            icon: n.icon || 'trophy',
-            color: n.color || '#7F77DD',
-            points: n.points || 0,
-          })
+        // Тост на любое СВЕЖЕЕ ещё не показанное достижение — приходит ли оно
+        // поллингом или в init-батче после пере-монтирования (не зависим от initDone).
+        if (isAchievementNotif(n) && isFreshNotif(n)) {
+          if (!seenToastsRef.current) seenToastsRef.current = loadSeenToasts(user.id)
+          const seen = seenToastsRef.current
+          if (!seen.has(n.id)) {
+            seen.add(n.id)
+            saveSeenToasts(user.id, seen)
+            setAchievementToasts(prev => [...prev, {
+              _key: n.id,
+              name: n.title?.replace('Новое достижение: ', '') || n.title,
+              description: n.message,
+              icon: n.icon || 'trophy',
+              color: n.color || '#7F77DD',
+              points: n.points || 0,
+            }].slice(-MAX_VISIBLE_TOASTS))
+          }
         }
         setNotifs(prev => {
           if (prev.find(x => x.id === n.id)) return prev
@@ -142,9 +186,14 @@ export default function NotificationBell() {
 
   return (
     <div ref={panelRef} style={{ position: 'relative' }}>
-      {achievementToast && (
-        <AchievementToast achievement={achievementToast} onClose={() => setAchievementToast(null)} />
-      )}
+      {achievementToasts.map((t, i) => (
+        <AchievementToast
+          key={t._key}
+          achievement={t}
+          index={i}
+          onClose={() => setAchievementToasts(prev => prev.filter(x => x._key !== t._key))}
+        />
+      ))}
 
       {/* Bell button */}
       <button

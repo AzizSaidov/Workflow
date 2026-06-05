@@ -36,6 +36,7 @@ class DeliverySubmit(BaseModel):
     delivery_pr_url: str | None = None
     delivery_demo_url: str | None = None
     delivery_description: str | None = None
+    delivery_file_url: str | None = None
 
 
 class ClientFeedback(BaseModel):

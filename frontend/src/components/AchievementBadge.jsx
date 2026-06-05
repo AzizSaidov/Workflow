@@ -77,7 +77,7 @@ export default function AchievementBadge({ achievement, earned = false, earnedAt
           )}
           {/* Tooltip arrow */}
           <div style={{
-            position: 'absolute', bottom: -5, left: '50%', transform: 'translateX(-50%)',
+            position: 'absolute', bottom: -5, left: '50%',
             width: 8, height: 8, background: 'var(--bg-card)',
             border: `0.5px solid ${earned ? color + '44' : 'var(--border)'}`,
             borderTop: 'none', borderLeft: 'none',

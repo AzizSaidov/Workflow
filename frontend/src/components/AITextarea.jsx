@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { aiApi } from '../api/ai'
 import useThemeStore from '../store/themeStore'
+import useToastStore from '../store/toastStore'
 
 function typeText(text, setter, onDone, speed = 8) {
   let i = 0
@@ -24,6 +25,7 @@ export default function AITextarea({
   style,
 }) {
   const { isDark } = useThemeStore()
+  const toast = useToastStore(s => s.show)
   const [menuOpen, setMenuOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const [typing, setTyping] = useState(false)
@@ -49,7 +51,9 @@ export default function AITextarea({
           const { data } = await aiApi.helpBid(
             aiContext.projectTitle || '',
             aiContext.projectDescription || '',
-            aiContext.skills || []
+            aiContext.skills || [],
+            aiContext.freelancerProfile || {},
+            value || ''   // freelancer's own draft — AI builds on it instead of inventing
           )
           result = data.cover_letter
         } else if (mode === 'project') {
@@ -63,7 +67,9 @@ export default function AITextarea({
         } else if (mode === 'deliver') {
           const { data } = await aiApi.helpDeliver(
             aiContext.projectTitle || '',
-            aiContext.projectDescription || ''
+            aiContext.projectDescription || '',
+            value || '',           // what the freelancer actually did (their notes)
+            aiContext.links || ''  // GitHub / PR / demo links
           )
           result = data.text
         }
@@ -78,6 +84,8 @@ export default function AITextarea({
       }
     } catch (err) {
       console.error('AI error:', err)
+      const detail = err?.response?.data?.detail
+      toast(typeof detail === 'string' ? detail : 'Ошибка AI — попробуйте ещё раз', 'error')
     } finally {
       setLoading(false)
     }

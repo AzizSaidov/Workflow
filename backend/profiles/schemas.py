@@ -10,7 +10,6 @@ class ProfileUpdate(BaseModel):
     experience_years: int | None = None
     response_time: str | None = None
     github_url: str | None = None
-    category_id: UUID | None = None
 
 
 class CategoryInProfile(BaseModel):
@@ -53,8 +52,6 @@ class ProfileResponse(BaseModel):
     response_time: str | None
     connects_balance: int
     github_url: str | None = None
-    category_id: UUID | None = None
-    category_name: str | None = None
     is_online: bool = False
     skills: list[SkillInProfile]
     languages: list[LanguageInProfile]

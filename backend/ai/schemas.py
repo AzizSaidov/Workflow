@@ -15,7 +15,13 @@ class HelpProjectResponse(BaseModel):
 class HelpBidRequest(BaseModel):
     project_title: str
     project_description: str
-    skills: list[str]
+    skills: list[str] = []
+    freelancer_name: str = ''
+    freelancer_title: str = ''
+    freelancer_bio: str = ''
+    freelancer_jobs: int = 0
+    freelancer_rating: str = ''
+    freelancer_notes: str = ''
 
 
 class HelpBidResponse(BaseModel):
@@ -49,6 +55,8 @@ class EditTextResponse(BaseModel):
 class HelpDeliverRequest(BaseModel):
     project_title: str
     project_description: str = ''
+    work_notes: str = ''
+    links: str = ''
 
 
 class HelpDeliverResponse(BaseModel):

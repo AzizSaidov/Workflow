@@ -56,7 +56,7 @@ export default function ClientProfile() {
 
   useEffect(() => {
     if (!me) return
-    favoritesApi.check('user', id).then(r => setIsFavorited(r.data?.is_favorited ?? false)).catch(() => {})
+    favoritesApi.getAll().then(r => setIsFavorited((r.data || []).some(f => f.freelancer_id === id))).catch(() => {})
   }, [id, me])
 
   const toggleFav = async () => {
@@ -64,13 +64,11 @@ export default function ClientProfile() {
     setFavLoading(true)
     try {
       if (isFavorited) {
-        const favs = await favoritesApi.getAll()
-        const fav = (favs.data || []).find(f => f.target_user_id === id)
-        if (fav) await favoritesApi.remove(fav.id)
+        await favoritesApi.removeFreelancer(id)
         setIsFavorited(false)
         toast('Убрано из избранного', 'info')
       } else {
-        await favoritesApi.add({ target_type: 'user', target_user_id: id })
+        await favoritesApi.addFreelancer(id)
         setIsFavorited(true)
         toast('Добавлено в избранное', 'success')
       }
@@ -113,7 +111,7 @@ export default function ClientProfile() {
       <div className="glow-blob glow-1" style={{ opacity: 0.3 }} />
       <Navbar />
 
-      <div style={{ maxWidth: 1100, margin: '0 auto', padding: '40px 24px 80px', display: 'flex', gap: 32, alignItems: 'flex-start' }}>
+      <div style={{ maxWidth: 1100, margin: '0 auto', padding: '40px 24px 80px', display: 'flex', gap: 32, alignItems: 'flex-start', position: 'relative', zIndex: 2 }}>
 
         {/* ── Sidebar ── */}
         <div style={{ width: 280, flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 16 }}>

@@ -33,6 +33,13 @@ from routers.settings_routers import settings_router, admin_settings_router
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     Base.metadata.create_all(bind=engine)
+    from database import SessionLocal
+    from achievements.views import ensure_achievements_exist
+    db = SessionLocal()
+    try:
+        ensure_achievements_exist(db)
+    finally:
+        db.close()
     try:
         yield
     except asyncio.CancelledError:

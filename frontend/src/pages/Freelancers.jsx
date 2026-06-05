@@ -112,7 +112,7 @@ export default function FreelancersPage() {
     setLoading(true)
     Promise.all([
       usersApi.list('freelancer'),
-      profilesApi.getTop(catFilter || undefined),
+      profilesApi.getAll(catFilter || undefined),
     ]).then(([usersRes, profilesRes]) => {
       setUsers(usersRes.data || [])
       const profileMap = {}

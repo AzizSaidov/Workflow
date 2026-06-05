@@ -1,3 +1,4 @@
+import uuid
 from uuid import UUID
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
@@ -5,13 +6,24 @@ from client_profiles.models import ClientProfile
 from client_profiles.schemas import ClientProfileUpdate
 from users.models import User, UserRole
 from projects.models import Project
+from utils import get_dushanbe_time
 
 
 def get_client_profile(user_id: UUID, db: Session) -> ClientProfile:
     profile = db.query(ClientProfile).filter(ClientProfile.user_id == user_id).first()
-    if not profile:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Client profile not found")
-    return profile
+    if profile:
+        return profile
+    # Строки профиля ещё нет (например, аккаунт-админ или заказчик, не открывавший
+    # настройки). Возвращаем пустой НЕсохранённый профиль, чтобы страница заказчика
+    # рендерилась целиком, а не «наполовину» (имя/проекты/отзывы берутся отдельно).
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    return ClientProfile(
+        id=uuid.uuid4(), user_id=user_id,
+        total_spent=0, total_projects=0, is_verified=False,
+        created_at=get_dushanbe_time(),
+    )
 
 
 def get_client_projects(user_id: UUID, db: Session) -> list[Project]:

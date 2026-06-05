@@ -126,6 +126,7 @@ def _grant(user_id, key: str, db: Session) -> bool:
     if not ach:
         return False
     try:
+        nested = db.begin_nested()
         db.add(UserAchievement(user_id=user_id, achievement_id=ach.id))
         db.flush()
         db.add(Notification(
@@ -138,9 +139,10 @@ def _grant(user_id, key: str, db: Session) -> bool:
             points=ach.points,
         ))
         db.flush()
+        nested.commit()
         return True
     except IntegrityError:
-        db.rollback()
+        nested.rollback()
         return False
 
 

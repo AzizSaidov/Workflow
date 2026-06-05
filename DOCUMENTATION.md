@@ -347,16 +347,6 @@ Workflow — фриланс-биржа на **FastAPI + React**, данные в
 
 
 
-
-
-
-
-
-
-
-
-
-
 # Admin:        admin@workflow.com       / admin123
 # Client 1:     timur@techcorp.tj        / pass123
 # Client 2:     amina@greenleaf.com      / pass123

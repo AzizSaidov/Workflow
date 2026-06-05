@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from database import get_db
 from profiles.schemas import ProfileUpdate, ProfileResponse, SkillAddRequest, LanguageAddRequest, CategoryAddRequest
 from profiles.views import (
-    get_profile, update_my_profile, get_top_freelancers,
+    get_profile, update_my_profile, get_top_freelancers, get_all_freelancer_profiles,
     add_skill, remove_skill, add_language, remove_language,
     add_category, remove_category,
     toggle_like, get_likes,
@@ -22,6 +22,15 @@ def top_freelancers(
     _: User | None = Depends(get_optional_user),
 ):
     return get_top_freelancers(db, category_slug=category)
+
+
+@profiles_router.get("/all", response_model=list[ProfileResponse])
+def all_freelancers(
+    category: str | None = Query(default=None),
+    db: Session = Depends(get_db),
+    _: User | None = Depends(get_optional_user),
+):
+    return get_all_freelancer_profiles(db, category_slug=category)
 
 
 @profiles_router.get("/{user_id}", response_model=ProfileResponse)

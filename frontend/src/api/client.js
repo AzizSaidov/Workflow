@@ -1,7 +1,10 @@
 import axios from 'axios'
 
+// Backend origin (no /api suffix) — use for media/file URLs that already include /api/media/...
+export const API_ORIGIN = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+
 const client = axios.create({
-  baseURL: `${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api`,
+  baseURL: `${API_ORIGIN}/api`,
   headers: { 'Content-Type': 'application/json' },
 })
 

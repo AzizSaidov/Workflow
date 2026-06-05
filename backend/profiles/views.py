@@ -37,8 +37,6 @@ def _build_profile_response(profile: FreelancerProfile, db: Session) -> dict:
         for link, lang in lang_links
     ]
 
-    category = db.query(Category).filter(Category.id == profile.category_id).first() if profile.category_id else None
-
     cat_links = (
         db.query(ProfileCategory, Category)
         .join(Category, Category.id == ProfileCategory.category_id)
@@ -62,8 +60,6 @@ def _build_profile_response(profile: FreelancerProfile, db: Session) -> dict:
         "response_time": profile.response_time,
         "connects_balance": profile.connects_balance,
         "github_url": profile.github_url,
-        "category_id": profile.category_id,
-        "category_name": category.name if category else None,
         "skills": skills,
         "languages": languages,
         "categories": categories,
@@ -95,18 +91,33 @@ def update_my_profile(data: ProfileUpdate, current_user: User, db: Session) -> d
 
 
 def get_top_freelancers(db: Session, category_slug: str | None = None) -> list[dict]:
-    from sqlalchemy import or_
-    query = db.query(FreelancerProfile).filter(FreelancerProfile.total_jobs > 0)
+    query = db.query(FreelancerProfile)
     if category_slug:
         category = db.query(Category).filter(Category.slug == category_slug).first()
-        if category:
-            m2m_ids = [r.profile_id for r in db.query(ProfileCategory).filter(ProfileCategory.category_id == category.id).all()]
-            query = query.filter(
-                or_(FreelancerProfile.category_id == category.id, FreelancerProfile.id.in_(m2m_ids))
-            )
+        if not category:
+            return []
+        m2m_ids = [r.profile_id for r in db.query(ProfileCategory).filter(ProfileCategory.category_id == category.id).all()]
+        query = query.filter(FreelancerProfile.id.in_(m2m_ids))
     profiles = query.order_by(
         (FreelancerProfile.rating * func.ln(func.greatest(FreelancerProfile.total_jobs, 0) + 2)).desc()
     ).limit(50).all()
+    return [_build_profile_response(p, db) for p in profiles]
+
+
+def get_all_freelancer_profiles(db: Session, category_slug: str | None = None) -> list[dict]:
+    """Every freelancer profile (not just the top-ranked). Used by the /freelancers
+    listing so that self-registered freelancers — who have rating 0 and would fall
+    outside the ranked top-50 — still show their entered title, rate, skills, etc."""
+    query = db.query(FreelancerProfile)
+    if category_slug:
+        category = db.query(Category).filter(Category.slug == category_slug).first()
+        if not category:
+            return []
+        m2m_ids = [r.profile_id for r in db.query(ProfileCategory).filter(ProfileCategory.category_id == category.id).all()]
+        query = query.filter(FreelancerProfile.id.in_(m2m_ids))
+    profiles = query.order_by(
+        (FreelancerProfile.rating * func.ln(func.greatest(FreelancerProfile.total_jobs, 0) + 2)).desc()
+    ).all()
     return [_build_profile_response(p, db) for p in profiles]
 
 
