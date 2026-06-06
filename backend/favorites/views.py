@@ -14,7 +14,7 @@ def add_project(project_id: UUID, current_user: User, db: Session) -> Favorite:
         Favorite.project_id == project_id,
     ).first()
     if exists:
-        return exists  # idempotent
+        return exists
     fav = Favorite(user_id=current_user.id, project_id=project_id)
     db.add(fav)
     db.commit()
@@ -38,7 +38,7 @@ def add_freelancer(freelancer_id: UUID, current_user: User, db: Session) -> Favo
         Favorite.freelancer_id == freelancer_id,
     ).first()
     if exists:
-        return exists  # idempotent
+        return exists
     fav = Favorite(user_id=current_user.id, freelancer_id=freelancer_id)
     db.add(fav)
     db.commit()

@@ -14,7 +14,6 @@ from utils import get_dushanbe_time
 
 notifications_router = APIRouter(prefix="/api/notifications", tags=["notifications"])
 
-# Separate router without prefix so WS lands at /ws/notifications/{user_id}
 notifications_ws_router = APIRouter()
 
 
@@ -52,7 +51,6 @@ async def notification_ws(user_id: UUID, ws: WebSocket, token: str = Query(...))
 
     await notif_manager.connect(str(user_id), ws)
 
-    # Send unread notifications on connect with a short-lived session
     db = SessionLocal()
     try:
         unread = db.query(Notification).filter(
@@ -71,7 +69,6 @@ async def notification_ws(user_id: UUID, ws: WebSocket, token: str = Query(...))
     try:
         for payload in notifs_to_send:
             await ws.send_json(payload)
-        # Signal end of initial batch — client suppresses toasts before this
         await ws.send_json({"type": "init_done"})
     except (WebSocketDisconnect, Exception):
         notif_manager.disconnect(str(user_id), ws)
@@ -84,7 +81,6 @@ async def notification_ws(user_id: UUID, ws: WebSocket, token: str = Query(...))
                 await asyncio.sleep(5)
             except asyncio.CancelledError:
                 break
-            # Short-lived session per poll — no connection held during sleep
             poll_db = SessionLocal()
             try:
                 new = poll_db.query(Notification).filter(

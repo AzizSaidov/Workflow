@@ -12,9 +12,9 @@ class AdminAuditLog(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     admin_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
     admin_name = Column(String, nullable=True)
-    action = Column(String, nullable=False)        # ban_user, unban_user, verify, topup, release_dispute, hide_project, ...
-    target_type = Column(String, nullable=True)    # user | project | transaction | report
+    action = Column(String, nullable=False)
+    target_type = Column(String, nullable=True)
     target_id = Column(UUID(as_uuid=True), nullable=True)
     target_name = Column(String, nullable=True)
-    detail = Column(Text, nullable=True)           # причина / сумма / роль и т.п.
+    detail = Column(Text, nullable=True)
     created_at = Column(DateTime(timezone=True), default=get_dushanbe_time)

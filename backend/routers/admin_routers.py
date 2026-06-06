@@ -126,7 +126,6 @@ def platform_stats(db: Session = Depends(get_db), _: User = Depends(check_admin)
     return get_platform_stats(db)
 
 
-# ─────────────────────────── Проекты (модерация) ───────────────────────────
 
 @admin_router.get("/projects")
 def list_all_projects(db: Session = Depends(get_db), _: User = Depends(check_admin)):
@@ -149,7 +148,6 @@ def delete_proj(project_id: UUID, db: Session = Depends(get_db), admin: User = D
     return result
 
 
-# ─────────────────────────── Транзакции / журнал ───────────────────────────
 
 @admin_router.get("/transactions")
 def list_transactions(db: Session = Depends(get_db), _: User = Depends(check_admin)):

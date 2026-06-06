@@ -29,7 +29,7 @@ class HelpBidResponse(BaseModel):
 
 
 class ChatMessage(BaseModel):
-    role: str      # 'user' or 'assistant'
+    role: str
     content: str
 
 
@@ -45,7 +45,7 @@ class AIChatResponse(BaseModel):
 
 class EditTextRequest(BaseModel):
     text: str
-    action: str   # 'improve' | 'shorten' | 'translate'
+    action: str
 
 
 class EditTextResponse(BaseModel):

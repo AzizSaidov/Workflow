@@ -251,7 +251,6 @@ def get_platform_stats(db: Session) -> dict:
     rate = Decimal(os.getenv("PLATFORM_COMMISSION_RATE", "0.01"))
     platform_revenue = float(Decimal(str(total_released)) * rate)
 
-    # 14-дневная динамика (бакетим в Python — без диалект-зависимостей)
     now = get_dushanbe_time()
     start = (now - timedelta(days=13)).date()
     days = [start + timedelta(days=i) for i in range(14)]
@@ -290,7 +289,6 @@ def get_platform_stats(db: Session) -> dict:
     }
 
 
-# ─────────────────────────── ПРОЕКТЫ (модерация) ───────────────────────────
 
 def get_all_projects(db: Session) -> list[dict]:
     from bids.models import Bid
@@ -338,7 +336,6 @@ def delete_project_admin(project_id: UUID, db: Session) -> dict:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found")
     title = project.title
 
-    # зачищаем зависимости (FK без каскада), затем сам проект
     db.query(Bid).filter(Bid.project_id == project_id).delete(synchronize_session=False)
     db.query(ProjectSkill).filter(ProjectSkill.project_id == project_id).delete(synchronize_session=False)
     db.query(ProjectRevision).filter(ProjectRevision.project_id == project_id).delete(synchronize_session=False)
@@ -354,7 +351,6 @@ def delete_project_admin(project_id: UUID, db: Session) -> dict:
     return {"id": str(project_id), "title": title, "deleted": True}
 
 
-# ─────────────────────────── ТРАНЗАКЦИИ / ЖУРНАЛ ───────────────────────────
 
 def get_all_transactions(db: Session) -> list[dict]:
     from sqlalchemy.orm import aliased

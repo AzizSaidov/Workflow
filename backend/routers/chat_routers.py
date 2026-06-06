@@ -85,7 +85,6 @@ def chat_history(project_id: UUID, db: Session = Depends(get_db), current_user: 
 
 @chats_router.websocket("/ws/chat/{project_id}")
 async def websocket_chat(project_id: UUID, ws: WebSocket, token: str = Query(...)):
-    # Validate with a short-lived session, then release the connection back to the pool
     user_id = decode_token(token)
     if not user_id:
         await ws.close(code=4001)
@@ -126,7 +125,6 @@ async def websocket_chat(project_id: UUID, ws: WebSocket, token: str = Query(...
             file_type = payload.get("file_type")
             if not content.strip() and not file_url:
                 continue
-            # Open a short-lived session only for the DB write
             msg_db = SessionLocal()
             try:
                 msg = save_message(project_id, stored_user_id, content, msg_db, file_url, file_type)

@@ -21,7 +21,7 @@ ALLOWED_EXTENSIONS = {
     ".mp4",
     ".mp3", ".ogg", ".webm", ".wav", ".m4a",
 }
-MAX_SIZE = 50 * 1024 * 1024  # 50 MB
+MAX_SIZE = 50 * 1024 * 1024
 
 
 def _validate_and_save(file: UploadFile) -> tuple[str, str, str]:
@@ -40,8 +40,6 @@ def upload_avatar(file: UploadFile, user: User, db: Session) -> str:
     stored_name, _, _ = _validate_and_save(file)
     user.avatar_url = f"/api/media/{stored_name}"
     db.commit()
-    # Avatar can be the final piece that completes the profile — re-check achievements
-    # (profile_filled / rising_star require avatar + bio + name).
     from achievements.views import check_and_grant
     check_and_grant(user, db)
     return user.avatar_url

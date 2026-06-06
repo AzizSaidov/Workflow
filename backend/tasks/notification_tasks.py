@@ -10,7 +10,6 @@ from tasks.celery_app import celery_app
 def send_email_notification(self, to_email: str, subject: str, body: str):
     """Placeholder for email sending. Wire up SMTP/SendGrid here."""
     try:
-        # TODO: integrate SMTP or SendGrid
         print(f"[EMAIL] To: {to_email} | Subject: {subject}")
     except Exception as exc:
         raise self.retry(exc=exc, countdown=60)

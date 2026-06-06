@@ -94,7 +94,6 @@ def release(tx_id: UUID, client: User, db: Session) -> Transaction:
     tx.released_at = get_dushanbe_time()
     project.status = ProjectStatus.completed
 
-    # держим total_jobs согласованным с accept_delivery (C2 в ТЗ)
     from profiles.models import FreelancerProfile
     fp = db.query(FreelancerProfile).filter(FreelancerProfile.user_id == tx.freelancer_id).first()
     if fp:

@@ -151,7 +151,6 @@ def seed():
 
         print("Seeding database...")
 
-        # ── CATEGORIES ──────────────────────────────────────────────────────
         cats_data = [
             ("Веб-разработка",       "web-dev",      "ti-code",          "Сайты, веб-приложения, API"),
             ("Мобильная разработка", "mobile-dev",   "ti-device-mobile", "iOS, Android, Flutter"),
@@ -171,7 +170,6 @@ def seed():
             cats[slug] = c
         db.flush()
 
-        # ── SKILLS ──────────────────────────────────────────────────────────
         skills = {}
         for cat_slug, skill_list in ALL_SKILLS.items():
             for skill_name, skill_slug in skill_list:
@@ -180,7 +178,6 @@ def seed():
                 skills[skill_slug] = s
         db.flush()
 
-        # ── LANGUAGES ───────────────────────────────────────────────────────
         langs_raw = [
             ("Русский", "ru"), ("Английский", "en"), ("Таджикский", "tg"),
             ("Узбекский", "uz"), ("Казахский", "kk"), ("Немецкий", "de"),
@@ -194,7 +191,6 @@ def seed():
             langs[code] = la
         db.flush()
 
-        # ── HELPER ──────────────────────────────────────────────────────────
         def make_user(email, pw, role, full_name, bio, lat, lng, avatar=None):
             u = User(
                 email=email, password=hash_password(pw), role=role,
@@ -207,7 +203,6 @@ def seed():
             db.add(w)
             return u, w
 
-        # ── ADMIN ───────────────────────────────────────────────────────────
         admin, admin_w = make_user(
             "admin@workflow.com", "admin123", UserRole.client,
             "Admin", "Workflow platform administrator.", 25.77, -80.19,
@@ -216,7 +211,6 @@ def seed():
         admin.is_admin = True
         admin_w.balance = Decimal("50000")
 
-        # ── CLIENTS (6) ─────────────────────────────────────────────────────
         clients_raw = [
             {
                 "email": "timur@techcorp.tj", "pw": "pass123",
@@ -287,9 +281,7 @@ def seed():
             clients.append(u)
         db.flush()
 
-        # ── FREELANCERS (10) ─────────────────────────────────────────────────
         freelancers_raw = [
-            # 0
             {
                 "email": "alexei@dev.ru", "pw": "pass123",
                 "name": "Alexei Voronov", "lat": 55.75, "lng": 37.62,
@@ -311,7 +303,6 @@ def seed():
                 ],
                 "github": "https://github.com/alexeivoronov",
             },
-            # 1
             {
                 "email": "zara@flutter.dev", "pw": "pass123",
                 "name": "Zara Ismailova", "lat": 41.90, "lng": 12.50,
@@ -330,7 +321,6 @@ def seed():
                 ],
                 "github": "https://github.com/zaraismail",
             },
-            # 2
             {
                 "email": "marco@design.it", "pw": "pass123",
                 "name": "Marco Ferrari", "lat": 40.42, "lng": -3.70,
@@ -353,7 +343,6 @@ def seed():
                 ],
                 "github": None,
             },
-            # 3
             {
                 "email": "aisha@ailab.kz", "pw": "pass123",
                 "name": "Aisha Bekova", "lat": 31.23, "lng": 121.47,
@@ -375,7 +364,6 @@ def seed():
                 ],
                 "github": "https://github.com/aishabekova",
             },
-            # 4
             {
                 "email": "bekzod@devops.uz", "pw": "pass123",
                 "name": "Bekzod Yusupov", "lat": 52.23, "lng": 21.01,
@@ -396,7 +384,6 @@ def seed():
                 ],
                 "github": "https://github.com/bekzodyusupov",
             },
-            # 5
             {
                 "email": "diana@content.ru", "pw": "pass123",
                 "name": "Diana Petrova", "lat": 59.33, "lng": 18.07,
@@ -414,7 +401,6 @@ def seed():
                 ],
                 "github": None,
             },
-            # 6
             {
                 "email": "ryan@security.io", "pw": "pass123",
                 "name": "Ryan Clarke", "lat": 51.51, "lng": -0.13,
@@ -436,7 +422,6 @@ def seed():
                 ],
                 "github": "https://github.com/ryancsec",
             },
-            # 7
             {
                 "email": "lena@video.de", "pw": "pass123",
                 "name": "Lena Braun", "lat": 48.21, "lng": 16.37,
@@ -457,7 +442,6 @@ def seed():
                 ],
                 "github": None,
             },
-            # 8
             {
                 "email": "arjun@backend.in", "pw": "pass123",
                 "name": "Arjun Sharma", "lat": 47.61, "lng": -122.33,
@@ -478,7 +462,6 @@ def seed():
                 ],
                 "github": "https://github.com/arjunsharma",
             },
-            # 9
             {
                 "email": "natasha@finance.ru", "pw": "pass123",
                 "name": "Natasha Volkova", "lat": 59.93, "lng": 30.32,
@@ -523,7 +506,6 @@ def seed():
             db.add(fp)
             db.flush()
 
-            # Специализация (M2M) — заменяет прежнее одиночное поле category_id
             if fd.get("cat") and fd["cat"] in cats:
                 db.add(ProfileCategory(profile_id=fp.id, category_id=cats[fd["cat"]].id))
 
@@ -551,15 +533,11 @@ def seed():
             freelancers.append((u, fp))
         db.flush()
 
-        cl = clients                       # cl[0..5]
-        fr = [f[0] for f in freelancers]  # fr[0..9]
+        cl = clients
+        fr = [f[0] for f in freelancers]
 
-        # ── PROJECTS (25) ────────────────────────────────────────────────────
-        # Fields: client, freelancer, status, bid_price, feat, title, desc,
-        #         cat, bmin, bmax, ptype, level, dur
         projects_data = [
 
-            # ─── COMPLETED (6) ───────────────────────────────────────────────
             dict(client=cl[0], freelancer=fr[0], status="completed", bid_price=3000, feat=True,
                  title="CRM System for Sales Agency",
                  desc="CRM for managing clients, tasks, pipeline and analytics. Telegram integration, email notifications, dashboard with charts. 30+ custom fields.",
@@ -590,7 +568,6 @@ def seed():
                  desc="90-second animated explainer for SaaS product launch. After Effects + Cinema 4D. 3 revision rounds included. Final delivery in 4K.",
                  cat="video", bmin=1000, bmax=2500, ptype="fixed", level="expert", dur="3 weeks"),
 
-            # ─── IN_PROGRESS (5) ─────────────────────────────────────────────
             dict(client=cl[0], freelancer=fr[1], status="in_progress", bid_price=5500, feat=True,
                  title="Food Delivery App (Flutter iOS+Android)",
                  desc="iOS + Android app for food delivery. Restaurant catalog, cart, Stripe payments, Apple Pay, real-time courier tracking. Firebase backend.",
@@ -616,7 +593,6 @@ def seed():
                  desc="Multi-tenant architecture with per-tenant databases, custom domains, billing via Stripe. Admin panel. REST + GraphQL APIs.",
                  cat="web-dev", bmin=3500, bmax=5500, ptype="fixed", level="expert", dur="2-3 months"),
 
-            # ─── DELIVERED (2) ───────────────────────────────────────────────
             dict(client=cl[2], freelancer=fr[2], status="delivered", bid_price=1500, feat=False,
                  title="Landing Page Redesign + A/B Testing",
                  desc="UX audit of existing landing page, new design in Figma, pixel-perfect HTML/CSS. A/B test setup via Google Optimize. Mobile-first.",
@@ -627,7 +603,6 @@ def seed():
                  desc="6-episode brand story video series for LinkedIn + YouTube. DaVinci Resolve editing, custom motion graphics, subtitles in EN/ZH.",
                  cat="video", bmin=1800, bmax=3000, ptype="fixed", level="expert", dur="5 weeks"),
 
-            # ─── OPEN (12) ───────────────────────────────────────────────────
             dict(client=cl[1], freelancer=None, status="open", bid_price=None, feat=True,
                  title="AI Customer Support Chatbot (GPT-4)",
                  desc="GPT-4 chatbot integrated into Telegram + website widget. Trained on FAQ database. Conversation history in PostgreSQL. Analytics dashboard.",
@@ -688,7 +663,6 @@ def seed():
                  desc="Multi-label text classifier for customer support tickets (10 categories, Chinese + English). BERT fine-tuning. REST API deployment on AWS.",
                  cat="data-ai", bmin=2500, bmax=5000, ptype="fixed", level="expert", dur="6 weeks"),
 
-            # ─── EXTRA COMPLETED (10) — for richer review history ────────────
             dict(client=cl[3], freelancer=fr[0], status="completed", bid_price=3000, feat=False,
                  title="React Analytics Dashboard",
                  desc="Real-time analytics dashboard for marketing team. React + Recharts + FastAPI. Custom filters, CSV export, role-based access for 5 user types.",
@@ -764,21 +738,19 @@ def seed():
             projects.append((p, pd))
         db.flush()
 
-        # ── BIDS + CONTRACTS + ESCROW ────────────────────────────────────────
-        # Open projects: add 3-5 pending bids (indices shifted +10 for extra completed projects)
         open_project_bidders = {
-            23: [fr[0], fr[1], fr[8]],       # AI chatbot
-            24: [fr[0], fr[8], fr[3]],        # HR SaaS
-            25: [fr[5], fr[9]],               # SEO articles
-            26: [fr[6]],                      # Pentest
-            27: [fr[0], fr[8], fr[1]],        # Trading dashboard
-            28: [fr[7], fr[1]],               # Video ads
-            29: [fr[1], fr[2]],               # iOS app
-            30: [fr[5]],                      # Google Ads
-            31: [fr[9], fr[5]],               # Financial model
-            32: [fr[4], fr[0]],               # Microservices migration
-            33: [fr[2], fr[7]],               # Brand identity
-            34: [fr[3], fr[0]],               # NLP pipeline
+            23: [fr[0], fr[1], fr[8]],
+            24: [fr[0], fr[8], fr[3]],
+            25: [fr[5], fr[9]],
+            26: [fr[6]],
+            27: [fr[0], fr[8], fr[1]],
+            28: [fr[7], fr[1]],
+            29: [fr[1], fr[2]],
+            30: [fr[5]],
+            31: [fr[9], fr[5]],
+            32: [fr[4], fr[0]],
+            33: [fr[2], fr[7]],
+            34: [fr[3], fr[0]],
         }
 
         cover_letters = [
@@ -854,56 +826,38 @@ def seed():
 
         db.flush()
 
-        # ── REVIEWS ──────────────────────────────────────────────────────────
-        # Original 6 completed (0-5) + extra 10 completed (25-34)
         review_data = [
-            # ── project 0: CRM (cl[0]=Timur ↔ fr[0]=Alexei) ─────────────────
             (0, cl[0], fr[0], 5, "Alexei delivered everything perfectly. Code quality, deadlines, communication — all top-notch. Will definitely hire again."),
             (0, fr[0], cl[0], 5, "Timur is an excellent client. Clear requirements, fast feedback, fair payment on time. A pleasure to work with."),
-            # ── project 1: ML Churn (cl[2]=Damir ↔ fr[3]=Aisha) ─────────────
             (1, cl[2], fr[3], 5, "Aisha is world-class. The churn model hit 94% precision — way above our expectations. Incredible work."),
             (1, fr[3], cl[2], 4, "Interesting and technically challenging project. Requirements shifted a couple of times but Damir is fair and responsive."),
-            # ── project 2: Design System (cl[3]=Sofia ↔ fr[2]=Marco) ─────────
             (2, cl[3], fr[2], 5, "Marco created exactly what we envisioned and more. The design system is simply brilliant. Our team loves it."),
             (2, fr[2], cl[3], 5, "Sofia is every designer's dream client. She knows exactly what she wants and deeply values quality craft."),
-            # ── project 3: Security Audit (cl[1]=Amina ↔ fr[6]=Ryan) ─────────
             (3, cl[1], fr[6], 5, "Ryan found 22 vulnerabilities we had no idea about. His report was incredibly detailed and actionable. Saved us from a potential breach."),
             (3, fr[6], cl[1], 5, "Amina was professional and collaborative throughout. She took security seriously and implemented all recommendations quickly."),
-            # ── project 4: Payment Microservices (cl[4]=Chen ↔ fr[8]=Arjun) ──
             (4, cl[4], fr[8], 5, "Arjun built a payment system that handles our peak load effortlessly. Clean architecture, comprehensive tests. Exceptional engineer."),
             (4, fr[8], cl[4], 4, "Chen is technically sharp and knows what he wants. Timeline was tight but we made it work. Great project overall."),
-            # ── project 5: Explainer Video (cl[5]=Carlos ↔ fr[7]=Lena) ───────
             (5, cl[5], fr[7], 5, "Lena's animation quality is stunning. The explainer video got 2M views in the first week after launch. Worth every dollar."),
             (5, fr[7], cl[5], 5, "Carlos gives clear creative direction and constructive feedback. The project was smooth and fun from start to finish."),
 
-            # ── project 25: Analytics Dashboard (cl[3]=Sofia ↔ fr[0]=Alexei) ─
             (25, cl[3], fr[0], 4, "Alexei built a solid dashboard with excellent performance. A few minor UI tweaks were needed but overall great work and fast delivery."),
             (25, fr[0], cl[3], 5, "Sofia provided crystal-clear design mockups and quick approvals. This kind of client makes every project enjoyable."),
-            # ── project 26: Fitness App (cl[4]=Chen ↔ fr[1]=Zara) ────────────
             (26, cl[4], fr[1], 5, "Zara delivered a polished Flutter app ahead of schedule. Apple Health integration worked flawlessly. Very impressed with the code quality."),
             (26, fr[1], cl[4], 5, "Chen has a deep technical understanding of mobile. Clear requirements and fast decision-making — exactly what a freelancer hopes for."),
-            # ── project 27: Corporate Website (cl[0]=Timur ↔ fr[2]=Marco) ────
             (27, cl[0], fr[2], 5, "Marco transformed our outdated corporate site into something we're genuinely proud of. Lighthouse score 97 — wow. Highly recommended."),
             (27, fr[2], cl[0], 4, "Timur knew what he wanted but the scope expanded mid-project. He was fair about it and adjusted the budget. Good client to work with."),
-            # ── project 28: AWS Migration (cl[1]=Amina ↔ fr[4]=Bekzod) ───────
             (28, cl[1], fr[4], 4, "Bekzod executed the AWS migration with zero downtime. A few misunderstandings on scope early on, but he resolved them professionally."),
             (28, fr[4], cl[1], 5, "Amina's team was well-prepared and responsive. The migration window was tight but everyone pulled together. Would work with her again."),
-            # ── project 29: Blog Articles (cl[2]=Damir ↔ fr[5]=Diana) ─────────
             (29, cl[2], fr[5], 4, "Diana's articles are well-researched and the SEO structure is solid. Turnaround could be faster but quality is consistently good."),
             (29, fr[5], cl[2], 5, "Damir gives detailed briefs and quick feedback. No ambiguity, no scope creep. This is how content projects should run."),
-            # ── project 30: Financial Model (cl[4]=Chen ↔ fr[9]=Natasha) ─────
             (30, cl[4], fr[9], 5, "Natasha built a bulletproof financial model that impressed our Series A investors. Scenario analysis was especially insightful."),
             (30, fr[9], cl[4], 5, "Chen provided all the business data I needed upfront. Clear vision, fast review cycles. The project ran perfectly."),
-            # ── project 31: Segmentation ML (cl[5]=Carlos ↔ fr[3]=Aisha) ─────
             (31, cl[5], fr[3], 5, "Aisha's segmentation model revealed customer insights our marketing team never had before. The Tableau dashboard is used daily now."),
             (31, fr[3], cl[5], 5, "Carlos trusted the process and let the data tell the story. The business impact was real and measurable. Great collaboration."),
-            # ── project 32: Kafka Architecture (cl[3]=Sofia ↔ fr[8]=Arjun) ───
             (32, cl[3], fr[8], 5, "Arjun redesigned our entire order system and the results are remarkable — 10x throughput, zero errors in 3 months of production. Brilliant."),
             (32, fr[8], cl[3], 4, "Sofia's project had ambitious requirements but she trusted the technical choices. Documentation and testing were thorough. Good project."),
-            # ── project 33: Task Tool (cl[0]=Timur ↔ fr[0]=Alexei) ───────────
             (33, cl[0], fr[0], 5, "Third time working with Alexei and he keeps getting better. The internal tool is used by our whole team daily. Fast, clean, reliable code."),
             (33, fr[0], cl[0], 5, "Timur is one of my best long-term clients. Clear vision, fast responses, and always pays on time. This is what freelancing should feel like."),
-            # ── project 34: Mobile UI Design (cl[5]=Carlos ↔ fr[2]=Marco) ────
             (34, cl[5], fr[2], 5, "Marco's designs were so good the development team had zero questions. 48 screens delivered in 5 weeks with a full component library. Exceptional."),
             (34, fr[2], cl[5], 5, "Carlos gave me full creative freedom within the brief. The outcome exceeded both our expectations. Looking forward to the next project."),
         ]
@@ -916,30 +870,28 @@ def seed():
                 created_at=dt(proj_idx * 3 + 5),
             ))
 
-        # ── ACHIEVEMENTS ─────────────────────────────────────────────────────
         from achievements.views import ensure_achievements_exist, check_and_grant
         ensure_achievements_exist(db)
         all_users = [*clients, *[f[0] for f in freelancers]]
         for u in all_users:
             check_and_grant(u, db)
 
-        # ── PROFILE LIKES ─────────────────────────────────────────────────────
         likes_data = [
-            (cl[0], fr[0]),   # Timur → Alexei
-            (cl[0], fr[2]),   # Timur → Marco
-            (cl[1], fr[0]),   # Amina → Alexei
-            (cl[1], fr[6]),   # Amina → Ryan
-            (cl[2], fr[3]),   # Damir → Aisha
-            (cl[2], fr[9]),   # Damir → Natasha
-            (cl[3], fr[2]),   # Sofia → Marco
-            (cl[3], fr[7]),   # Sofia → Lena
-            (cl[4], fr[8]),   # Chen → Arjun
-            (cl[4], fr[3]),   # Chen → Aisha
-            (cl[5], fr[7]),   # Carlos → Lena
-            (cl[5], fr[1]),   # Carlos → Zara
-            (fr[0], fr[3]),   # Alexei → Aisha
-            (fr[2], fr[1]),   # Marco → Zara
-            (fr[8], fr[4]),   # Arjun → Bekzod
+            (cl[0], fr[0]),
+            (cl[0], fr[2]),
+            (cl[1], fr[0]),
+            (cl[1], fr[6]),
+            (cl[2], fr[3]),
+            (cl[2], fr[9]),
+            (cl[3], fr[2]),
+            (cl[3], fr[7]),
+            (cl[4], fr[8]),
+            (cl[4], fr[3]),
+            (cl[5], fr[7]),
+            (cl[5], fr[1]),
+            (fr[0], fr[3]),
+            (fr[2], fr[1]),
+            (fr[8], fr[4]),
         ]
         for liker, liked in likes_data:
             db.add(ProfileLike(liker_id=liker.id, liked_user_id=liked.id))
@@ -971,7 +923,6 @@ def seed():
         print(f"\n  Projects: {len(projects)} total")
         print(f"  Users:    {len(clients)} clients + {len(freelancers)} freelancers + 1 admin")
 
-        # Mark all seed notifications as read so users start with clean bell
         db.query(Notification).update({"is_read": True}, synchronize_session=False)
         db.commit()
         print("\nSeed complete!\n")

@@ -12,10 +12,10 @@ class Achievement(Base):
     key = Column(String, unique=True, nullable=False, index=True)
     name = Column(String, nullable=False)
     description = Column(Text, nullable=False)
-    icon = Column(String, nullable=False)      # Tabler icon name, e.g. "star"
+    icon = Column(String, nullable=False)
     color = Column(String, nullable=False, default="#7F77DD")
     points = Column(Integer, nullable=False, default=10)
-    category = Column(String, nullable=False, default="general")  # general, client, freelancer
+    category = Column(String, nullable=False, default="general")
 
 
 class UserAchievement(Base):

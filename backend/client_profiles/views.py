@@ -13,9 +13,6 @@ def get_client_profile(user_id: UUID, db: Session) -> ClientProfile:
     profile = db.query(ClientProfile).filter(ClientProfile.user_id == user_id).first()
     if profile:
         return profile
-    # Строки профиля ещё нет (например, аккаунт-админ или заказчик, не открывавший
-    # настройки). Возвращаем пустой НЕсохранённый профиль, чтобы страница заказчика
-    # рендерилась целиком, а не «наполовину» (имя/проекты/отзывы берутся отдельно).
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")

@@ -60,7 +60,6 @@ def get_my_stats(user: User, db: Session) -> UserStats:
             total_spent=Decimal(str(total_spent)),
         )
 
-    # freelancer
     total_bids = db.query(func.count(Bid.id)).filter(Bid.freelancer_id == user.id).scalar() or 0
     active_projects = db.query(func.count(Project.id)).filter(
         Project.assigned_freelancer_id == user.id, Project.status.in_(active_statuses)

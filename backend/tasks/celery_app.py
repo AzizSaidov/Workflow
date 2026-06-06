@@ -24,7 +24,7 @@ celery_app.conf.update(
     beat_schedule={
         "check-deadlines-daily": {
             "task": "tasks.notification_tasks.check_deadlines",
-            "schedule": crontab(hour=9, minute=0),  # каждый день в 09:00 Душанбе
+            "schedule": crontab(hour=9, minute=0),
         },
     },
 )

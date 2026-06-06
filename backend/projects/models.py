@@ -20,9 +20,7 @@ class Project(Base):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     client_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
-    # legacy field kept for backward compat
     category = Column(String, nullable=True)
-    # new category FK (stage 5)
     category_id = Column(UUID(as_uuid=True), ForeignKey("categories.id"), nullable=True)
     title = Column(String, nullable=False)
     description = Column(Text, nullable=False)
@@ -31,12 +29,10 @@ class Project(Base):
     deadline = Column(Date, nullable=True)
     status = Column(Enum(ProjectStatus), nullable=False, default=ProjectStatus.open)
     assigned_freelancer_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=True)
-    # new fields (stage 5) — VARCHAR to avoid ENUM ALTER complications
     project_type = Column(String, nullable=False, default="fixed")
     experience_level = Column(String, nullable=False, default="entry")
     duration = Column(String, nullable=True)
     is_featured = Column(Boolean, nullable=False, default=False)
-    # delivery fields (from master TZ)
     delivery_github_url = Column(String, nullable=True)
     delivery_pr_url = Column(String, nullable=True)
     delivery_demo_url = Column(String, nullable=True)

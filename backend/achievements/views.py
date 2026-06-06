@@ -16,7 +16,6 @@ from notifications.models import Notification, NotificationType
 
 
 ACHIEVEMENT_DEFINITIONS = [
-    # ── Freelancer: первые шаги ───────────────────────────────────────────────
     dict(key="first_bid",        name="Первый шаг",          description="Подал первую заявку на проект",
          icon="send",             color="#7F77DD", points=10,  category="freelancer"),
     dict(key="first_win",        name="Первая победа",        description="Заявка принята впервые",
@@ -26,7 +25,6 @@ ACHIEVEMENT_DEFINITIONS = [
     dict(key="fifty_bids",       name="Охотник за проектами", description="Подал 50 заявок",
          icon="layers",           color="#7F77DD", points=40,  category="freelancer"),
 
-    # ── Freelancer: проекты ───────────────────────────────────────────────────
     dict(key="three_jobs",       name="На старте",            description="Завершил 3 проекта",
          icon="flag",             color="#5DCAA5", points=30,  category="freelancer"),
     dict(key="five_jobs",        name="Профессионал",         description="Завершил 5 проектов",
@@ -40,7 +38,6 @@ ACHIEVEMENT_DEFINITIONS = [
     dict(key="hundred_jobs",     name="Легенда",              description="Завершил 100 проектов",
          icon="crown",            color="#EF9F27", points=500, category="freelancer"),
 
-    # ── Freelancer: рейтинг и отзывы ─────────────────────────────────────────
     dict(key="top_rated",        name="Высокий рейтинг",      description="Рейтинг 4.8 и выше",
          icon="star",             color="#EF9F27", points=75,  category="freelancer"),
     dict(key="perfect_score",    name="Перфекционист",        description="Рейтинг ровно 5.0",
@@ -50,7 +47,6 @@ ACHIEVEMENT_DEFINITIONS = [
     dict(key="twenty_reviews",   name="Авторитет",            description="Получил 20 отзывов",
          icon="message-star",     color="#EF9F27", points=80,  category="freelancer"),
 
-    # ── Freelancer: заработок ─────────────────────────────────────────────────
     dict(key="earner_1k",        name="Первая тысяча",        description="Заработал $1,000",
          icon="pig-money",        color="#1D9E75", points=15,  category="freelancer"),
     dict(key="earner_10k",       name="Первые 10K",           description="Заработал $10,000",
@@ -60,7 +56,6 @@ ACHIEVEMENT_DEFINITIONS = [
     dict(key="earner_100k",      name="Большие деньги",       description="Заработал $100,000",
          icon="currency-dollar",  color="#1D9E75", points=200, category="freelancer"),
 
-    # ── Freelancer: профиль ───────────────────────────────────────────────────
     dict(key="verified_pro",     name="Верифицирован",        description="Профиль прошёл верификацию администратором",
          icon="rosette-discount-check", color="#5DCAA5", points=30, category="freelancer"),
     dict(key="portfolio_started",name="Портфолио создано",    description="Добавил первую работу в портфолио",
@@ -72,7 +67,6 @@ ACHIEVEMENT_DEFINITIONS = [
     dict(key="skill_master",     name="Мастер навыков",       description="10 и более навыков в профиле",
          icon="tools",            color="#7F77DD", points=25,  category="freelancer"),
 
-    # ── Client: проекты ───────────────────────────────────────────────────────
     dict(key="first_project",    name="Работодатель",         description="Опубликовал первый проект",
          icon="plus",             color="#7F77DD", points=10,  category="client"),
     dict(key="first_complete",   name="Первый успех",         description="Первый завершённый проект",
@@ -82,7 +76,6 @@ ACHIEVEMENT_DEFINITIONS = [
     dict(key="ten_projects",     name="Активный заказчик",    description="Завершил 10 проектов",
          icon="building",         color="#1D9E75", points=150, category="client"),
 
-    # ── Client: расходы ───────────────────────────────────────────────────────
     dict(key="spender_1k",       name="Первая инвестиция",    description="Потратил $1,000 через эскроу",
          icon="wallet",           color="#AFA9EC", points=15,  category="client"),
     dict(key="spender_10k",      name="Инвестор",             description="Потратил $10,000 через эскроу",
@@ -90,7 +83,6 @@ ACHIEVEMENT_DEFINITIONS = [
     dict(key="big_spender",      name="Крупный игрок",        description="Потратил $100,000 через эскроу",
          icon="diamond",          color="#1D9E75", points=150, category="client"),
 
-    # ── Client: команда ───────────────────────────────────────────────────────
     dict(key="loyal_client",     name="Постоянный клиент",    description="Работал с 3 и более разными фрилансерами",
          icon="thumb-up",         color="#F87171", points=50,  category="client"),
     dict(key="team_builder",     name="Строитель команды",    description="Работал с 10 разными фрилансерами",
@@ -98,7 +90,6 @@ ACHIEVEMENT_DEFINITIONS = [
     dict(key="good_reviewer",    name="Честный отзыв",        description="Оставил первый отзыв о фрилансере",
          icon="message-star",     color="#EF9F27", points=15,  category="client"),
 
-    # ── General ──────────────────────────────────────────────────────────────
     dict(key="profile_filled",   name="Полный профиль",       description="Заполнил аватар, имя и описание",
          icon="user-check",       color="#7F77DD", points=20,  category="general"),
     dict(key="rising_star",      name="Восходящая звезда",    description="Заполнил профиль в первые 30 дней",
@@ -164,7 +155,6 @@ def _check_freelancer(user: User, db: Session):
     if not profile:
         return
 
-    # ── Заявки ──────────────────────────────────────────────────────────────
     total_bids = db.query(Bid).filter(Bid.freelancer_id == user.id).count()
     if total_bids >= 1:
         _grant(user.id, "first_bid", db)
@@ -179,7 +169,6 @@ def _check_freelancer(user: User, db: Session):
     if accepted_bids >= 1:
         _grant(user.id, "first_win", db)
 
-    # ── Проекты ──────────────────────────────────────────────────────────────
     completed = db.query(Project).filter(
         Project.assigned_freelancer_id == user.id,
         Project.status == ProjectStatus.completed,
@@ -197,24 +186,20 @@ def _check_freelancer(user: User, db: Session):
     if completed >= 100:
         _grant(user.id, "hundred_jobs", db)
 
-    # ── Рейтинг ──────────────────────────────────────────────────────────────
     if float(profile.rating) >= 4.8:
         _grant(user.id, "top_rated", db)
     if float(profile.rating) >= 5.0:
         _grant(user.id, "perfect_score", db)
 
-    # ── Отзывы ───────────────────────────────────────────────────────────────
     review_count = db.query(Review).filter(Review.reviewee_id == user.id).count()
     if review_count >= 5:
         _grant(user.id, "five_reviews", db)
     if review_count >= 20:
         _grant(user.id, "twenty_reviews", db)
 
-    # ── Верификация ───────────────────────────────────────────────────────────
     if profile.is_verified:
         _grant(user.id, "verified_pro", db)
 
-    # ── Заработок ────────────────────────────────────────────────────────────
     earned = db.query(Transaction).filter(
         Transaction.freelancer_id == user.id, Transaction.status == EscrowStatus.released,
     ).all()
@@ -228,26 +213,22 @@ def _check_freelancer(user: User, db: Session):
     if total >= 100000:
         _grant(user.id, "earner_100k", db)
 
-    # ── Портфолио ────────────────────────────────────────────────────────────
     portfolio_count = db.query(PortfolioItem).filter(PortfolioItem.user_id == user.id).count()
     if portfolio_count >= 1:
         _grant(user.id, "portfolio_started", db)
     if portfolio_count >= 5:
         _grant(user.id, "portfolio_rich", db)
 
-    # ── Сертификаты ──────────────────────────────────────────────────────────
     cert_count = db.query(Certification).filter(Certification.profile_id == profile.id).count()
     if cert_count >= 1:
         _grant(user.id, "certified", db)
 
-    # ── Навыки ───────────────────────────────────────────────────────────────
     skill_count = db.query(SkillToProfile).filter(SkillToProfile.profile_id == profile.id).count()
     if skill_count >= 10:
         _grant(user.id, "skill_master", db)
 
 
 def _check_client(user: User, db: Session):
-    # ── Проекты ──────────────────────────────────────────────────────────────
     total_proj = db.query(Project).filter(Project.client_id == user.id).count()
     if total_proj >= 1:
         _grant(user.id, "first_project", db)
@@ -262,7 +243,6 @@ def _check_client(user: User, db: Session):
     if completed >= 10:
         _grant(user.id, "ten_projects", db)
 
-    # ── Расходы ──────────────────────────────────────────────────────────────
     spent_txns = db.query(Transaction).filter(
         Transaction.client_id == user.id, Transaction.status == EscrowStatus.released,
     ).all()
@@ -274,7 +254,6 @@ def _check_client(user: User, db: Session):
     if total_spent >= 100000:
         _grant(user.id, "big_spender", db)
 
-    # ── Команда фрилансеров ───────────────────────────────────────────────────
     freelancer_ids = db.query(Project.assigned_freelancer_id).filter(
         Project.client_id == user.id,
         Project.status == ProjectStatus.completed,
@@ -285,7 +264,6 @@ def _check_client(user: User, db: Session):
     if freelancer_ids >= 10:
         _grant(user.id, "team_builder", db)
 
-    # ── Отзывы ───────────────────────────────────────────────────────────────
     given_reviews = db.query(Review).filter(Review.reviewer_id == user.id).count()
     if given_reviews >= 1:
         _grant(user.id, "good_reviewer", db)
@@ -295,11 +273,9 @@ def _check_general(user: User, db: Session):
     from datetime import timezone, timedelta
     from utils import get_dushanbe_time
 
-    # ── Профиль заполнен ─────────────────────────────────────────────────────
     if user.avatar_url and user.bio and user.full_name:
         _grant(user.id, "profile_filled", db)
 
-    # ── Дни на платформе ─────────────────────────────────────────────────────
     if user.created_at:
         now = get_dushanbe_time()
         created = user.created_at if user.created_at.tzinfo else user.created_at.replace(tzinfo=timezone.utc)
