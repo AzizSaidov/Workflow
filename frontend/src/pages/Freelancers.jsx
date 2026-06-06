@@ -26,7 +26,7 @@ function FreelancerRow({ user, profile }) {
         onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.transform = 'translateX(0)' }}
       >
         <div style={{ position: 'relative', flexShrink: 0 }}>
-          <Avatar src={user.avatar_url} name={user.full_name} size={48} online={profile?.is_online ?? false} />
+          <Avatar src={user.avatar_url} name={user.full_name} size={48} />
           {profile?.is_verified && (
             <div style={{
               position: 'absolute', bottom: -2, right: -2, width: 15, height: 15, borderRadius: '50%',

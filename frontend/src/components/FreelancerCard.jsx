@@ -58,7 +58,7 @@ export default function FreelancerCard({ freelancer }) {
           )}
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-            <Avatar src={avatar_url} name={full_name} size={52} online={freelancer.is_online ?? false} />
+            <Avatar src={avatar_url} name={full_name} size={52} />
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{
                 fontFamily: 'Syne, sans-serif', fontSize: 15, fontWeight: 700,

@@ -416,7 +416,7 @@ export default function Home() {
                               #{rank}
                             </div>
                             <div style={{ marginTop: 8 }}>
-                              <Avatar src={f.avatar_url} name={f.full_name} size={rank === 1 ? 72 : 58} online={f.is_online} />
+                              <Avatar src={f.avatar_url} name={f.full_name} size={rank === 1 ? 72 : 58} />
                             </div>
                             <div style={{ textAlign: 'center' }}>
                               <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: rank === 1 ? 15 : 13, color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 130 }}>
@@ -461,7 +461,7 @@ export default function Home() {
                             onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.transform = 'translateX(0)' }}
                           >
                             <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 20, color: 'var(--accent)', width: 36, textAlign: 'center', flexShrink: 0 }}>{i + 4}</div>
-                            <Avatar src={f.avatar_url} name={f.full_name} size={40} online={f.is_online} />
+                            <Avatar src={f.avatar_url} name={f.full_name} size={40} />
                             <div style={{ flex: 1 }}>
                               <div style={{ fontWeight: 600, fontSize: 14, color: 'var(--text-primary)', marginBottom: 2 }}>{f.full_name}</div>
                               <Rating value={Number(f.rating)} size={10} />

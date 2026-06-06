@@ -20,6 +20,7 @@ class UserResponse(BaseModel):
     bio: str | None
     is_banned: bool
     is_admin: bool = False
+    is_online: bool = False
     created_at: datetime
     latitude: float | None = None
     longitude: float | None = None

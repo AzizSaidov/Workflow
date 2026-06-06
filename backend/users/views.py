@@ -1,9 +1,13 @@
+import os
 from uuid import UUID
+import redis as redis_lib
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
 from users.models import User, UserRole
 from users.schemas import UserCreate, LoginRequest, UserUpdate
 from users.auth import hash_password, verify_password, create_access_token, create_refresh_token
+
+_redis = redis_lib.from_url(os.getenv("REDIS_URL", "redis://localhost:6379/0"), decode_responses=True)
 
 
 def register_user(data: UserCreate, db: Session) -> tuple[User, str, str]:
@@ -50,6 +54,10 @@ def get_user_by_id(user_id: UUID, db: Session) -> User:
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    try:
+        user.is_online = bool(_redis.exists(f"online:{user.id}"))
+    except Exception:
+        user.is_online = False
     return user
 
 

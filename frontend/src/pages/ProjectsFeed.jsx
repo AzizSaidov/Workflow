@@ -14,7 +14,7 @@ import useToastStore from '../store/toastStore'
 const TYPE_LABEL  = { fixed: 'Фикс. цена', hourly: 'Почасовая' }
 const LEVEL_LABEL = { entry: 'Начинающий', intermediate: 'Средний', expert: 'Эксперт' }
 const LEVEL_COLOR = { entry: '#1D9E75', intermediate: '#FBBF24', expert: '#F87171' }
-const PAGE_SIZE   = 12
+const PAGE_SIZE   = 5
 
 function timeAgo(dateStr) {
   const diff = Date.now() - new Date(dateStr)

@@ -74,7 +74,7 @@ export default function DashboardClient() {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 32 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
               <div style={{ position: 'relative' }}>
-                <Avatar src={user?.avatar_url} name={user?.full_name} size={52} online />
+                <Avatar src={user?.avatar_url} name={user?.full_name} size={52} />
                 {alertCount > 0 && (
                   <div style={{
                     position: 'absolute', top: -3, right: -3,

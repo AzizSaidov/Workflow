@@ -47,7 +47,7 @@ export default function DashboardFreelancer() {
 
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 36 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-              <Avatar src={user?.avatar_url} name={user?.full_name} size={56} online />
+              <Avatar src={user?.avatar_url} name={user?.full_name} size={56} />
               <div>
                 <p style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 3, textTransform: 'uppercase', letterSpacing: 0.5 }}>
                   Кабинет фрилансера

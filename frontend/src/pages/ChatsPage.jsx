@@ -564,7 +564,7 @@ export default function ChatsPage() {
               backdropFilter: 'blur(12px)', flexShrink: 0,
             }}>
               {partner
-                ? <Avatar src={partner.avatar_url} name={partner.full_name} size={38} />
+                ? <Avatar src={partner.avatar_url} name={partner.full_name} size={38} online={partner.is_online} />
                 : <div style={{ width: 38, height: 38, borderRadius: '50%', background: 'rgba(127,119,221,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <i className="ti ti-user" style={{ fontSize: 17, color: 'var(--accent)' }} />
                   </div>

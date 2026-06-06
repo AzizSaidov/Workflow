@@ -177,7 +177,7 @@ export default function Navbar() {
             )}
 
             <div ref={menuRef} style={{ cursor: 'pointer', position: 'relative' }} onClick={() => setMenuOpen(!menuOpen)}>
-              <Avatar src={user?.avatar_url} name={user?.full_name} size={34} online />
+              <Avatar src={user?.avatar_url} name={user?.full_name} size={34} />
 
               {menuOpen && (
                 <div style={{

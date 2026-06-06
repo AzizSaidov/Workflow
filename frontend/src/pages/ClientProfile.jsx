@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import useThemeStore from '../store/themeStore'
 import useAuthStore from '../store/authStore'
 import useToastStore from '../store/toastStore'
+import client from '../api/client'
 import { usersApi } from '../api/profiles'
 import { clientProfilesApi } from '../api/clientProfiles'
 import { reviewsApi } from '../api/reviews'
@@ -21,7 +22,7 @@ const STATUS_COLOR = { open: 'var(--accent)', in_progress: '#FBBF24', delivered:
 export default function ClientProfile() {
   const { id } = useParams()
   const { isDark } = useThemeStore()
-  const { user: me } = useAuthStore()
+  const { user: me, setUser } = useAuthStore()
   const toast = useToastStore(s => s.show)
 
   const [userData, setUserData] = useState(null)
@@ -33,12 +34,18 @@ export default function ClientProfile() {
   const [favLoading, setFavLoading] = useState(false)
   const [reportOpen, setReportOpen] = useState(false)
   const [activeTab, setActiveTab] = useState('projects')
+  const [editMode, setEditMode] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [avatarUploading, setAvatarUploading] = useState(false)
+  const [editForm, setEditForm] = useState({ full_name: '', company_name: '', location: '', website: '', description: '' })
+
+  const isOwnProfile = !!me && me.id === id
 
   useSEO({
     title: userData?.full_name ? `${userData.full_name} — Заказчик` : 'Профиль заказчика',
   })
 
-  useEffect(() => {
+  const load = useCallback(() => {
     setLoading(true)
     Promise.all([
       usersApi.getById(id),
@@ -50,9 +57,18 @@ export default function ClientProfile() {
       setProfile(profileRes.data)
       setProjects(projectsRes.data || [])
       setReviews(reviewsRes.data || [])
+      setEditForm({
+        full_name: userRes.data?.full_name || '',
+        company_name: profileRes.data?.company_name || '',
+        location: profileRes.data?.location || '',
+        website: profileRes.data?.website || '',
+        description: profileRes.data?.description || '',
+      })
     }).catch(() => toast('Ошибка загрузки', 'error'))
       .finally(() => setLoading(false))
   }, [id])
+
+  useEffect(() => { load() }, [load])
 
   useEffect(() => {
     if (!me) return
@@ -74,6 +90,35 @@ export default function ClientProfile() {
       }
     } catch { toast('Ошибка', 'error') }
     finally { setFavLoading(false) }
+  }
+
+  const handleAvatarUpload = async (e) => {
+    const file = e.target.files[0]; if (!file) return
+    setAvatarUploading(true)
+    try {
+      const form = new FormData(); form.append('file', file)
+      const { data } = await client.post('/media/avatar', form, { headers: { 'Content-Type': 'multipart/form-data' } })
+      if (data?.url && me) setUser({ ...me, avatar_url: data.url })
+      toast('Аватарка обновлена!', 'success'); load()
+    } catch { toast('Ошибка загрузки', 'error') } finally { setAvatarUploading(false) }
+  }
+
+  const handleSave = async () => {
+    setSaving(true)
+    try {
+      if (editForm.full_name && editForm.full_name !== userData?.full_name) {
+        await client.put('/users/me', { full_name: editForm.full_name })
+        if (me) setUser({ ...me, full_name: editForm.full_name })
+      }
+      await clientProfilesApi.updateMe({
+        company_name: editForm.company_name || null,
+        location: editForm.location || null,
+        website: editForm.website || null,
+        description: editForm.description || null,
+      })
+      setEditMode(false); toast('Профиль сохранён', 'success'); load()
+    } catch { toast('Не удалось сохранить', 'error') }
+    finally { setSaving(false) }
   }
 
   const completedProjects = projects.filter(p => p.status === 'completed')
@@ -118,6 +163,16 @@ export default function ClientProfile() {
           <div style={{ background: 'var(--bg-card)', border: '0.5px solid var(--border)', borderRadius: 20, padding: 28, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 14 }}>
             <div style={{ position: 'relative' }}>
               <Avatar src={userData.avatar_url} name={userData.full_name} size={88} />
+              {isOwnProfile && (
+                <>
+                  <label htmlFor="client-avatar-input" title="Сменить аватар" style={{ position: 'absolute', inset: 0, borderRadius: '50%', background: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: avatarUploading ? 'wait' : 'pointer', opacity: 0, transition: 'opacity 0.15s' }}
+                    onMouseEnter={e => e.currentTarget.style.opacity = 1}
+                    onMouseLeave={e => e.currentTarget.style.opacity = 0}>
+                    <i className={`ti ti-${avatarUploading ? 'loader-2' : 'camera'}`} style={{ fontSize: 20, color: '#fff', animation: avatarUploading ? 'spin 0.8s linear infinite' : 'none' }} />
+                  </label>
+                  <input id="client-avatar-input" type="file" accept="image/*" style={{ display: 'none' }} onChange={handleAvatarUpload} />
+                </>
+              )}
               {profile?.is_verified && (
                 <div style={{
                   position: 'absolute', bottom: 2, right: 2, width: 22, height: 22, borderRadius: '50%',
@@ -130,9 +185,13 @@ export default function ClientProfile() {
             </div>
 
             <div style={{ textAlign: 'center', width: '100%' }}>
-              <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 20, fontWeight: 800, color: 'var(--text-primary)', margin: '0 0 4px', letterSpacing: '-0.5px' }}>
-                {userData.full_name}
-              </h1>
+              {editMode ? (
+                <input value={editForm.full_name} onChange={e => setEditForm(f => ({ ...f, full_name: e.target.value }))} className="input" placeholder="Имя" style={{ textAlign: 'center', fontSize: 15, fontWeight: 700, marginBottom: 8 }} />
+              ) : (
+                <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 20, fontWeight: 800, color: 'var(--text-primary)', margin: '0 0 4px', letterSpacing: '-0.5px' }}>
+                  {userData.full_name}
+                </h1>
+              )}
               <Tag color="green" style={{ fontSize: 11 }}>Заказчик</Tag>
             </div>
 
@@ -193,29 +252,67 @@ export default function ClientProfile() {
                 </button>
               </div>
             )}
+
+            {isOwnProfile && !editMode && (
+              <button onClick={() => setEditMode(true)}
+                style={{ width: '100%', padding: '9px 0', borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: 'pointer', background: 'rgba(127,119,221,0.1)', border: '0.5px solid rgba(127,119,221,0.3)', color: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, transition: 'all 0.15s' }}>
+                <i className="ti ti-pencil" style={{ fontSize: 14 }} /> Редактировать профиль
+              </button>
+            )}
+            {isOwnProfile && editMode && (
+              <div style={{ display: 'flex', gap: 8, width: '100%' }}>
+                <button onClick={handleSave} disabled={saving}
+                  style={{ flex: 1, padding: '9px 0', borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: saving ? 'wait' : 'pointer', background: 'var(--accent-green)', border: 'none', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                  <i className={`ti ti-${saving ? 'loader-2' : 'check'}`} style={{ fontSize: 14, animation: saving ? 'spin 0.8s linear infinite' : 'none' }} /> {saving ? 'Сохранение…' : 'Сохранить'}
+                </button>
+                <button onClick={() => { setEditMode(false); load() }} disabled={saving}
+                  style={{ padding: '9px 16px', borderRadius: 10, fontSize: 13, fontWeight: 500, cursor: 'pointer', background: 'none', border: '0.5px solid var(--border)', color: 'var(--text-secondary)' }}>
+                  Отмена
+                </button>
+              </div>
+            )}
           </div>
 
           <div style={{ background: 'var(--bg-card)', border: '0.5px solid var(--border)', borderRadius: 16, padding: '18px 20px', display: 'flex', flexDirection: 'column', gap: 12 }}>
-            {profile?.company_name && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <i className="ti ti-building" style={{ fontSize: 15, color: 'var(--text-muted)', flexShrink: 0 }} />
-                <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{profile.company_name}</span>
-              </div>
-            )}
-            {profile?.location && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <i className="ti ti-map-pin" style={{ fontSize: 15, color: 'var(--text-muted)', flexShrink: 0 }} />
-                <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{profile.location}</span>
-              </div>
-            )}
-            {profile?.website && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <i className="ti ti-world" style={{ fontSize: 15, color: 'var(--text-muted)', flexShrink: 0 }} />
-                <a href={profile.website} target="_blank" rel="noopener noreferrer"
-                  style={{ fontSize: 13, color: 'var(--accent)', textDecoration: 'none', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                  {profile.website.replace(/^https?:\/\//, '')}
-                </a>
-              </div>
+            {editMode ? (
+              <>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <i className="ti ti-building" style={{ fontSize: 15, color: 'var(--text-muted)', flexShrink: 0 }} />
+                  <input value={editForm.company_name} onChange={e => setEditForm(f => ({ ...f, company_name: e.target.value }))} className="input" placeholder="Компания" style={{ flex: 1, minWidth: 0, fontSize: 13, padding: '6px 10px' }} />
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <i className="ti ti-map-pin" style={{ fontSize: 15, color: 'var(--text-muted)', flexShrink: 0 }} />
+                  <input value={editForm.location} onChange={e => setEditForm(f => ({ ...f, location: e.target.value }))} className="input" placeholder="Город" style={{ flex: 1, minWidth: 0, fontSize: 13, padding: '6px 10px' }} />
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <i className="ti ti-world" style={{ fontSize: 15, color: 'var(--text-muted)', flexShrink: 0 }} />
+                  <input value={editForm.website} onChange={e => setEditForm(f => ({ ...f, website: e.target.value }))} className="input" placeholder="https://…" style={{ flex: 1, minWidth: 0, fontSize: 13, padding: '6px 10px' }} />
+                </div>
+              </>
+            ) : (
+              <>
+                {profile?.company_name && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <i className="ti ti-building" style={{ fontSize: 15, color: 'var(--text-muted)', flexShrink: 0 }} />
+                    <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{profile.company_name}</span>
+                  </div>
+                )}
+                {profile?.location && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <i className="ti ti-map-pin" style={{ fontSize: 15, color: 'var(--text-muted)', flexShrink: 0 }} />
+                    <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{profile.location}</span>
+                  </div>
+                )}
+                {profile?.website && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <i className="ti ti-world" style={{ fontSize: 15, color: 'var(--text-muted)', flexShrink: 0 }} />
+                    <a href={profile.website} target="_blank" rel="noopener noreferrer"
+                      style={{ fontSize: 13, color: 'var(--accent)', textDecoration: 'none', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {profile.website.replace(/^https?:\/\//, '')}
+                    </a>
+                  </div>
+                )}
+              </>
             )}
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               <i className="ti ti-calendar" style={{ fontSize: 15, color: 'var(--text-muted)', flexShrink: 0 }} />
@@ -225,12 +322,17 @@ export default function ClientProfile() {
             </div>
           </div>
 
-          {profile?.description && (
+          {editMode ? (
+            <div style={{ background: 'var(--bg-card)', border: '0.5px solid var(--border)', borderRadius: 16, padding: '18px 20px' }}>
+              <div style={{ fontSize: 12, color: 'var(--text-muted)', fontWeight: 500, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 10 }}>О себе</div>
+              <textarea value={editForm.description} onChange={e => setEditForm(f => ({ ...f, description: e.target.value }))} rows={4} className="input" placeholder="Расскажите о себе или компании…" style={{ resize: 'vertical', lineHeight: 1.6, fontSize: 13.5 }} />
+            </div>
+          ) : profile?.description ? (
             <div style={{ background: 'var(--bg-card)', border: '0.5px solid var(--border)', borderRadius: 16, padding: '18px 20px' }}>
               <div style={{ fontSize: 12, color: 'var(--text-muted)', fontWeight: 500, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 10 }}>О себе</div>
               <p style={{ fontSize: 13.5, color: 'var(--text-secondary)', lineHeight: 1.7, margin: 0 }}>{profile.description}</p>
             </div>
-          )}
+          ) : null}
         </div>
 
         <div style={{ flex: 1, minWidth: 0 }}>
