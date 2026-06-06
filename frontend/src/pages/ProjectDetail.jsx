@@ -70,7 +70,6 @@ function StatusTimeline({ status }) {
   return (
     <div style={{ background: 'var(--bg-card)', border: '0.5px solid var(--border)', borderRadius: 14, padding: '16px 20px' }}>
       <div style={{ display: 'flex', alignItems: 'center', position: 'relative' }}>
-        {/* Track line */}
         <div style={{ position: 'absolute', top: 15, left: '6%', right: '6%', height: 2, background: 'var(--border)', zIndex: 0 }} />
         <div style={{
           position: 'absolute', top: 15, left: '6%', height: 2, zIndex: 0,
@@ -246,7 +245,6 @@ export default function ProjectDetail() {
     profilesApi.get(user.id).then(r => setMyFreelancerProfile(r.data)).catch(() => {})
   }, [user?.id])
 
-  // Switch to files tab when project is completed
   useEffect(() => {
     if (!project || !user) return
     if (project.status === 'completed') setActiveTab('files')
@@ -270,7 +268,6 @@ export default function ProjectDetail() {
     </div>
   )
 
-  // ── Derived state ──
   const isOwner = user?.id === project.client_id
   const isFreelancer = user?.role === 'freelancer'
   const isAssignedFreelancer = isFreelancer && project.assigned_freelancer_id === user?.id
@@ -285,7 +282,6 @@ export default function ProjectDetail() {
   const canUploadFile = (isOwner && !['cancelled', 'disputed'].includes(project.status)) ||
     (isAssignedFreelancer && ['in_progress', 'delivered', 'completed'].includes(project.status))
 
-  // ── Handlers ──
   const submitBid = async (e) => {
     e.preventDefault()
     if (!bidForm.price) { setBidError('Укажите стоимость'); return }
@@ -457,7 +453,6 @@ export default function ProjectDetail() {
       <div style={{ paddingTop: 80, position: 'relative', zIndex: 2 }}>
         <div className="container" style={{ paddingTop: 28, paddingBottom: 80 }}>
 
-          {/* Breadcrumb */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: 'var(--text-muted)', marginBottom: 20 }}>
             <Link to="/projects" style={{ color: 'var(--text-muted)', textDecoration: 'none' }}
               onMouseEnter={e => e.currentTarget.style.color = 'var(--text-secondary)'}
@@ -468,10 +463,8 @@ export default function ProjectDetail() {
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: 24, alignItems: 'start' }}>
 
-            {/* ── MAIN COLUMN ── */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
 
-              {/* ── HERO CARD ── */}
               <div style={{ background: 'var(--bg-card)', border: '0.5px solid var(--border)', borderRadius: 20, overflow: 'hidden' }}>
                 <div style={{
                   background: isDark
@@ -482,7 +475,6 @@ export default function ProjectDetail() {
                   position: 'relative', overflow: 'hidden',
                 }}>
                   <div style={{ position: 'absolute', top: -50, right: -50, width: 160, height: 160, borderRadius: '50%', background: 'rgba(127,119,221,0.06)', pointerEvents: 'none' }} />
-                  {/* Status + dates row */}
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, marginBottom: 14 }}>
                     <Tag status={project.status} />
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -506,7 +498,6 @@ export default function ProjectDetail() {
                       </span>
                     </div>
                   </div>
-                  {/* Title */}
                   <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginBottom: 14 }}>
                     <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 24, fontWeight: 800, letterSpacing: '-0.8px', color: 'var(--text-primary)', lineHeight: 1.25, margin: 0, flex: 1 }}>
                       {project.title}
@@ -527,7 +518,6 @@ export default function ProjectDetail() {
                       </span>
                     )}
                   </div>
-                  {/* Budget + tags row */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
                     <div style={{ display: 'flex', alignItems: 'baseline', gap: 3, background: 'rgba(127,119,221,0.1)', border: '0.5px solid rgba(127,119,221,0.2)', borderRadius: 10, padding: '6px 12px' }}>
                       <i className="ti ti-currency-dollar" style={{ fontSize: 14, color: 'var(--accent)', alignSelf: 'center' }} />
@@ -590,16 +580,13 @@ export default function ProjectDetail() {
                     </div>
                   </div>
                 </div>
-                {/* Description */}
                 <div style={{ padding: '18px 26px' }}>
                   <p style={{ fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.8, fontWeight: 300, margin: 0 }}>{project.description}</p>
                 </div>
               </div>
 
-              {/* Status Timeline */}
               <StatusTimeline status={project.status} />
 
-              {/* ── КЛИЕНТ: Эскроу ── */}
               {needsEscrow && (
                 <div style={{ background: 'var(--bg-card)', border: '2px solid rgba(127,119,221,0.4)', borderRadius: 18, padding: 26, boxShadow: '0 0 40px rgba(127,119,221,0.08)' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 18 }}>
@@ -659,7 +646,6 @@ export default function ProjectDetail() {
                 </div>
               )}
 
-              {/* ── ФРИЛАНСЕР: заявка принята, ждём эскроу ── */}
               {isAssignedFreelancer && project.status === 'open' && (
                 <div style={{ background: 'var(--bg-card)', border: '2px solid rgba(29,158,117,0.35)', borderRadius: 18, padding: 26 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
@@ -684,7 +670,6 @@ export default function ProjectDetail() {
                 </div>
               )}
 
-              {/* ── ПРОГРЕСС ── */}
               {project.status === 'in_progress' && (isOwner || isAssignedFreelancer) && (
                 <div style={{ background: 'var(--bg-card)', border: '0.5px solid var(--border)', borderRadius: 16, padding: 22 }}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
@@ -721,7 +706,6 @@ export default function ProjectDetail() {
                 </div>
               )}
 
-              {/* ── Комментарий на доработку ── */}
               {isRevision && (isOwner || isAssignedFreelancer) && (
                 <div style={{ background: 'var(--bg-card)', border: '1.5px solid rgba(251,191,36,0.35)', borderRadius: 16, padding: 22 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
@@ -741,7 +725,6 @@ export default function ProjectDetail() {
                 </div>
               )}
 
-              {/* ── Предыдущая сдача (ревизия) ── */}
               {isRevision && hasDelivery && (isOwner || isAssignedFreelancer) && (
                 <div style={{ background: 'var(--bg-card)', border: '0.5px solid rgba(255,255,255,0.06)', borderRadius: 16, padding: 22, opacity: 0.75 }}>
                   <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -756,7 +739,6 @@ export default function ProjectDetail() {
                 </div>
               )}
 
-              {/* ── История доработок ── */}
               {revisions.length > 0 && (isOwner || isAssignedFreelancer) && (
                 <div style={{ background: 'var(--bg-card)', border: '0.5px solid var(--border)', borderRadius: 16, overflow: 'hidden' }}>
                   <button
@@ -803,7 +785,6 @@ export default function ProjectDetail() {
                 </div>
               )}
 
-              {/* ── ФРИЛАНСЕР: форма сдачи работы ── */}
               {isAssignedFreelancer && project.status === 'in_progress' && (
                 <div id="delivery-form" style={{ background: 'var(--bg-card)', border: '0.5px solid rgba(127,119,221,0.3)', borderRadius: 18, padding: 26 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 11, marginBottom: 20 }}>
@@ -826,7 +807,6 @@ export default function ProjectDetail() {
     deliveryForm.delivery_demo_url && `Demo: ${deliveryForm.delivery_demo_url}`,
   ].filter(Boolean).join(', '),
 }} />
-                    {/* File attachment */}
                     <div>
                       <label style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)', display: 'block', marginBottom: 6 }}>
                         Файл с результатом <span style={{ color: 'var(--text-muted)', fontWeight: 400 }}>(необязательно)</span>
@@ -876,7 +856,6 @@ export default function ProjectDetail() {
                 </div>
               )}
 
-              {/* ── Сданная работа ── */}
               {['delivered', 'completed'].includes(project.status) && hasDelivery && (
                 <div style={{ background: 'var(--bg-card)', border: '0.5px solid rgba(29,158,117,0.3)', borderRadius: 18, padding: 26 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 11, marginBottom: 18 }}>
@@ -904,7 +883,6 @@ export default function ProjectDetail() {
                 </div>
               )}
 
-              {/* ── КЛИЕНТ: принять / запросить доработку ── */}
               {isOwner && project.status === 'delivered' && (
                 <div style={{ background: 'var(--bg-card)', border: '2px solid rgba(29,158,117,0.35)', borderRadius: 18, padding: 26, boxShadow: '0 0 32px rgba(29,158,117,0.06)' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 11, marginBottom: 16 }}>
@@ -933,7 +911,6 @@ export default function ProjectDetail() {
                 </div>
               )}
 
-              {/* ── Форма отзыва ── */}
               {project.status === 'completed' && (isOwner || isAssignedFreelancer) && (
                 <div style={{
                   background: 'var(--bg-card)',
@@ -944,10 +921,8 @@ export default function ProjectDetail() {
                   position: 'relative',
                   overflow: 'hidden',
                 }}>
-                  {/* subtle bg glow */}
                   <div style={{ position: 'absolute', top: -60, right: -60, width: 200, height: 200, borderRadius: '50%', background: 'rgba(239,159,39,0.04)', pointerEvents: 'none' }} />
 
-                  {/* Header */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 22, position: 'relative' }}>
                     <div style={{
                       width: 44, height: 44, borderRadius: 13,
@@ -977,7 +952,6 @@ export default function ProjectDetail() {
                   </div>
 
                   {myReview ? (
-                    /* ── Опубликованный отзыв ── */
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                       <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
                         {[1,2,3,4,5].map(s => (
@@ -995,10 +969,8 @@ export default function ProjectDetail() {
                       </div>
                     </div>
                   ) : (
-                    /* ── Форма ── */
                     <form onSubmit={submitReview} style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
 
-                      {/* Star picker */}
                       <div>
                         <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.6, marginBottom: 14 }}>Оценка</div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
@@ -1030,7 +1002,6 @@ export default function ProjectDetail() {
                         </div>
                       </div>
 
-                      {/* Comment */}
                       <div>
                         <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.6, marginBottom: 10 }}>Комментарий</div>
                         <textarea
@@ -1064,9 +1035,7 @@ export default function ProjectDetail() {
                 </div>
               )}
 
-              {/* ── TABS ── */}
               <div>
-                {/* Tab bar — inline-flex, pill style */}
                 <div style={{ display: 'inline-flex', gap: 4, background: 'var(--bg-card)', border: '0.5px solid var(--border)', borderRadius: 13, padding: 4, marginBottom: 20 }}>
                   {tabs.map(tab => {
                     const active = activeTab === tab.key
@@ -1092,7 +1061,6 @@ export default function ProjectDetail() {
                   })}
                 </div>
 
-                {/* ── ЗАЯВКИ TAB ── */}
                 {activeTab === 'bids' && (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                     {!user && project.status === 'open' && (
@@ -1199,7 +1167,6 @@ export default function ProjectDetail() {
                                 <button onClick={async () => {
                                   setAiRankLoading(true); setAiRank(null); setAiRankedOrder(null); setShowAllBids(false)
                                   try {
-                                    // Fetch real profiles for all bidders in parallel
                                     const profileResults = await Promise.allSettled(
                                       bids.map(b => profilesApi.get(b.freelancer_id).catch(() => null))
                                     )
@@ -1233,7 +1200,6 @@ export default function ProjectDetail() {
                               )}
                             </div>
 
-                            {/* AI fallback text */}
                             {aiRank && !aiRankedOrder && (
                               <div style={{ marginBottom: 14, padding: '12px 14px', borderRadius: 11, background: 'rgba(127,119,221,0.06)', border: '0.5px solid rgba(127,119,221,0.22)' }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8, fontSize: 11, fontWeight: 600, color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: 0.5 }}><i className="ti ti-sparkles" />AI Анализ</div>
@@ -1242,7 +1208,6 @@ export default function ProjectDetail() {
                               </div>
                             )}
 
-                            {/* AI TOP-3 ranked list */}
                             {aiRankedOrder ? (() => {
                               const MEDALS = ['🥇', '🥈', '🥉']
                               const rankedBids = aiRankedOrder.order.map(idx => bids[idx]).filter(Boolean)
@@ -1316,7 +1281,6 @@ export default function ProjectDetail() {
                   </div>
                 )}
 
-                {/* ── ЧАТ TAB ── */}
                 {activeTab === 'chat' && (
                   <div style={{ background: 'var(--bg-card)', border: '0.5px solid rgba(127,119,221,0.25)', borderRadius: 18, padding: 32, textAlign: 'center' }}>
                     <div style={{ width: 56, height: 56, borderRadius: 16, background: 'rgba(127,119,221,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
@@ -1339,7 +1303,6 @@ export default function ProjectDetail() {
                   </div>
                 )}
 
-                {/* ── ФАЙЛЫ TAB ── */}
                 {activeTab === 'files' && (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                     {canUploadFile && (
@@ -1385,10 +1348,8 @@ export default function ProjectDetail() {
               </div>
             </div>
 
-            {/* ── SIDEBAR ── */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12, position: 'sticky', top: 90 }}>
 
-              {/* 1. Кнопка чата — только если есть доступ */}
               {hasChatAccess && (
                 <Link to={`/chats?project=${id}`} style={{ textDecoration: 'none' }}>
                   <div style={{
@@ -1415,13 +1376,11 @@ export default function ProjectDetail() {
                 </Link>
               )}
 
-              {/* 2. Участники */}
               <div style={{ background: 'var(--bg-card)', border: '0.5px solid var(--border)', borderRadius: 16, overflow: 'hidden' }}>
                 <div style={{ padding: '10px 16px', borderBottom: '0.5px solid var(--border)', fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.7 }}>
                   Участники
                 </div>
                 <div style={{ padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: 10 }}>
-                  {/* Заказчик */}
                   <div>
                     <div style={{ fontSize: 10, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 7 }}>Заказчик</div>
                     <Link to={`/client/${project.client_id}`} style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none', padding: '6px 8px', borderRadius: 9, margin: '-6px -8px', transition: 'background 0.15s' }}
@@ -1437,7 +1396,6 @@ export default function ProjectDetail() {
                       </div>
                     </Link>
                   </div>
-                  {/* Исполнитель */}
                   {assignedUser && ['in_progress', 'delivered', 'completed'].includes(project.status) && (
                     <>
                       <div style={{ height: '0.5px', background: 'var(--border)' }} />
@@ -1461,7 +1419,6 @@ export default function ProjectDetail() {
                 </div>
               </div>
 
-              {/* 3. Баланс кошелька (только для заказчика) */}
               {isOwner && wallet && (
                 <div style={{ background: isDark ? 'rgba(29,158,117,0.08)' : 'rgba(29,158,117,0.05)', border: '0.5px solid rgba(29,158,117,0.25)', borderRadius: 13, padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -1474,7 +1431,6 @@ export default function ProjectDetail() {
                 </div>
               )}
 
-              {/* 4. Контракт */}
               {contract && (
                 <div style={{ background: 'var(--bg-card)', border: '0.5px solid rgba(127,119,221,0.18)', borderRadius: 16, overflow: 'hidden' }}>
                   <div style={{ padding: '10px 16px', borderBottom: '0.5px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -1502,14 +1458,12 @@ export default function ProjectDetail() {
                 </div>
               )}
 
-              {/* 5. Редактировать проект */}
               {isOwner && project.status === 'open' && (
                 <Link to={`/projects/${id}/edit`} style={{ textDecoration: 'none' }}>
                   <Button variant="outline" icon="edit" style={{ width: '100%' }}>Редактировать проект</Button>
                 </Link>
               )}
 
-              {/* 6. Открыть спор */}
               {canDispute && !showDisputeConfirm && (
                 <button onClick={() => setShowDisputeConfirm(true)}
                   style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7, padding: '10px 14px', borderRadius: 11, fontSize: 13, fontWeight: 500, background: 'rgba(248,113,113,0.05)', border: '0.5px solid rgba(248,113,113,0.22)', color: '#F87171', cursor: 'pointer', transition: 'all 0.15s' }}

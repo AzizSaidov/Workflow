@@ -76,9 +76,7 @@ export default function AdminPanel() {
       <div style={{ paddingTop: 80, position: 'relative', zIndex: 2 }}>
         <div style={{ maxWidth: 1200, margin: '0 auto', padding: '36px 24px 80px', display: 'flex', gap: 28, alignItems: 'flex-start' }}>
 
-          {/* ── Sidebar ──────────────────────────────────────────────── */}
           <div style={{ width: 220, flexShrink: 0, position: 'sticky', top: 100 }}>
-            {/* Brand */}
             <div style={{
               display: 'flex', alignItems: 'center', gap: 12, marginBottom: 28, padding: '0 4px',
             }}>
@@ -97,7 +95,6 @@ export default function AdminPanel() {
               </div>
             </div>
 
-            {/* Nav */}
             <nav style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
               {NAV_ITEMS.map(item => {
                 const active = section === item.key
@@ -127,7 +124,6 @@ export default function AdminPanel() {
 
           </div>
 
-          {/* ── Main content ─────────────────────────────────────────── */}
           <div style={{ flex: 1, minWidth: 0 }}>
             {SECTION_COMPONENTS[section]}
           </div>
@@ -138,7 +134,6 @@ export default function AdminPanel() {
   )
 }
 
-/* ─────────────────────────────── STATS ─────────────────────────────── */
 
 function StatsSection() {
   const [stats, setStats] = useState(null)
@@ -191,7 +186,6 @@ function StatsSection() {
             ))}
           </div>
 
-          {/* Chart */}
           <div style={{ background: 'var(--bg-card)', border: '0.5px solid var(--border)', borderRadius: 18, padding: '22px 24px' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 18, flexWrap: 'wrap', gap: 10 }}>
               <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 15, color: 'var(--text-primary)' }}>
@@ -210,7 +204,6 @@ function StatsSection() {
   )
 }
 
-/* ─────────────────────────────── USERS ─────────────────────────────── */
 
 function UsersSection() {
   const { user: me } = useAuthStore()
@@ -280,7 +273,6 @@ function UsersSection() {
     <div>
       <SectionHeader icon="users" title="Пользователи" sub={`${users.length} зарегистрировано`} />
 
-      {/* Search + filters */}
       <div style={{ display: 'flex', gap: 10, marginBottom: 20, flexWrap: 'wrap' }}>
         <div style={{ position: 'relative', flex: 1, minWidth: 200 }}>
           <i className="ti ti-search" style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', fontSize: 15, color: 'var(--text-muted)', pointerEvents: 'none' }} />
@@ -366,9 +358,7 @@ function UserCard({ u, actioning, onBan, onUnban, onVerify, onMakeAdmin, onDemot
       borderRadius: 16, overflow: 'hidden',
       transition: 'border-color 0.2s',
     }}>
-      {/* Main row */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 18px' }}>
-        {/* Avatar + name */}
         <div style={{ position: 'relative', flexShrink: 0 }}>
           <Avatar src={u.avatar_url} name={u.full_name} size={42} />
           {u.is_banned && (
@@ -400,7 +390,6 @@ function UserCard({ u, actioning, onBan, onUnban, onVerify, onMakeAdmin, onDemot
           <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{u.email}</div>
         </div>
 
-        {/* Role badges */}
         <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
           {u.role !== 'admin' && (
             <div style={{
@@ -423,7 +412,6 @@ function UserCard({ u, actioning, onBan, onUnban, onVerify, onMakeAdmin, onDemot
           )}
         </div>
 
-        {/* Expand toggle */}
         <button
           onClick={() => setExpanded(v => !v)}
           style={{
@@ -438,7 +426,6 @@ function UserCard({ u, actioning, onBan, onUnban, onVerify, onMakeAdmin, onDemot
         </button>
       </div>
 
-      {/* Expanded actions */}
       {expanded && (
         <div style={{
           borderTop: '0.5px solid var(--border)',
@@ -447,7 +434,6 @@ function UserCard({ u, actioning, onBan, onUnban, onVerify, onMakeAdmin, onDemot
           display: 'flex', flexWrap: 'wrap', gap: 8, alignItems: 'center',
         }}>
 
-          {/* Grant admin (only for non-admins) */}
           {!isAdminUser(u) && (
             <Button size="sm" variant="outline" icon="shield"
               loading={actioning === u.id + 'role'}
@@ -456,7 +442,6 @@ function UserCard({ u, actioning, onBan, onUnban, onVerify, onMakeAdmin, onDemot
             </Button>
           )}
 
-          {/* Revoke admin — скрыто для себя */}
           {isAdminUser(u) && !isSelf && (
             <Button size="sm" variant="danger" icon="shield-off"
               loading={actioning === u.id + 'role'}
@@ -472,7 +457,6 @@ function UserCard({ u, actioning, onBan, onUnban, onVerify, onMakeAdmin, onDemot
 
           <div style={{ flex: 1 }} />
 
-          {/* Verify (only non-admins) */}
           {!u.is_verified && !isAdminUser(u) && (
             <Button size="sm" variant="outline" icon="rosette-discount-check"
               loading={actioning === u.id + 'verify'}
@@ -481,7 +465,6 @@ function UserCard({ u, actioning, onBan, onUnban, onVerify, onMakeAdmin, onDemot
             </Button>
           )}
 
-          {/* Ban / Unban (only non-admins) */}
           {!isAdminUser(u) && (
             u.is_banned ? (
               <Button size="sm" variant="green" icon="lock-open"
@@ -503,7 +486,6 @@ function UserCard({ u, actioning, onBan, onUnban, onVerify, onMakeAdmin, onDemot
   )
 }
 
-/* ───────────────────────────── WALLETS ─────────────────────────────── */
 
 function WalletsSection() {
   const { isDark } = useThemeStore()
@@ -523,7 +505,6 @@ function WalletsSection() {
       .catch(() => {})
   }, [])
 
-  // Close dropdown on outside click
   useEffect(() => {
     const fn = e => { if (wrapRef.current && !wrapRef.current.contains(e.target)) setOpen(false) }
     document.addEventListener('mousedown', fn)
@@ -578,14 +559,12 @@ function WalletsSection() {
         }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
 
-            {/* User picker */}
             <div>
               <label style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)', display: 'block', marginBottom: 7 }}>
                 Пользователь
               </label>
 
               <div ref={wrapRef} style={{ position: 'relative' }}>
-                {/* Input */}
                 <div style={{ position: 'relative' }}>
                   <i className="ti ti-search" style={{
                     position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)',
@@ -613,7 +592,6 @@ function WalletsSection() {
                   )}
                 </div>
 
-                {/* Dropdown */}
                 {open && filtered.length > 0 && (
                   <div style={{
                     position: 'absolute', top: 'calc(100% + 4px)', left: 0, right: 0,
@@ -671,7 +649,6 @@ function WalletsSection() {
               </div>
             </div>
 
-            {/* Selected user card */}
             {selectedUser && (
               <div style={{
                 display: 'flex', alignItems: 'center', gap: 12,
@@ -694,7 +671,6 @@ function WalletsSection() {
               </div>
             )}
 
-            {/* Amount */}
             <div>
               <label style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)', display: 'block', marginBottom: 7 }}>
                 Сумма ($)
@@ -710,7 +686,6 @@ function WalletsSection() {
               />
             </div>
 
-            {/* Reason */}
             <div>
               <label style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)', display: 'block', marginBottom: 7 }}>
                 Причина
@@ -741,7 +716,6 @@ function WalletsSection() {
   )
 }
 
-/* ─────────────────────────── DISPUTES ─────────────────────────────── */
 
 function DisputesSection() {
   const [disputes, setDisputes]   = useState([])
@@ -815,7 +789,6 @@ function DisputesSection() {
   )
 }
 
-/* ─────────────────────────────── REPORTS ─────────────────────────────── */
 
 function ReportsSection() {
   const [reports, setReports]     = useState([])
@@ -971,7 +944,6 @@ function ReportsSection() {
   )
 }
 
-/* ─────────────────────────── SETTINGS ─────────────────────────────── */
 
 function SettingsSection() {
   const toast           = useToastStore(s => s.show)
@@ -998,7 +970,6 @@ function SettingsSection() {
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 16, maxWidth: 560 }}>
 
-        {/* Holiday mode card */}
         <div style={{
           background: holidayMode
             ? 'linear-gradient(135deg, rgba(127,119,221,0.1) 0%, rgba(93,202,165,0.08) 100%)'
@@ -1030,7 +1001,6 @@ function SettingsSection() {
               </div>
             </div>
 
-            {/* Toggle switch */}
             <button
               onClick={toggle}
               disabled={loading}
@@ -1077,7 +1047,6 @@ function SettingsSection() {
   )
 }
 
-/* ─────────────────────────── SHARED ─────────────────────────────── */
 
 function SectionHeader({ icon, title, sub }) {
   return (
@@ -1108,7 +1077,6 @@ function Legend({ color, label }) {
   )
 }
 
-/* 14-дневный двойной line-chart (новые юзеры / новые проекты), чистый SVG без либ */
 function AdminChart({ data }) {
   if (!data || data.length === 0) {
     return <div style={{ height: 180, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)', fontSize: 13 }}>Нет данных</div>
@@ -1151,7 +1119,6 @@ function AdminChart({ data }) {
   )
 }
 
-/* ─────────────────────────── PROJECTS (модерация) ─────────────────────────── */
 
 const PROJ_STATUS = {
   open:        { label: 'Открыт',   color: '#1D9E75',       bg: 'rgba(29,158,117,0.12)' },
@@ -1241,7 +1208,6 @@ function ProjectsSection() {
   )
 }
 
-/* ─────────────────────────── TRANSACTIONS (реестр) ─────────────────────────── */
 
 const TX_STATUS = {
   frozen:   { label: 'Эскроу',    color: '#EF9F27',             bg: 'rgba(239,159,39,0.14)' },
@@ -1303,7 +1269,6 @@ function TransactionsSection() {
   )
 }
 
-/* ─────────────────────────── AUDIT (журнал) ─────────────────────────── */
 
 const AUDIT_META = {
   ban_user:        { icon: 'ban',                     color: '#F87171',             label: 'Бан' },

@@ -106,7 +106,6 @@ export default function ProjectsFeed() {
   const [loading,     setLoading]     = useState(true)
   const [page,        setPage]        = useState(1)
 
-  // filters — synced with URL
   const [search,          setSearch]         = useState(searchParams.get('search')          || '')
   const [catFilter,       setCatFilter]      = useState(searchParams.get('category_id')     || '')
   const [typeFilter,      setTypeFilter]     = useState(searchParams.get('project_type')    || '')
@@ -114,7 +113,6 @@ export default function ProjectsFeed() {
   const [budgetMin,       setBudgetMin]      = useState(searchParams.get('budget_min')      || '')
   const [budgetMax,       setBudgetMax]      = useState(searchParams.get('budget_max')      || '')
 
-  // applied = what was last searched
   const [applied, setApplied] = useState({
     search:           searchParams.get('search')           || '',
     category_id:      searchParams.get('category_id')      || '',
@@ -139,7 +137,6 @@ export default function ProjectsFeed() {
     if (applied.budget_min)       params.budget_min       = applied.budget_min
     if (applied.budget_max)       params.budget_max       = applied.budget_max
 
-    // sync URL
     const sp = {}
     if (applied.search)           sp.search           = applied.search
     if (applied.category_id)      sp.category_id      = applied.category_id
@@ -176,7 +173,6 @@ export default function ProjectsFeed() {
 
       <div style={{ paddingTop: 80, position: 'relative', zIndex: 2 }}>
 
-        {/* ── Hero ── */}
         <div style={{ padding: '40px 44px 32px', borderBottom: '0.5px solid var(--border)', background: isDark ? 'rgba(127,119,221,0.04)' : 'rgba(59,91,219,0.02)' }}>
           <div className="container" style={{ padding: 0 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
@@ -210,10 +206,8 @@ export default function ProjectsFeed() {
         <div className="container" style={{ paddingTop: 28, paddingBottom: 80 }}>
           <div style={{ display: 'grid', gridTemplateColumns: '240px 1fr', gap: 28, alignItems: 'start' }}>
 
-            {/* ── Sidebar ── */}
             <div style={{ position: 'sticky', top: 88, display: 'flex', flexDirection: 'column', gap: 12 }}>
 
-              {/* Search */}
               <div style={{ background: 'var(--bg-card)', border: '0.5px solid var(--border)', borderRadius: 16, padding: 16 }}>
                 <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.7, marginBottom: 10 }}>Поиск</div>
                 <div style={{ position: 'relative' }}>
@@ -229,7 +223,6 @@ export default function ProjectsFeed() {
                 </div>
               </div>
 
-              {/* Category */}
               <div style={{ background: 'var(--bg-card)', border: '0.5px solid var(--border)', borderRadius: 16, padding: 16 }}>
                 <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.7, marginBottom: 10 }}>Категория</div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -249,7 +242,6 @@ export default function ProjectsFeed() {
                 </div>
               </div>
 
-              {/* Type + Level */}
               <div style={{ background: 'var(--bg-card)', border: '0.5px solid var(--border)', borderRadius: 16, padding: 16, display: 'flex', flexDirection: 'column', gap: 14 }}>
                 <div>
                   <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.7, marginBottom: 8 }}>Тип</div>
@@ -275,7 +267,6 @@ export default function ProjectsFeed() {
                 </div>
               </div>
 
-              {/* Budget */}
               <div style={{ background: 'var(--bg-card)', border: '0.5px solid var(--border)', borderRadius: 16, padding: 16 }}>
                 <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.7, marginBottom: 10 }}>Бюджет ($)</div>
                 <div style={{ display: 'flex', gap: 8 }}>
@@ -284,7 +275,6 @@ export default function ProjectsFeed() {
                 </div>
               </div>
 
-              {/* Apply / Reset */}
               <button onClick={applyFilters} style={{ width: '100%', padding: '10px', borderRadius: 11, background: 'var(--accent)', border: 'none', color: '#fff', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
                 Применить фильтры
               </button>
@@ -295,9 +285,7 @@ export default function ProjectsFeed() {
               )}
             </div>
 
-            {/* ── Main content ── */}
             <div>
-              {/* Active filter chips */}
               {hasFilters && (
                 <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 16 }}>
                   {applied.search && <FilterChip label={`«${applied.search}»`} icon="search" onRemove={() => { setSearch(''); setApplied(p => ({ ...p, search: '' })) }} />}

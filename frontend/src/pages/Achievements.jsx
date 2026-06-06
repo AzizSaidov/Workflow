@@ -37,7 +37,6 @@ function AchievementCard({ ach, earned, earnedAt }) {
         boxShadow: hov && earned ? `0 8px 24px ${ach.color}22` : 'none',
       }}
     >
-      {/* Glow blob for earned */}
       {earned && (
         <div style={{
           position: 'absolute', top: -20, right: -20,
@@ -46,7 +45,6 @@ function AchievementCard({ ach, earned, earnedAt }) {
         }} />
       )}
 
-      {/* Top row: icon + points */}
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
         <div style={{
           width: 46, height: 46, borderRadius: 13,
@@ -76,7 +74,6 @@ function AchievementCard({ ach, earned, earnedAt }) {
         </div>
       </div>
 
-      {/* Name */}
       <div>
         <div style={{
           fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 14,
@@ -90,7 +87,6 @@ function AchievementCard({ ach, earned, earnedAt }) {
         </div>
       </div>
 
-      {/* Status badge */}
       <div style={{ marginTop: 'auto' }}>
         {earned ? (
           <span style={{
@@ -154,7 +150,6 @@ export default function Achievements() {
       <div style={{ paddingTop: 80, position: 'relative', zIndex: 2 }}>
         <div className="container" style={{ paddingTop: 40, paddingBottom: 80, maxWidth: 1080 }}>
 
-          {/* Header */}
           <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 32, flexWrap: 'wrap', gap: 16 }}>
             <div>
               <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 32, fontWeight: 800, letterSpacing: '-1.2px', color: 'var(--text-primary)', marginBottom: 6 }}>
@@ -165,7 +160,6 @@ export default function Achievements() {
               </p>
             </div>
 
-            {/* Progress card (only if logged in) */}
             {user && !loading && (
               <div style={{
                 background: 'var(--bg-card)', border: '0.5px solid var(--border)',
@@ -204,7 +198,6 @@ export default function Achievements() {
             )}
           </div>
 
-          {/* Progress bar (logged in) */}
           {user && !loading && allAch.length > 0 && (
             <div style={{ marginBottom: 28 }}>
               <div style={{ height: 6, background: 'var(--border)', borderRadius: 6, overflow: 'hidden' }}>
@@ -222,7 +215,6 @@ export default function Achievements() {
             </div>
           )}
 
-          {/* Category tabs */}
           <div style={{ display: 'flex', gap: 8, marginBottom: 28, flexWrap: 'wrap' }}>
             {CATEGORY_TABS.map(t => {
               const count = t.key === 'all' ? allAch.length : allAch.filter(a => a.category === t.key).length
@@ -258,7 +250,6 @@ export default function Achievements() {
             })}
           </div>
 
-          {/* Grid */}
           {loading ? (
             <div style={{ textAlign: 'center', padding: '80px 0' }}>
               <i className="ti ti-loader-2" style={{ fontSize: 32, color: 'var(--accent)', animation: 'spin 0.8s linear infinite' }} />

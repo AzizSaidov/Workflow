@@ -44,7 +44,6 @@ function PreviewCard({ form, skills, categories, isDark }) {
         Так увидят фрилансеры
       </div>
 
-      {/* Category */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
         {cat ? (
           <span style={{ fontSize: 11, color: 'var(--accent)', background: 'rgba(127,119,221,0.1)', padding: '2px 8px', borderRadius: 6, fontWeight: 500 }}>
@@ -63,7 +62,6 @@ function PreviewCard({ form, skills, categories, isDark }) {
         )}
       </div>
 
-      {/* Title */}
       <div style={{
         fontFamily: 'Syne, sans-serif', fontSize: 15, fontWeight: 700,
         color: hasTitle ? 'var(--text-primary)' : 'var(--text-muted)',
@@ -73,7 +71,6 @@ function PreviewCard({ form, skills, categories, isDark }) {
         {hasTitle ? form.title : 'Название проекта…'}
       </div>
 
-      {/* Description */}
       <div style={{
         fontSize: 12, color: hasDesc ? 'var(--text-secondary)' : 'var(--text-muted)',
         lineHeight: 1.6, marginBottom: 14,
@@ -83,7 +80,6 @@ function PreviewCard({ form, skills, categories, isDark }) {
         {hasDesc ? form.description : 'Описание задачи появится здесь…'}
       </div>
 
-      {/* Skills */}
       {skills.length > 0 && (
         <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', marginBottom: 14 }}>
           {skills.slice(0, 4).map(s => (
@@ -97,7 +93,6 @@ function PreviewCard({ form, skills, categories, isDark }) {
         </div>
       )}
 
-      {/* Footer */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: 12, borderTop: '0.5px solid var(--border)' }}>
         <div>
           {hasBudget ? (
@@ -225,11 +220,9 @@ export default function CreateProject() {
         <div className="container" style={{ paddingTop: 36, paddingBottom: 80 }}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: 28, alignItems: 'start' }}>
 
-            {/* ── Form ── */}
             <form onSubmit={handleSubmit}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
 
-                {/* 1 — Основное */}
                 <Section num="1" title="Основное" icon="file-description">
                   <div>
                     <label style={{ fontSize: 12, fontWeight: 500, color: 'var(--text-muted)', display: 'block', marginBottom: 6, textTransform: 'uppercase', letterSpacing: 0.5 }}>
@@ -262,7 +255,6 @@ export default function CreateProject() {
                   />
                 </Section>
 
-                {/* 2 — Категория и навыки */}
                 <Section num="2" title="Категория и навыки" icon="tag">
                   <Select
                     label="Категория"
@@ -286,14 +278,12 @@ export default function CreateProject() {
                   </div>
                 </Section>
 
-                {/* 3 — Бюджет */}
                 <Section num="3" title="Бюджет" icon="wallet">
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
                     <Input label="Минимум ($)" placeholder="500" value={form.budget_min} onChange={set('budget_min')} type="number" required />
                     <Input label="Максимум ($)" placeholder="5 000" value={form.budget_max} onChange={set('budget_max')} type="number" required />
                   </div>
 
-                  {/* Budget visual */}
                   {form.budget_min && form.budget_max && Number(form.budget_min) <= Number(form.budget_max) && (
                     <div style={{ padding: '14px 16px', borderRadius: 12, background: 'rgba(29,158,117,0.06)', border: '0.5px solid rgba(29,158,117,0.2)' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -364,7 +354,6 @@ export default function CreateProject() {
                   </div>
                 </Section>
 
-                {/* 4 — Сроки */}
                 <Section num="4" title="Сроки" icon="calendar">
                   <Input label="Дедлайн" type="date" value={form.deadline} onChange={set('deadline')} />
                   {form.deadline && (() => {
@@ -381,7 +370,6 @@ export default function CreateProject() {
                   })()}
                 </Section>
 
-                {/* Error */}
                 {error && (
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '12px 16px', borderRadius: 10, background: 'rgba(239,68,68,0.08)', border: '0.5px solid rgba(239,68,68,0.25)' }}>
                     <i className="ti ti-alert-circle" style={{ color: '#F87171', fontSize: 15 }} />
@@ -389,7 +377,6 @@ export default function CreateProject() {
                   </div>
                 )}
 
-                {/* Actions */}
                 <div style={{ display: 'flex', gap: 12 }}>
                   <button
                     type="submit"
@@ -425,10 +412,8 @@ export default function CreateProject() {
               </div>
             </form>
 
-            {/* ── Sidebar ── */}
             <div style={{ position: 'sticky', top: 90, display: 'flex', flexDirection: 'column', gap: 16 }}>
 
-              {/* Preview */}
               <PreviewCard
                 form={form}
                 skills={selectedSkills}
@@ -436,7 +421,6 @@ export default function CreateProject() {
                 isDark={isDark}
               />
 
-              {/* What's next */}
               <div style={{ background: 'var(--bg-card)', border: '0.5px solid var(--border)', borderRadius: 16, padding: 20 }}>
                 <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.7, marginBottom: 14 }}>
                   Что будет дальше
@@ -459,7 +443,6 @@ export default function CreateProject() {
                 ))}
               </div>
 
-              {/* Tips */}
               <div style={{ background: 'var(--bg-card)', border: '0.5px solid var(--border)', borderRadius: 16, padding: 20 }}>
                 <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.7, marginBottom: 14 }}>
                   Советы

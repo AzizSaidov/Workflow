@@ -53,7 +53,6 @@ export default function ChatWidget({ projectId }) {
 
   return (
     <div style={{ background: 'var(--bg-card)', border: '0.5px solid var(--border)', borderRadius: 18, overflow: 'hidden' }}>
-      {/* Header */}
       <div style={{ padding: '16px 20px', borderBottom: '0.5px solid var(--border)', display: 'flex', alignItems: 'center', gap: 10 }}>
         <i className="ti ti-message-circle" style={{ fontSize: 18, color: 'var(--accent)' }} />
         <span style={{ fontSize: 15, fontWeight: 600, color: 'var(--text-primary)' }}>Чат по проекту</span>
@@ -63,7 +62,6 @@ export default function ChatWidget({ projectId }) {
         </span>
       </div>
 
-      {/* Messages */}
       <div style={{ height: 380, overflowY: 'auto', padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: 12 }}>
         {messages.length === 0 && (
           <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)', fontSize: 13 }}>
@@ -100,7 +98,6 @@ export default function ChatWidget({ projectId }) {
         <div ref={bottomRef} />
       </div>
 
-      {/* Input */}
       <form onSubmit={send} style={{ padding: '12px 16px', borderTop: '0.5px solid var(--border)', display: 'flex', gap: 8 }}>
         <input
           value={input}

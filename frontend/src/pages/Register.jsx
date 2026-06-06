@@ -61,7 +61,6 @@ export default function Register() {
             </p>
           </div>
 
-          {/* Role toggle */}
           <div style={{ display: 'flex', gap: 0, marginBottom: 24, background: isDark ? 'rgba(255,255,255,0.04)' : 'rgba(59,91,219,0.06)', borderRadius: 12, padding: 4 }}>
             {[
               { value: 'client', icon: 'briefcase', label: 'Заказчик' },

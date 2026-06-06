@@ -116,7 +116,6 @@ function GitHubButton({ url }) {
           gap: 12,
           transition: 'background 0.25s',
         }}>
-          {/* Icon with pulse dot */}
           <div style={{ position: 'relative', flexShrink: 0 }}>
             <i className="ti ti-brand-github" style={{ fontSize: 24, color: '#fff', display: 'block' }} />
             <div style={{
@@ -128,7 +127,6 @@ function GitHubButton({ url }) {
             }} />
           </div>
 
-          {/* Text */}
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 2, fontFamily: 'DM Sans, sans-serif' }}>
               GitHub профиль
@@ -138,7 +136,6 @@ function GitHubButton({ url }) {
             </div>
           </div>
 
-          {/* Arrow */}
           <i className="ti ti-arrow-up-right" style={{
             fontSize: 18,
             color: hov ? '#238636' : 'rgba(255,255,255,0.3)',
@@ -203,7 +200,6 @@ export default function Profile() {
   const [saving, setSaving] = useState(false)
   const [avatarUploading, setAvatarUploading] = useState(false)
 
-  // Portfolio CRUD
   const [showPortfolioAdd, setShowPortfolioAdd] = useState(false)
   const [portfolioAddForm, setPortfolioAddForm] = useState(EMPTY_PORTFOLIO)
   const [portfolioAddLoading, setPortfolioAddLoading] = useState(false)
@@ -211,7 +207,6 @@ export default function Profile() {
   const [editingPortfolioForm, setEditingPortfolioForm] = useState(EMPTY_PORTFOLIO)
   const [portfolioImageUploading, setPortfolioImageUploading] = useState(false)
 
-  // Certification CRUD
   const [showCertAdd, setShowCertAdd] = useState(false)
   const [certAddForm, setCertAddForm] = useState(EMPTY_CERT)
   const [certAddLoading, setCertAddLoading] = useState(false)
@@ -386,12 +381,10 @@ export default function Profile() {
   const isFreelancer = userData?.role?.toLowerCase() === 'freelancer'
   const canFav = !isOwnProfile && me && ((isFreelancer && me?.role === 'client') || (!isFreelancer && me?.role === 'freelancer'))
 
-  // Deduplicate by name (seed has python + python-web both named "Python")
   const uniqueSkills = profile?.skills
     ? profile.skills.filter((s, i, arr) => arr.findIndex(x => x.name === s.name) === i)
     : []
 
-  // Deduplicate achievements by key
   const uniqueAchievements = achievements.filter((ua, i, arr) =>
     arr.findIndex(x => x.achievement?.key === ua.achievement?.key) === i
   )
@@ -408,7 +401,6 @@ export default function Profile() {
         { key: 'reviews',  label: 'Отзывы',  icon: 'star',     count: reviews.length || null },
       ]
 
-  // ── Cert form block ──────────────────────────────────────────────────────────
   const CertForm = ({ form, setForm, onSubmit, loading: fl, onCancel }) => (
     <form onSubmit={onSubmit} style={{ padding: 18, borderRadius: 14, background: 'rgba(239,159,39,0.05)', border: '0.5px solid rgba(239,159,39,0.2)', display: 'flex', flexDirection: 'column', gap: 12 }}>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
@@ -416,7 +408,6 @@ export default function Profile() {
         <Input label="Организация" placeholder="Amazon, Coursera..." value={form.issuer} onChange={e => setForm(f => ({ ...f, issuer: e.target.value }))} />
       </div>
       <Input label="Дата получения" type="date" value={form.issue_date} onChange={e => setForm(f => ({ ...f, issue_date: e.target.value }))} />
-      {/* File or URL */}
       <div>
         <label style={{ fontSize: 12, fontWeight: 500, color: 'var(--text-secondary)', display: 'block', marginBottom: 6 }}>
           Сертификат <span style={{ color: 'var(--text-muted)', fontWeight: 400 }}>(ссылка или загрузить PDF/фото)</span>
@@ -463,7 +454,6 @@ export default function Profile() {
       <div style={{ paddingTop: 80, position: 'relative', zIndex: 2 }}>
         <div className="container" style={{ paddingTop: 32, paddingBottom: 80 }}>
 
-          {/* Breadcrumb */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: 'var(--text-muted)', marginBottom: 28 }}>
             <Link to="/freelancers" style={{ color: 'var(--text-muted)', textDecoration: 'none' }}
               onMouseEnter={e => e.currentTarget.style.color = 'var(--text-secondary)'}
@@ -474,17 +464,13 @@ export default function Profile() {
             <span style={{ color: 'var(--text-secondary)' }}>{userData?.full_name || 'Профиль'}</span>
           </div>
 
-          {/* ── MAIN GRID ── */}
           <div style={{ display: 'grid', gridTemplateColumns: '280px 1fr', gap: 24, alignItems: 'start' }}>
 
-            {/* ══════════ LEFT SIDEBAR ══════════ */}
             <div style={{ position: 'sticky', top: 90, display: 'flex', flexDirection: 'column', gap: 14 }}>
 
-              {/* Card: avatar + name + title */}
               <div style={{ background: 'var(--bg-card)', border: '0.5px solid var(--border)', borderRadius: 20, padding: '24px 20px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
                 <div style={{ position: 'absolute', top: -30, right: -30, width: 100, height: 100, borderRadius: '50%', background: 'rgba(127,119,221,0.06)', pointerEvents: 'none' }} />
 
-                {/* Avatar */}
                 <div style={{ position: 'relative', marginBottom: 14 }}>
                   <Avatar src={userData?.avatar_url} name={userData?.full_name} size={96} />
                   {isOwnProfile && (
@@ -505,20 +491,17 @@ export default function Profile() {
                   )}
                 </div>
 
-                {/* Name */}
                 <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 19, fontWeight: 800, letterSpacing: '-0.5px', color: 'var(--text-primary)', lineHeight: 1.2, marginBottom: 4 }}>
                   {userData?.full_name}
                 </h1>
                 {profile?.title && <p style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 8 }}>{profile.title}</p>}
                 <Tag color={isFreelancer ? 'purple' : 'green'} style={{ fontSize: 11 }}>{isFreelancer ? 'Фрилансер' : 'Заказчик'}</Tag>
 
-                {/* Rating + likes row */}
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 12, width: '100%' }}>
                   {profile?.rating > 0
                     ? <Rating value={profile.rating} count={profile.total_jobs} size={13} />
                     : <span />
                   }
-                  {/* Likes + report row */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                     <button
                       onClick={me?.id !== id ? toggleLike : undefined}
@@ -557,7 +540,6 @@ export default function Profile() {
                   </div>
                 </div>
 
-                {/* Action buttons */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8, width: '100%', marginTop: 16 }}>
                   {isOwnProfile && !editMode && (
                     <button onClick={() => { setEditMode(true); setActiveTab('about') }} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, padding: '9px 0', width: '100%', borderRadius: 10, fontSize: 13, fontWeight: 500, border: '0.5px solid var(--border)', background: 'transparent', color: 'var(--text-secondary)', cursor: 'pointer', transition: 'all 0.15s' }}
@@ -578,7 +560,6 @@ export default function Profile() {
                 </div>
               </div>
 
-              {/* Stats card */}
               {isFreelancer && profile && (
                 <div style={{ background: 'var(--bg-card)', border: '0.5px solid var(--border)', borderRadius: 16, padding: '16px 20px' }}>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
@@ -596,7 +577,6 @@ export default function Profile() {
                 </div>
               )}
 
-              {/* Skills */}
               {isFreelancer && uniqueSkills.length > 0 && (
                 <div style={{ background: 'var(--bg-card)', border: '0.5px solid var(--border)', borderRadius: 14, padding: '14px 16px' }}>
                   <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 10 }}>Навыки</div>
@@ -606,7 +586,6 @@ export default function Profile() {
                 </div>
               )}
 
-              {/* Categories */}
               {isFreelancer && profile?.categories?.length > 0 && (
                 <div style={{ background: 'var(--bg-card)', border: '0.5px solid var(--border)', borderRadius: 14, padding: '14px 16px' }}>
                   <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 10 }}>Специализация</div>
@@ -616,7 +595,6 @@ export default function Profile() {
                 </div>
               )}
 
-              {/* Languages */}
               {isFreelancer && profile?.languages?.length > 0 && (
                 <div style={{ background: 'var(--bg-card)', border: '0.5px solid var(--border)', borderRadius: 14, padding: '14px 16px' }}>
                   <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 10 }}>Языки</div>
@@ -631,10 +609,8 @@ export default function Profile() {
                 </div>
               )}
 
-              {/* GitHub */}
               {profile?.github_url && <GitHubButton url={profile.github_url} />}
 
-              {/* Achievements count in sidebar */}
               {achievements.length > 0 && (
                 <div style={{ background: 'var(--bg-card)', border: '0.5px solid var(--border)', borderRadius: 14, padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
@@ -650,10 +626,8 @@ export default function Profile() {
 
             </div>
 
-            {/* ══════════ RIGHT CONTENT ══════════ */}
             <div style={{ minWidth: 0 }}>
 
-              {/* Tab bar */}
               <div style={{ display: 'flex', gap: 4, background: 'var(--bg-card)', border: '0.5px solid var(--border)', borderRadius: 13, padding: 4, marginBottom: 20 }}>
                 {tabs.map(tab => {
                   const active = activeTab === tab.key
@@ -667,11 +641,9 @@ export default function Profile() {
                 })}
               </div>
 
-              {/* ── О СЕБЕ ── */}
               {activeTab === 'about' && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
 
-                  {/* Edit form */}
                   {editMode && isOwnProfile ? (
                     <div style={{ background: 'var(--bg-card)', border: '0.5px solid var(--border)', borderRadius: 20, padding: 24 }}>
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
@@ -709,7 +681,6 @@ export default function Profile() {
                     )
                   )}
 
-                  {/* Skills editor (own profile, edit mode only) */}
                   {isFreelancer && isOwnProfile && editMode && (
                     <div style={{ background: 'var(--bg-card)', border: '0.5px solid var(--border)', borderRadius: 16, padding: 20 }}>
                       <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 12 }}>Навыки</div>
@@ -717,7 +688,6 @@ export default function Profile() {
                     </div>
                   )}
 
-                  {/* Categories editor (own profile, edit mode only) */}
                   {isFreelancer && isOwnProfile && editMode && (
                     <div style={{ background: 'var(--bg-card)', border: '0.5px solid var(--border)', borderRadius: 16, padding: 20 }}>
                       <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 12 }}>Специализация</div>
@@ -741,7 +711,6 @@ export default function Profile() {
                     </div>
                   )}
 
-                  {/* Languages editor (own profile, edit mode only) */}
                   {isFreelancer && isOwnProfile && editMode && (
                     <div style={{ background: 'var(--bg-card)', border: '0.5px solid var(--border)', borderRadius: 16, padding: 20 }}>
                       <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 12 }}>Языки</div>
@@ -749,7 +718,6 @@ export default function Profile() {
                     </div>
                   )}
 
-                  {/* Certifications */}
                   {isFreelancer && (
                     <div style={{ background: 'var(--bg-card)', border: '0.5px solid var(--border)', borderRadius: 18, padding: 22 }}>
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
@@ -816,7 +784,6 @@ export default function Profile() {
                     </div>
                   )}
 
-                  {/* Achievements full list */}
                   {achievements.length > 0 && (
                     <div style={{ background: 'var(--bg-card)', border: '0.5px solid var(--border)', borderRadius: 18, padding: 22 }}>
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
@@ -857,7 +824,6 @@ export default function Profile() {
                 </div>
               )}
 
-              {/* ── ПОРТФОЛИО ── */}
               {activeTab === 'portfolio' && isFreelancer && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
                   {isOwnProfile && (
@@ -955,7 +921,6 @@ export default function Profile() {
                 </div>
               )}
 
-              {/* ── ПРОЕКТЫ (клиент) ── */}
               {activeTab === 'projects' && !isFreelancer && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                   {clientProjects.length > 0 ? clientProjects.map(proj => (
@@ -982,7 +947,6 @@ export default function Profile() {
                 </div>
               )}
 
-              {/* ── ОТЗЫВЫ ── */}
               {activeTab === 'reviews' && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                   {reviews.length > 0 && (
@@ -1003,7 +967,6 @@ export default function Profile() {
                   )}
                   {reviews.length > 0 ? reviews.map(r => (
                     <div key={r.id} style={{ padding: '18px 20px', borderRadius: 16, background: 'var(--bg-card)', border: '0.5px solid var(--border)' }}>
-                      {/* Header: avatar + name + stars */}
                       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: r.comment ? 12 : 0 }}>
                         <Avatar src={r.reviewer_avatar_url} name={r.reviewer_name || 'Аноним'} size={40} />
                         <div style={{ flex: 1, minWidth: 0 }}>

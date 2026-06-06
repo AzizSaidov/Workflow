@@ -15,7 +15,6 @@ export const adminApi = {
   revokeAdmin: (id) => client.put(`/admin/users/${id}/revoke-admin`),
   getStats: () => client.get('/admin/stats'),
   topupWallet: (user_id, amount, reason) => client.post('/admin/wallet/topup', { user_id, amount, reason }),
-  // moderation / finance / audit
   getProjects: () => client.get('/admin/projects'),
   hideProject: (id) => client.put(`/admin/projects/${id}/hide`),
   deleteProject: (id) => client.delete(`/admin/projects/${id}`),

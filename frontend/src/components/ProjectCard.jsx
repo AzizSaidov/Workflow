@@ -37,7 +37,6 @@ export default function ProjectCard({ project }) {
           e.currentTarget.style.boxShadow = 'none'
         }}
       >
-        {/* Top row: category + status + heart */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
             {category && <Tag color="purple">{category}</Tag>}
@@ -48,7 +47,6 @@ export default function ProjectCard({ project }) {
           </div>
         </div>
 
-        {/* Title */}
         <h3 style={{
           fontFamily: 'Syne, sans-serif', fontSize: 16, fontWeight: 700,
           color: 'var(--text-primary)', lineHeight: 1.35, margin: 0,
@@ -57,7 +55,6 @@ export default function ProjectCard({ project }) {
           {title}
         </h3>
 
-        {/* Description */}
         {description && (
           <p style={{
             fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.65, margin: 0,
@@ -68,10 +65,8 @@ export default function ProjectCard({ project }) {
           </p>
         )}
 
-        {/* Divider */}
         <div style={{ height: '0.5px', background: 'var(--border)', margin: '0 -2px' }} />
 
-        {/* Bottom: budget + meta */}
         <div style={{ marginTop: 'auto', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: 8 }}>
           <div>
             <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 3, textTransform: 'uppercase', letterSpacing: 0.4 }}>

@@ -111,12 +111,10 @@ export default function ClientProfile() {
       <div className="glow-blob glow-1" style={{ opacity: 0.3 }} />
       <Navbar />
 
-      <div style={{ maxWidth: 1100, margin: '0 auto', padding: '40px 24px 80px', display: 'flex', gap: 32, alignItems: 'flex-start', position: 'relative', zIndex: 2 }}>
+      <div style={{ maxWidth: 1100, margin: '0 auto', padding: '96px 24px 80px', display: 'flex', gap: 32, alignItems: 'flex-start', position: 'relative', zIndex: 2 }}>
 
-        {/* ── Sidebar ── */}
         <div style={{ width: 280, flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 16 }}>
 
-          {/* Avatar card */}
           <div style={{ background: 'var(--bg-card)', border: '0.5px solid var(--border)', borderRadius: 20, padding: 28, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 14 }}>
             <div style={{ position: 'relative' }}>
               <Avatar src={userData.avatar_url} name={userData.full_name} size={88} />
@@ -138,7 +136,6 @@ export default function ClientProfile() {
               <Tag color="green" style={{ fontSize: 11 }}>Заказчик</Tag>
             </div>
 
-            {/* Stats row */}
             <div style={{ display: 'flex', gap: 0, width: '100%', borderTop: '0.5px solid var(--border)', paddingTop: 14, justifyContent: 'space-around' }}>
               <div style={{ textAlign: 'center' }}>
                 <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 20, fontWeight: 800, color: 'var(--text-primary)', lineHeight: 1 }}>
@@ -164,7 +161,6 @@ export default function ClientProfile() {
               )}
             </div>
 
-            {/* Actions */}
             {me && me.id !== id && (
               <div style={{ display: 'flex', gap: 8, width: '100%' }}>
                 <button
@@ -199,7 +195,6 @@ export default function ClientProfile() {
             )}
           </div>
 
-          {/* Info card */}
           <div style={{ background: 'var(--bg-card)', border: '0.5px solid var(--border)', borderRadius: 16, padding: '18px 20px', display: 'flex', flexDirection: 'column', gap: 12 }}>
             {profile?.company_name && (
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -238,10 +233,8 @@ export default function ClientProfile() {
           )}
         </div>
 
-        {/* ── Main content ── */}
         <div style={{ flex: 1, minWidth: 0 }}>
 
-          {/* Tabs */}
           <div style={{ display: 'flex', gap: 4, marginBottom: 24, background: 'var(--bg-card)', border: '0.5px solid var(--border)', borderRadius: 12, padding: 4 }}>
             {tabs.map(tab => (
               <button
@@ -270,7 +263,6 @@ export default function ClientProfile() {
             ))}
           </div>
 
-          {/* Projects tab */}
           {activeTab === 'projects' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               {projects.length === 0 ? (
@@ -300,7 +292,6 @@ export default function ClientProfile() {
             </div>
           )}
 
-          {/* Reviews tab */}
           {activeTab === 'reviews' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               {reviews.length === 0 ? (

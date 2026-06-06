@@ -12,7 +12,6 @@ export default function Footer() {
         display: 'grid', gridTemplateColumns: '1.5fr 1fr 1fr 1fr',
         gap: 40,
       }}>
-        {/* Brand */}
         <div>
           <div style={{
             fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 20,
@@ -41,7 +40,6 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Links */}
         {[
           {
             title: 'Платформа',

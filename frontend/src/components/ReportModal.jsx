@@ -58,7 +58,6 @@ export default function ReportModal({ open, onClose, reportedUserId, projectId =
           borderRadius: 20, padding: 28, width: '100%', maxWidth: 420,
         }}
       >
-        {/* Header */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 22 }}>
           <div style={{
             width: 40, height: 40, borderRadius: 10, flexShrink: 0,
@@ -84,7 +83,6 @@ export default function ReportModal({ open, onClose, reportedUserId, projectId =
         </div>
 
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          {/* Reason */}
           <div>
             <label style={{ fontSize: 12, color: 'var(--text-muted)', fontWeight: 500, textTransform: 'uppercase', letterSpacing: 0.5, display: 'block', marginBottom: 8 }}>
               Причина
@@ -106,7 +104,6 @@ export default function ReportModal({ open, onClose, reportedUserId, projectId =
             </select>
           </div>
 
-          {/* Description */}
           <div>
             <label style={{ fontSize: 12, color: 'var(--text-muted)', fontWeight: 500, textTransform: 'uppercase', letterSpacing: 0.5, display: 'block', marginBottom: 8 }}>
               Описание
@@ -126,7 +123,6 @@ export default function ReportModal({ open, onClose, reportedUserId, projectId =
             />
           </div>
 
-          {/* Actions */}
           <div style={{ display: 'flex', gap: 10, marginTop: 4 }}>
             <button
               type="button"

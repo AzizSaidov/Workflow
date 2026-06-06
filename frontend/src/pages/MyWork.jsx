@@ -41,7 +41,6 @@ function WorkCard({ project, isDark, actions }) {
       onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--border-hover)'}
       onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border)'}
     >
-      {/* Progress bar top */}
       {project.status === 'in_progress' && (
         <div style={{ height: 3, background: 'var(--border)', position: 'relative' }}>
           <div style={{ position: 'absolute', left: 0, top: 0, height: '100%', width: `${prog}%`, background: 'linear-gradient(90deg, var(--accent), var(--accent-teal))', borderRadius: '0 2px 2px 0', transition: 'width 0.5s ease' }} />
@@ -49,7 +48,6 @@ function WorkCard({ project, isDark, actions }) {
       )}
 
       <div style={{ padding: '18px 22px', display: 'flex', alignItems: 'center', gap: 18 }}>
-        {/* Left: info */}
         <div style={{ flex: 1, minWidth: 0 }}>
           <Link to={`/projects/${project.id}`} style={{ textDecoration: 'none' }}>
             <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 15, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 6, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', transition: 'color 0.15s' }}
@@ -75,7 +73,6 @@ function WorkCard({ project, isDark, actions }) {
           </div>
         </div>
 
-        {/* Budget */}
         <div style={{ textAlign: 'right', flexShrink: 0 }}>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: 1, justifyContent: 'flex-end' }}>
             <span style={{ fontFamily: 'Syne, sans-serif', fontSize: 11, fontWeight: 700, color: 'var(--accent-green)' }}>$</span>
@@ -84,7 +81,6 @@ function WorkCard({ project, isDark, actions }) {
           <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 2 }}>бюджет</div>
         </div>
 
-        {/* Actions */}
         {actions && <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>{actions}</div>}
       </div>
     </div>
@@ -130,7 +126,6 @@ export default function MyWork() {
       <div style={{ paddingTop: 80, position: 'relative', zIndex: 2 }}>
         <div className="container" style={{ paddingTop: 36, paddingBottom: 80, maxWidth: 900 }}>
 
-          {/* Header */}
           <div style={{ marginBottom: 28 }}>
             <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 32, fontWeight: 800, letterSpacing: '-1.2px', color: 'var(--text-primary)', marginBottom: 6 }}>
               Мои работы
@@ -151,7 +146,6 @@ export default function MyWork() {
             </div>
           ) : (
             <>
-              {/* Stats row */}
               <div style={{ display: 'flex', gap: 12, marginBottom: 36 }}>
                 <StatCard icon="clock" value={inProgress.length} label="В работе" color="var(--accent)" />
                 <StatCard icon="package" value={delivered.length} label="На проверке" color="#FBBF24" />
@@ -164,7 +158,6 @@ export default function MyWork() {
                 />
               </div>
 
-              {/* В работе */}
               {inProgress.length > 0 && (
                 <div style={{ marginBottom: 36 }}>
                   <SectionHeader icon="clock" color="var(--accent)" title="В работе" count={inProgress.length} />
@@ -189,7 +182,6 @@ export default function MyWork() {
                 </div>
               )}
 
-              {/* На проверке */}
               {delivered.length > 0 && (
                 <div style={{ marginBottom: 36 }}>
                   <SectionHeader icon="package" color="#FBBF24" title="На проверке у заказчика" count={delivered.length} />
@@ -207,7 +199,6 @@ export default function MyWork() {
                 </div>
               )}
 
-              {/* Завершённые */}
               {completed.length > 0 && (
                 <div>
                   <SectionHeader icon="circle-check" color="var(--accent-green)" title="Завершённые" count={completed.length} />

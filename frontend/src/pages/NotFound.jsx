@@ -6,7 +6,6 @@ import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
 import { useSEO } from '../hooks/useSEO'
 
-// Ссылки зависят от роли — как в навбаре (фрилансеру работа, заказчику таланты)
 function getQuickLinks(user) {
   const home = { to: '/', icon: 'home', label: 'Главная' }
   if (!user) {
@@ -32,7 +31,6 @@ function getQuickLinks(user) {
       { to: '/chats',       icon: 'messages',         label: 'Чаты' },
     ]
   }
-  // freelancer
   return [
     home,
     { to: '/projects',  icon: 'briefcase',        label: 'Найти работу' },
@@ -66,17 +64,14 @@ export default function NotFound() {
         flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
         position: 'relative', zIndex: 2, padding: '120px 24px 80px', textAlign: 'center',
       }}>
-        {/* ── 4 🪐 4 ── */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, animation: 'nfFloat 6s ease-in-out infinite' }}>
           <Digit>4</Digit>
 
-          {/* Луна (тёмная тема) ↔ Солнце (дневная тема) на месте «0» */}
           {isDark ? <Moon /> : <Sun />}
 
           <Digit>4</Digit>
         </div>
 
-        {/* ── Text ── */}
         <h1 style={{
           fontFamily: 'Syne, sans-serif', fontSize: 30, fontWeight: 800, letterSpacing: '-1px',
           color: 'var(--text-primary)', marginTop: 40, marginBottom: 12,
@@ -92,7 +87,6 @@ export default function NotFound() {
           Возможно, ссылка устарела или вы ошиблись адресом.
         </p>
 
-        {/* ── Buttons ── */}
         <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center', animation: 'nfRise 0.6s ease both 0.3s' }}>
           <button onClick={() => navigate(-1)} className="btn btn-outline" style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
             <i className="ti ti-arrow-left" style={{ fontSize: 16 }} /> Назад
@@ -104,7 +98,6 @@ export default function NotFound() {
           </Link>
         </div>
 
-        {/* ── Quick links ── */}
         <div style={{ marginTop: 44, animation: 'nfRise 0.6s ease both 0.4s' }}>
           <div style={{ fontSize: 12, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 14 }}>
             Или загляните сюда
@@ -137,23 +130,18 @@ export default function NotFound() {
 function Moon() {
   return (
     <div style={{ position: 'relative', width: 150, height: 150, margin: '0 6px', flexShrink: 0 }}>
-      {/* glow */}
       <div style={{ position: 'absolute', inset: -34, borderRadius: '50%', background: 'radial-gradient(circle, rgba(127,119,221,0.38) 0%, transparent 70%)', filter: 'blur(6px)', pointerEvents: 'none' }} />
-      {/* body */}
       <div style={{
         position: 'absolute', inset: 0, borderRadius: '50%',
         background: 'radial-gradient(circle at 34% 30%, #B7AFFA 0%, #7F77DD 42%, #4A3F9E 100%)',
         boxShadow: 'inset -14px -14px 34px rgba(0,0,0,0.45), 0 0 46px rgba(127,119,221,0.5)',
         overflow: 'hidden',
       }}>
-        {/* craters */}
         <div style={{ position: 'absolute', top: '28%', left: '26%', width: 18, height: 18, borderRadius: '50%', background: 'rgba(0,0,0,0.17)' }} />
         <div style={{ position: 'absolute', top: '56%', left: '54%', width: 28, height: 28, borderRadius: '50%', background: 'rgba(0,0,0,0.14)' }} />
         <div style={{ position: 'absolute', top: '20%', left: '63%', width: 12, height: 12, borderRadius: '50%', background: 'rgba(0,0,0,0.12)' }} />
-        {/* sheen */}
         <div style={{ position: 'absolute', top: '12%', left: '16%', width: 40, height: 22, borderRadius: '50%', background: 'rgba(255,255,255,0.22)', filter: 'blur(4px)' }} />
       </div>
-      {/* Saturn ring */}
       <div style={{
         position: 'absolute', top: '50%', left: '50%',
         width: 224, height: 64, transform: 'translate(-50%,-50%) rotate(-20deg)',
@@ -168,14 +156,12 @@ function Moon() {
 function Sun() {
   return (
     <div style={{ position: 'relative', width: 150, height: 150, margin: '0 6px', flexShrink: 0 }}>
-      {/* warm glow */}
       <div style={{
         position: 'absolute', inset: -42, borderRadius: '50%',
         background: 'radial-gradient(circle, rgba(251,176,59,0.5) 0%, rgba(245,158,11,0.15) 45%, transparent 70%)',
         filter: 'blur(6px)', pointerEvents: 'none', animation: 'nfSunGlow 4s ease-in-out infinite',
       }} />
 
-      {/* rotating rays */}
       <div style={{ position: 'absolute', inset: 0, animation: 'nfSunRays 26s linear infinite', pointerEvents: 'none' }}>
         {Array.from({ length: 12 }).map((_, i) => (
           <div key={i} style={{
@@ -187,17 +173,14 @@ function Sun() {
         ))}
       </div>
 
-      {/* body */}
       <div style={{
         position: 'absolute', inset: 0, borderRadius: '50%',
         background: 'radial-gradient(circle at 36% 32%, #FFF6D6 0%, #FFD75E 36%, #F9A826 72%, #F2820D 100%)',
         boxShadow: 'inset -10px -10px 30px rgba(170,80,0,0.35), 0 0 52px rgba(251,176,59,0.6)',
         overflow: 'hidden',
       }}>
-        {/* sunspots */}
         <div style={{ position: 'absolute', top: '54%', left: '30%', width: 20, height: 20, borderRadius: '50%', background: 'rgba(200,90,0,0.16)' }} />
         <div style={{ position: 'absolute', top: '30%', left: '58%', width: 13, height: 13, borderRadius: '50%', background: 'rgba(200,90,0,0.13)' }} />
-        {/* sheen */}
         <div style={{ position: 'absolute', top: '12%', left: '18%', width: 42, height: 22, borderRadius: '50%', background: 'rgba(255,255,255,0.4)', filter: 'blur(5px)' }} />
       </div>
     </div>

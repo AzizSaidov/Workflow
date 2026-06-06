@@ -3,8 +3,6 @@ import Globe from './Globe'
 import Logo from './Logo'
 import { statsApi } from '../api/stats'
 
-// Sun rays: angle = CSS rotate() from vertical-down, sun is at top-right
-// Negative = rotate left, positive = rotate right
 const SUN_RAYS = [
   { a: -84, w: 8,  op: 0.17, bl: 5,  dur: 4.5, dl: 0.0 },
   { a: -76, w: 4,  op: 0.10, bl: 2,  dur: 5.8, dl: 0.4 },
@@ -22,7 +20,6 @@ const SUN_RAYS = [
   { a:  20, w: 7,  op: 0.14, bl: 5,  dur: 5.0, dl: 0.8 },
 ]
 
-// Moon rays: soft, barely visible
 const MOON_RAYS = [
   { a: -42, w: 6,  op: 0.055, bl: 5 },
   { a: -34, w: 3,  op: 0.038, bl: 3 },
@@ -119,26 +116,18 @@ export default function AuthLeft({ isDark }) {
         @keyframes sunHalo    { 0%,100%{opacity:0.7;transform:scale(1)} 50%{opacity:1;transform:scale(1.06)} }
       `}</style>
 
-      {/* ═══════════════ LIGHT: SUN ═══════════════ */}
       {!isDark && <>
 
-        {/* Sky depth — blue absorption at top-left */}
         <div style={{ position:'absolute', inset:0, background:'linear-gradient(158deg, rgba(8,42,135,0.24) 0%, rgba(18,70,160,0.1) 28%, transparent 52%)', pointerEvents:'none', zIndex:0 }} />
 
-        {/* Mega corona — huge & diffuse */}
         <div style={{ position:'absolute', top:'-45%', right:'-28%', width:720, height:720, borderRadius:'50%', background:'radial-gradient(circle, rgba(255,210,20,0.14) 0%, rgba(255,175,5,0.05) 42%, transparent 65%)', filter:'blur(55px)', pointerEvents:'none', zIndex:0 }} />
 
-        {/* Atmospheric haze ring */}
         <div style={{ position:'absolute', top:'-26%', right:'-13%', width:480, height:480, borderRadius:'50%', background:'radial-gradient(circle, rgba(255,228,50,0.48) 0%, rgba(255,205,22,0.22) 28%, rgba(255,170,0,0.07) 55%, transparent 72%)', filter:'blur(20px)', animation:'sunHalo 5s ease-in-out infinite', pointerEvents:'none', zIndex:0 }} />
 
-        {/* Inner corona */}
         <div style={{ position:'absolute', top:'-17%', right:'-5%', width:280, height:280, borderRadius:'50%', background:'radial-gradient(circle, rgba(255,238,65,0.78) 0%, rgba(255,218,30,0.46) 22%, rgba(255,190,8,0.14) 52%, transparent 68%)', filter:'blur(10px)', pointerEvents:'none', zIndex:1 }} />
 
-        {/* Sun disc */}
         <div style={{ position:'absolute', top:'-11%', right:'1%', width:138, height:138, borderRadius:'50%', background:'radial-gradient(circle at 43% 41%, #FFFEF2 0%, #FFFBBA 15%, #FFE918 38%, #FFD000 62%, #FFBA00 84%)', boxShadow:'0 0 90px rgba(255,218,20,0.95), 0 0 180px rgba(255,190,5,0.42), 0 0 300px rgba(255,165,0,0.14)', pointerEvents:'none', zIndex:2 }} />
 
-        {/* SUN RAYS — individual divs radiating from sun position */}
-        {/* Container sits at the sun disc center */}
         <div style={{ position:'absolute', top:'-4%', right:'7%', width:0, height:0, zIndex:0, pointerEvents:'none' }}>
           {SUN_RAYS.map((ray, i) => (
             <div key={i} style={{
@@ -159,18 +148,14 @@ export default function AuthLeft({ isDark }) {
           ))}
         </div>
 
-        {/* Warm horizon bloom */}
         <div style={{ position:'absolute', bottom:0, left:0, right:0, height:'44%', background:'linear-gradient(to top, rgba(255,155,8,0.30) 0%, rgba(255,185,35,0.12) 48%, transparent 100%)', pointerEvents:'none', zIndex:0 }} />
 
 
-        {/* Atmospheric scatter — diffuse left side brightening */}
         <div style={{ position:'absolute', top:'15%', left:0, width:'55%', height:'60%', background:'radial-gradient(ellipse at 0% 50%, rgba(255,230,100,0.07) 0%, transparent 70%)', pointerEvents:'none', zIndex:0 }} />
       </>}
 
-      {/* ═══════════════ DARK: MOON ═══════════════ */}
       {isDark && <>
 
-        {/* Stars */}
         {STARS.map((s, i) => (
           <div key={i} style={{
             position: 'absolute', top: s.t, left: s.l,
@@ -182,35 +167,25 @@ export default function AuthLeft({ isDark }) {
           }} />
         ))}
 
-        {/* Milky Way — extremely subtle diagonal band */}
         <div style={{ position:'absolute', top:'-5%', left:'-5%', right:'-5%', height:'45%', background:'radial-gradient(ellipse 55% 75% at 50% 50%, rgba(120,110,195,0.045) 0%, transparent 70%)', transform:'rotate(-18deg)', transformOrigin:'center', pointerEvents:'none', zIndex:0 }} />
 
-        {/* Moon mega outer glow */}
         <div style={{ position:'absolute', top:'-20%', right:'4%', width:420, height:420, borderRadius:'50%', background:'radial-gradient(circle, rgba(175,205,255,0.18) 0%, rgba(145,178,255,0.07) 42%, transparent 68%)', filter:'blur(35px)', animation:'moonPulse 9s ease-in-out infinite', pointerEvents:'none', zIndex:0 }} />
 
-        {/* Moon mid corona */}
         <div style={{ position:'absolute', top:'-13%', right:'9%', width:225, height:225, borderRadius:'50%', background:'radial-gradient(circle, rgba(190,215,255,0.15) 0%, rgba(160,190,255,0.05) 50%, transparent 72%)', filter:'blur(12px)', animation:'moonPulse 9s ease-in-out infinite 1s', pointerEvents:'none', zIndex:1 }} />
 
-        {/* Moon atmospheric ring */}
         <div style={{ position:'absolute', top:'-10%', right:'11%', width:170, height:170, borderRadius:'50%', border:'0.5px solid rgba(180,205,255,0.12)', background:'transparent', filter:'blur(2px)', animation:'moonPulse 9s ease-in-out infinite', pointerEvents:'none', zIndex:1 }} />
 
-        {/* Moon disc with realistic shading */}
         <div style={{ position:'absolute', top:'-8%', right:'13%', width:118, height:118, borderRadius:'50%', overflow:'hidden', boxShadow:'0 0 65px rgba(150,185,255,0.58), 0 0 130px rgba(125,160,255,0.18)', animation:'moonPulse 9s ease-in-out infinite', pointerEvents:'none', zIndex:2 }}>
-          {/* Base surface */}
           <div style={{ position:'absolute', inset:0, background:'radial-gradient(circle at 33% 30%, #F5F9FF 0%, #DBEAFF 28%, #B8CCEE 55%, #96AADC 76%, #7A8EC8 92%)' }} />
-          {/* Main terminator shadow */}
           <div style={{ position:'absolute', inset:0, background:'radial-gradient(circle at 78% 72%, rgba(18,25,65,0.52) 0%, rgba(18,25,65,0.22) 38%, transparent 62%)' }} />
-          {/* Subtle surface variations */}
           <div style={{ position:'absolute', top:'18%', left:'48%', width:24, height:22, borderRadius:'50%', background:'rgba(85,105,168,0.30)', boxShadow:'inset 2px 2px 5px rgba(0,0,30,0.25)' }} />
           <div style={{ position:'absolute', top:'50%', left:'20%', width:14, height:13, borderRadius:'50%', background:'rgba(85,105,168,0.24)', boxShadow:'inset 1px 1px 3px rgba(0,0,30,0.18)' }} />
           <div style={{ position:'absolute', top:'33%', left:'34%', width:9,  height:8,  borderRadius:'50%', background:'rgba(85,105,168,0.18)' }} />
           <div style={{ position:'absolute', top:'64%', left:'55%', width:7,  height:7,  borderRadius:'50%', background:'rgba(85,105,168,0.16)' }} />
           <div style={{ position:'absolute', top:'25%', left:'65%', width:5,  height:5,  borderRadius:'50%', background:'rgba(85,105,168,0.14)' }} />
-          {/* Rim highlight from light source */}
           <div style={{ position:'absolute', top:'-4%', left:'-4%', width:'55%', height:'55%', borderRadius:'50%', background:'radial-gradient(circle at 40% 40%, rgba(255,255,255,0.18) 0%, transparent 70%)' }} />
         </div>
 
-        {/* MOON RAYS — from moon center */}
         <div style={{ position:'absolute', top:'-2%', right:'21%', width:0, height:0, zIndex:0, pointerEvents:'none' }}>
           {MOON_RAYS.map((ray, i) => (
             <div key={i} style={{
@@ -230,23 +205,19 @@ export default function AuthLeft({ isDark }) {
           ))}
         </div>
 
-        {/* Deep space hints */}
         <div style={{ position:'absolute', top:'22%', left:'6%', width:250, height:250, borderRadius:'50%', background:'radial-gradient(circle, rgba(65,50,155,0.08) 0%, transparent 70%)', pointerEvents:'none', zIndex:0 }} />
         <div style={{ position:'absolute', bottom:'15%', right:'4%', width:210, height:210, borderRadius:'50%', background:'radial-gradient(circle, rgba(18,95,75,0.06) 0%, transparent 70%)', pointerEvents:'none', zIndex:0 }} />
       </>}
 
-      {/* ═══════════════ LOGO ═══════════════ */}
       <div style={{ position:'absolute', top:28, left:32, zIndex:6 }}>
         <Logo size="sm" isDark={isDark} />
       </div>
 
-      {/* ═══════════════ GLOBE ═══════════════ */}
       <div style={{ position:'relative', zIndex:3 }}>
         <div style={{ position:'absolute', inset:-24, borderRadius:'50%', background: isDark ? 'radial-gradient(circle, rgba(127,119,221,0.10) 0%, transparent 65%)' : 'radial-gradient(circle, rgba(80,140,220,0.12) 0%, transparent 65%)', pointerEvents:'none' }} />
         <Globe locations={locations} width={380} height={380} showLegend={false} />
       </div>
 
-      {/* ═══════════════ BADGES ═══════════════ */}
       <Badge isDark={isDark} style={{ top:'17%', right:'7%' }} animStyle="authFloat 3.5s ease-in-out infinite"
         iconBg="#5DCAA5" icon={<i className="ti ti-shield-check" style={{ fontSize:17, color:'#5DCAA5' }} />}
         value="99%" label="эскроу защита" />

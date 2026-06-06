@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import useAuthStore from '../store/authStore'
 import useThemeStore from '../store/themeStore'
 import { notificationsApi, createNotifWS } from '../api/notifications'
@@ -22,13 +23,7 @@ function getTypeConfig(type) {
   return TYPE_CONFIG[type] || DEFAULT_TYPE
 }
 
-// ── Achievement toast helpers ──────────────────────────────────────────────
-// Показываем «стимовский» тост ровно один раз на каждое только что заработанное
-// достижение. Завязка на initDone хрупкая: Navbar (а с ним и WS) пере-монтируется
-// при каждом переходе между страницами, поэтому достижение, заработанное своим же
-// действием, приходило уже в init-батче нового подключения и подавлялось.
-// Решение: дедуп по localStorage + окно свежести, не зависящее от initDone.
-const FRESH_WINDOW_MS = 3 * 60 * 1000  // не всплывать для исторических (seed) достижений
+const FRESH_WINDOW_MS = 3 * 60 * 1000
 const SEEN_CAP = 200
 const MAX_VISIBLE_TOASTS = 5
 
@@ -135,8 +130,6 @@ export default function NotificationBell() {
           if (n.type === 'init_done') initDone = true
           return
         }
-        // Тост на любое СВЕЖЕЕ ещё не показанное достижение — приходит ли оно
-        // поллингом или в init-батче после пере-монтирования (не зависим от initDone).
         if (isAchievementNotif(n) && isFreshNotif(n)) {
           if (!seenToastsRef.current) seenToastsRef.current = loadSeenToasts(user.id)
           const seen = seenToastsRef.current
@@ -186,16 +179,18 @@ export default function NotificationBell() {
 
   return (
     <div ref={panelRef} style={{ position: 'relative' }}>
-      {achievementToasts.map((t, i) => (
-        <AchievementToast
-          key={t._key}
-          achievement={t}
-          index={i}
-          onClose={() => setAchievementToasts(prev => prev.filter(x => x._key !== t._key))}
-        />
-      ))}
+      {achievementToasts.length > 0 && createPortal(
+        achievementToasts.map((t, i) => (
+          <AchievementToast
+            key={t._key}
+            achievement={t}
+            index={i}
+            onClose={() => setAchievementToasts(prev => prev.filter(x => x._key !== t._key))}
+          />
+        )),
+        document.body
+      )}
 
-      {/* Bell button */}
       <button
         onClick={() => setOpen(v => !v)}
         style={{
@@ -224,7 +219,6 @@ export default function NotificationBell() {
         )}
       </button>
 
-      {/* Dropdown */}
       {open && (
         <div style={{
           position: 'absolute', top: 46, right: 0,
@@ -236,7 +230,6 @@ export default function NotificationBell() {
           zIndex: 300, overflow: 'hidden',
         }}>
 
-          {/* Header */}
           <div style={{
             padding: '14px 18px',
             borderBottom: '0.5px solid var(--border)',
@@ -271,10 +264,8 @@ export default function NotificationBell() {
             )}
           </div>
 
-          {/* Body */}
           <div style={{ maxHeight: 420, overflowY: 'auto' }}>
 
-            {/* Skeleton */}
             {loading && (
               <>
                 <SkeletonItem />
@@ -283,7 +274,6 @@ export default function NotificationBell() {
               </>
             )}
 
-            {/* Empty */}
             {!loading && notifs.length === 0 && (
               <div style={{ padding: '44px 24px', textAlign: 'center' }}>
                 <div style={{
@@ -300,10 +290,8 @@ export default function NotificationBell() {
               </div>
             )}
 
-            {/* Grouped list */}
             {!loading && groups.map(group => (
               <div key={group.label}>
-                {/* Group label */}
                 <div style={{
                   padding: '8px 18px 5px',
                   fontSize: 10, fontWeight: 700, color: 'var(--text-muted)',
@@ -333,7 +321,6 @@ export default function NotificationBell() {
                       onMouseEnter={e => { if (!n.is_read) e.currentTarget.style.background = isDark ? 'rgba(127,119,221,0.08)' : 'rgba(59,91,219,0.06)' }}
                       onMouseLeave={e => { e.currentTarget.style.background = n.is_read ? 'transparent' : (isDark ? 'rgba(127,119,221,0.04)' : 'rgba(59,91,219,0.03)') }}
                     >
-                      {/* Icon */}
                       <div style={{
                         width: 36, height: 36, borderRadius: 10, flexShrink: 0,
                         background: cfg.bg,
@@ -342,7 +329,6 @@ export default function NotificationBell() {
                         <i className={`ti ti-${cfg.icon}`} style={{ fontSize: 16, color: cfg.color }} />
                       </div>
 
-                      {/* Text */}
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{
                           fontSize: 13, fontWeight: n.is_read ? 400 : 600,
@@ -359,7 +345,6 @@ export default function NotificationBell() {
                         </div>
                       </div>
 
-                      {/* Unread dot */}
                       {!n.is_read && (
                         <div style={{
                           width: 7, height: 7, borderRadius: '50%',

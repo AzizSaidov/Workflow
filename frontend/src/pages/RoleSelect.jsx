@@ -16,7 +16,6 @@ export default function RoleSelect() {
   return (
     <div style={{ display: 'flex', height: '100vh', overflow: 'hidden', position: 'relative' }}>
 
-      {/* Logo + ThemeToggle + login — top bar */}
       <div style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 10, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px 40px' }}>
         <Link to="/" style={{ textDecoration: 'none' }}>
           <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 22, letterSpacing: '-0.5px', color: '#fff', textShadow: '0 2px 12px rgba(0,0,0,0.4)' }}>
@@ -35,7 +34,6 @@ export default function RoleSelect() {
         </div>
       </div>
 
-      {/* Divider line */}
       <div style={{
         position: 'absolute', top: 0, bottom: 0,
         left: '50%', width: '0.5px',
@@ -45,7 +43,6 @@ export default function RoleSelect() {
         transition: 'transform 0.4s ease',
       }} />
 
-      {/* Center badge */}
       <div style={{
         position: 'absolute', top: '50%', left: '50%',
         transform: 'translate(-50%, -50%)',
@@ -62,7 +59,6 @@ export default function RoleSelect() {
         или
       </div>
 
-      {/* CLIENT panel */}
       <Panel
         role="client"
         hovered={hovered}
@@ -86,7 +82,6 @@ export default function RoleSelect() {
         side="left"
       />
 
-      {/* FREELANCER panel */}
       <Panel
         role="freelancer"
         hovered={hovered}
@@ -130,7 +125,6 @@ function Panel({ role, hovered, onHover, onClick, bg, accent, accentRgb, icon, t
         flex: isActive ? 1.15 : isDimmed ? 0.85 : 1,
       }}
     >
-      {/* Animated glow */}
       <div style={{
         position: 'absolute',
         top: side === 'left' ? '20%' : '15%',
@@ -149,7 +143,6 @@ function Panel({ role, hovered, onHover, onClick, bg, accent, accentRgb, icon, t
         pointerEvents: 'none',
       }} />
 
-      {/* Overlay dim */}
       <div style={{
         position: 'absolute', inset: 0,
         background: `rgba(0,0,0,${isDimmed ? 0.35 : 0})`,
@@ -157,7 +150,6 @@ function Panel({ role, hovered, onHover, onClick, bg, accent, accentRgb, icon, t
         pointerEvents: 'none',
       }} />
 
-      {/* Content */}
       <div style={{
         position: 'relative', zIndex: 2,
         display: 'flex', flexDirection: 'column',
@@ -167,7 +159,6 @@ function Panel({ role, hovered, onHover, onClick, bg, accent, accentRgb, icon, t
         transition: 'transform 0.4s ease',
       }}>
 
-        {/* Icon */}
         <div style={{
           width: 80, height: 80, borderRadius: 22,
           background: `rgba(${accentRgb},${isActive ? 0.2 : 0.12})`,
@@ -181,7 +172,6 @@ function Panel({ role, hovered, onHover, onClick, bg, accent, accentRgb, icon, t
           <i className={`ti ti-${icon}`} style={{ fontSize: 34, color: accent, transition: 'font-size 0.3s' }} />
         </div>
 
-        {/* Title */}
         <h2 style={{
           fontFamily: 'Syne, sans-serif', fontSize: 36, fontWeight: 800,
           letterSpacing: '-1.5px', color: '#fff', lineHeight: 1,
@@ -193,7 +183,6 @@ function Panel({ role, hovered, onHover, onClick, bg, accent, accentRgb, icon, t
           {subtitle}
         </div>
 
-        {/* Description */}
         <p style={{
           fontSize: 14, color: 'rgba(255,255,255,0.5)', lineHeight: 1.7,
           fontWeight: 300, marginBottom: 32, maxWidth: 300,
@@ -201,7 +190,6 @@ function Panel({ role, hovered, onHover, onClick, bg, accent, accentRgb, icon, t
           {desc}
         </p>
 
-        {/* Features */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 11, marginBottom: 36, width: '100%', maxWidth: 280 }}>
           {features.map(({ icon: fi, text }) => (
             <div key={text} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 13, color: 'rgba(255,255,255,0.65)' }}>
@@ -213,7 +201,6 @@ function Panel({ role, hovered, onHover, onClick, bg, accent, accentRgb, icon, t
           ))}
         </div>
 
-        {/* CTA */}
         <div style={{
           display: 'flex', alignItems: 'center', gap: 8,
           padding: '14px 32px', borderRadius: 14,

@@ -116,14 +116,12 @@ export default function Globe({
         .globe-canvas-clip canvas { outline: none !important; display: block !important; box-shadow: none !important; border-radius: 50%; }
       `}</style>
 
-      {/* Deep space glow */}
       <div style={{
         position: 'absolute', inset: '-12%', borderRadius: '50%',
         background: spaceGlow,
         pointerEvents: 'none', zIndex: 0,
       }} />
 
-      {/* Orbital ring 1 */}
       {loaded && (
         <div style={{
           position: 'absolute', top: '50%', left: '50%',
@@ -143,7 +141,6 @@ export default function Globe({
         </div>
       )}
 
-      {/* Orbital ring 2 */}
       {loaded && (
         <div style={{
           position: 'absolute', top: '50%', left: '50%',
@@ -162,7 +159,6 @@ export default function Globe({
         </div>
       )}
 
-      {/* Orbital ring 3 — faint fast */}
       {loaded && (
         <div style={{
           position: 'absolute', top: '50%', left: '50%',
@@ -174,10 +170,8 @@ export default function Globe({
         }} />
       )}
 
-      {/* Skeleton */}
       {!loaded && <GlobeSkeleton size={width} isDark={isDark} />}
 
-      {/* Globe — always rendered so onGlobeReady fires */}
       <div style={{ position: 'relative', zIndex: 1, opacity: loaded ? (textureFading ? 0.15 : 1) : 0, transition: textureFading ? 'opacity 0.18s ease' : 'opacity 0.7s ease', clipPath: 'circle(50% at 50% 50%)', WebkitClipPath: 'circle(50% at 50% 50%)' }}>
         <GlobeGL
           ref={globeRef}
@@ -225,7 +219,6 @@ export default function Globe({
         />
       </div>
 
-      {/* Specular sheen — soft fixed highlight for a glossier, more 3D sphere */}
       {loaded && (
         <div style={{
           position: 'absolute', inset: 0, borderRadius: '50%',
@@ -235,7 +228,6 @@ export default function Globe({
         }} />
       )}
 
-      {/* Vignette — edges fade to background */}
       {loaded && (
         <div style={{
           position: 'absolute', inset: 0,
@@ -248,25 +240,19 @@ export default function Globe({
         }} />
       )}
 
-      {/* ── Winter frost overlay ── */}
       {winter && loaded && (
         <div style={{
           position: 'absolute', inset: 0, zIndex: 3,
           borderRadius: '50%', pointerEvents: 'none',
           background: [
-            // North pole white cap
             'radial-gradient(ellipse 70% 28% at 50% 2%, rgba(220,245,255,0.55) 0%, rgba(200,235,255,0.2) 50%, transparent 100%)',
-            // South pole white cap
             'radial-gradient(ellipse 70% 22% at 50% 98%, rgba(220,245,255,0.45) 0%, rgba(200,235,255,0.15) 50%, transparent 100%)',
-            // Frost creeping from edges
             'radial-gradient(circle, transparent 42%, rgba(180,225,255,0.07) 58%, rgba(200,235,255,0.18) 74%, rgba(215,240,255,0.38) 88%, rgba(230,248,255,0.6) 100%)',
-            // Overall icy blue tint
             'radial-gradient(circle, rgba(91,184,212,0.06) 0%, transparent 65%)',
           ].join(','),
         }} />
       )}
 
-      {/* Winter polar glow rings */}
       {winter && loaded && (
         <>
           <div style={{
@@ -289,7 +275,6 @@ export default function Globe({
       )}
 
 
-      {/* Legend */}
       {loaded && showLegend && (
         <div style={{
           position: 'absolute', bottom: 28, left: '50%', transform: 'translateX(-50%)',

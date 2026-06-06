@@ -31,15 +31,12 @@ export default function Logo({ size = 'md', to = '/', style = {}, isDark: isDark
 
       <Link to={to} style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: s.gap, ...style }}>
 
-        {/* ── Mark ── */}
         <div style={{ position: 'relative', width: s.mark, height: s.mark, flexShrink: 0 }}>
-          {/* Outer spinning gradient ring */}
           <div style={{
             position: 'absolute', inset: 0, borderRadius: '50%',
             background: 'conic-gradient(from 0deg, #7F77DD 0%, #5DCAA5 45%, #AFA9EC 70%, #7F77DD 100%)',
             animation: 'logoRingSpin 3.5s linear infinite',
           }} />
-          {/* Inner fill — matches bg */}
           <div style={{
             position: 'absolute',
             inset: s.ring,
@@ -47,7 +44,6 @@ export default function Logo({ size = 'md', to = '/', style = {}, isDark: isDark
             background: isDark ? '#07070E' : '#F0F5FF',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
           }}>
-            {/* W glyph */}
             <svg width={s.mark * 0.52} height={s.mark * 0.42} viewBox="0 0 20 16" fill="none">
               <path
                 d="M1 1L5 15L10 7L15 15L19 1"
@@ -64,7 +60,6 @@ export default function Logo({ size = 'md', to = '/', style = {}, isDark: isDark
               </defs>
             </svg>
           </div>
-          {/* Glow halo */}
           <div style={{
             position: 'absolute', inset: -4,
             borderRadius: '50%',
@@ -73,7 +68,6 @@ export default function Logo({ size = 'md', to = '/', style = {}, isDark: isDark
           }} />
         </div>
 
-        {/* ── Text ── */}
         <span style={{
           fontFamily: 'Syne, sans-serif',
           fontWeight: 800,

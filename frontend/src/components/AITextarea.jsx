@@ -20,7 +20,7 @@ function typeText(text, setter, onDone, speed = 8) {
 
 export default function AITextarea({
   value, onChange, placeholder, rows = 4,
-  aiContext,   // { mode: 'bid'|'project'|'free', projectTitle, projectDescription, category, budget, skills }
+  aiContext,
   label,
   style,
 }) {
@@ -53,7 +53,7 @@ export default function AITextarea({
             aiContext.projectDescription || '',
             aiContext.skills || [],
             aiContext.freelancerProfile || {},
-            value || ''   // freelancer's own draft — AI builds on it instead of inventing
+            value || ''
           )
           result = data.cover_letter
         } else if (mode === 'project') {
@@ -68,8 +68,8 @@ export default function AITextarea({
           const { data } = await aiApi.helpDeliver(
             aiContext.projectTitle || '',
             aiContext.projectDescription || '',
-            value || '',           // what the freelancer actually did (their notes)
-            aiContext.links || ''  // GitHub / PR / demo links
+            value || '',
+            aiContext.links || ''
           )
           result = data.text
         }
@@ -103,8 +103,6 @@ export default function AITextarea({
 
   const menuItems = [
     canGenerate && { action: 'generate', highlight: true, ...(GENERATE_LABELS[mode] || GENERATE_LABELS.bid) },
-    canEdit && { action: 'improve',   icon: 'wand',           label: 'Улучшить текст' },
-    canEdit && { action: 'shorten',   icon: 'arrows-minimize', label: 'Сократить' },
     canEdit && { action: 'translate', icon: 'language',        label: 'Перевести на English' },
   ].filter(Boolean)
 
@@ -133,7 +131,6 @@ export default function AITextarea({
           }}
         />
 
-        {/* ✨ button */}
         <div ref={menuRef} style={{ position: 'absolute', top: 10, right: 10, zIndex: 10 }}>
           <button
             type="button"
@@ -162,7 +159,6 @@ export default function AITextarea({
             )}
           </button>
 
-          {/* Dropdown menu */}
           {menuOpen && !loading && (
             <div style={{
               position: 'absolute', top: 34, right: 0,
@@ -207,7 +203,6 @@ export default function AITextarea({
         </div>
       </div>
 
-      {/* Typing indicator */}
       {typing && (
         <div style={{
           display: 'flex', alignItems: 'center', gap: 8, marginTop: 6,

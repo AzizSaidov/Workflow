@@ -37,7 +37,6 @@ export default function FreelancerCard({ freelancer }) {
             e.currentTarget.style.boxShadow = 'none'
           }}
         >
-          {/* Flag button */}
           {canReport && (
             <button
               onClick={e => { e.preventDefault(); e.stopPropagation(); setReportOpen(true) }}
@@ -58,7 +57,6 @@ export default function FreelancerCard({ freelancer }) {
             </button>
           )}
 
-          {/* Avatar + name */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
             <Avatar src={avatar_url} name={full_name} size={52} online={freelancer.is_online ?? false} />
             <div style={{ flex: 1, minWidth: 0 }}>
@@ -77,7 +75,6 @@ export default function FreelancerCard({ freelancer }) {
             </div>
           </div>
 
-          {/* Rating */}
           {rating > 0 && (
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
               <div style={{ display: 'flex', gap: 2 }}>
@@ -94,7 +91,6 @@ export default function FreelancerCard({ freelancer }) {
             </div>
           )}
 
-          {/* Skills */}
           {skills?.length > 0 && (
             <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
               {skills.slice(0, 3).map(s => (
@@ -118,10 +114,8 @@ export default function FreelancerCard({ freelancer }) {
             </div>
           )}
 
-          {/* Divider */}
           <div style={{ height: '0.5px', background: 'var(--border)' }} />
 
-          {/* Rate + jobs */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             {hourly_rate ? (
               <div style={{ display: 'flex', alignItems: 'baseline', gap: 2 }}>

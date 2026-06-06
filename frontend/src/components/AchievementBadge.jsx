@@ -13,7 +13,6 @@ export default function AchievementBadge({ achievement, earned = false, earnedAt
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
-      {/* Badge circle */}
       <div style={{
         width: dim, height: dim, borderRadius: '50%',
         background: earned
@@ -31,7 +30,6 @@ export default function AchievementBadge({ achievement, earned = false, earnedAt
       }}>
         <i className={`ti ti-${icon}`} style={{ fontSize: iconSize, color: earned ? color : 'var(--text-muted)' }} />
 
-        {/* Points badge */}
         {earned && (
           <div style={{
             position: 'absolute', bottom: -4, right: -4,
@@ -46,7 +44,6 @@ export default function AchievementBadge({ achievement, earned = false, earnedAt
         )}
       </div>
 
-      {/* Tooltip */}
       {hovered && (
         <div style={{
           position: 'absolute', bottom: dim + 10, left: '50%', transform: 'translateX(-50%)',
@@ -75,7 +72,6 @@ export default function AchievementBadge({ achievement, earned = false, earnedAt
               Не получена
             </div>
           )}
-          {/* Tooltip arrow */}
           <div style={{
             position: 'absolute', bottom: -5, left: '50%',
             width: 8, height: 8, background: 'var(--bg-card)',

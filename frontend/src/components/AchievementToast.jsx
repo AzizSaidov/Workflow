@@ -5,7 +5,7 @@ const GAP = 10
 const DURATION = 5500
 
 export default function AchievementToast({ achievement, index, onClose }) {
-  const [phase, setPhase] = useState('enter') // enter | visible | exit
+  const [phase, setPhase] = useState('enter')
 
   useEffect(() => {
     const t1 = setTimeout(() => setPhase('visible'), 20)
@@ -56,10 +56,8 @@ export default function AchievementToast({ achievement, index, onClose }) {
           ...slideStyle,
         }}
       >
-        {/* Top color border */}
         <div style={{ height: 3, background: `linear-gradient(90deg, ${color}00, ${color}, ${color}00)` }} />
 
-        {/* Shine sweep */}
         {phase === 'visible' && (
           <div style={{
             position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
@@ -74,7 +72,6 @@ export default function AchievementToast({ achievement, index, onClose }) {
         )}
 
         <div style={{ padding: '12px 14px 0', display: 'flex', alignItems: 'center', gap: 12 }}>
-          {/* Icon badge */}
           <div style={{
             width: 48, height: 48, borderRadius: 14, flexShrink: 0,
             background: `${color}18`,
@@ -85,7 +82,6 @@ export default function AchievementToast({ achievement, index, onClose }) {
             <i className={`ti ti-${achievement.icon || 'trophy'}`} style={{ fontSize: 24, color }} />
           </div>
 
-          {/* Text */}
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{
               fontSize: 10, fontWeight: 700, color: color,
@@ -110,7 +106,6 @@ export default function AchievementToast({ achievement, index, onClose }) {
             </div>
           </div>
 
-          {/* Points badge */}
           {achievement.points > 0 && (
             <div style={{
               flexShrink: 0,
@@ -126,7 +121,6 @@ export default function AchievementToast({ achievement, index, onClose }) {
           )}
         </div>
 
-        {/* Progress bar */}
         <div style={{ margin: '10px 14px 0', height: 2, background: 'rgba(255,255,255,0.07)', borderRadius: 1 }}>
           {phase === 'visible' && (
             <div style={{

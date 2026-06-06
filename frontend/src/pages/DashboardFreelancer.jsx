@@ -45,7 +45,6 @@ export default function DashboardFreelancer() {
       <div style={{ paddingTop: 80, position: 'relative', zIndex: 2 }}>
         <div className="container page-enter" style={{ paddingTop: 36, paddingBottom: 80 }}>
 
-          {/* Header */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 36 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
               <Avatar src={user?.avatar_url} name={user?.full_name} size={56} online />
@@ -71,7 +70,6 @@ export default function DashboardFreelancer() {
             </div>
           </div>
 
-          {/* Stats */}
           <div className="stagger" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 36 }}>
             {[
               { icon: 'send', label: 'Всего заявок', value: stats?.total_bids ?? bids.length, color: 'var(--accent)', sub: 'подано' },
@@ -97,7 +95,6 @@ export default function DashboardFreelancer() {
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: 28, alignItems: 'start' }}>
 
-            {/* Bids list */}
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
                 <div style={{ display: 'flex', gap: 4, background: 'var(--bg-card)', border: '0.5px solid var(--border)', borderRadius: 12, padding: 4 }}>
@@ -155,10 +152,8 @@ export default function DashboardFreelancer() {
               )}
             </div>
 
-            {/* Sidebar */}
             <div style={{ position: 'sticky', top: 90, display: 'flex', flexDirection: 'column', gap: 16 }}>
 
-              {/* Active projects */}
               <div style={{ background: 'var(--bg-card)', border: '0.5px solid var(--border)', borderRadius: 16, padding: 20 }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
                   <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.5 }}>
@@ -207,7 +202,6 @@ export default function DashboardFreelancer() {
                 )}
               </div>
 
-              {/* Quick link — My Work */}
               {activeProjects.length > 0 && (
                 <Link to="/my-work" style={{ textDecoration: 'none' }}>
                   <div style={{
@@ -234,7 +228,6 @@ export default function DashboardFreelancer() {
                 </Link>
               )}
 
-              {/* AI Banner */}
               <Link to="/ai" style={{ textDecoration: 'none' }}>
                 <div style={{
                   borderRadius: 16, padding: '20px 18px', overflow: 'hidden', position: 'relative',
@@ -248,7 +241,6 @@ export default function DashboardFreelancer() {
                   onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(127,119,221,0.5)'; e.currentTarget.style.transform = 'translateY(-2px)' }}
                   onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(127,119,221,0.25)'; e.currentTarget.style.transform = 'translateY(0)' }}
                 >
-                  {/* Glow orb */}
                   <div style={{ position: 'absolute', top: -20, right: -20, width: 100, height: 100, borderRadius: '50%', background: 'radial-gradient(circle, rgba(127,119,221,0.3) 0%, transparent 70%)', pointerEvents: 'none' }} />
 
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10, position: 'relative' }}>
@@ -272,7 +264,6 @@ export default function DashboardFreelancer() {
                 </div>
               </Link>
 
-              {/* Pending bids hint */}
               {pendingCount > 0 && (
                 <div style={{ background: 'var(--bg-card)', border: '0.5px solid rgba(127,119,221,0.15)', borderRadius: 12, padding: '12px 16px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>

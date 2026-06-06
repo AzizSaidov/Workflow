@@ -25,7 +25,6 @@ function FreelancerRow({ user, profile }) {
         onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--border-hover)'; e.currentTarget.style.transform = 'translateX(3px)' }}
         onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.transform = 'translateX(0)' }}
       >
-        {/* Avatar */}
         <div style={{ position: 'relative', flexShrink: 0 }}>
           <Avatar src={user.avatar_url} name={user.full_name} size={48} online={profile?.is_online ?? false} />
           {profile?.is_verified && (
@@ -39,7 +38,6 @@ function FreelancerRow({ user, profile }) {
           )}
         </div>
 
-        {/* Info */}
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ fontWeight: 600, fontSize: 14, color: 'var(--text-primary)', marginBottom: 3 }}>
             {user.full_name}
@@ -59,7 +57,6 @@ function FreelancerRow({ user, profile }) {
           </div>
         </div>
 
-        {/* Rate + jobs */}
         <div style={{ display: 'flex', gap: 20, flexShrink: 0, alignItems: 'center' }}>
           {profile?.hourly_rate && (
             <div style={{ textAlign: 'right' }}>
@@ -150,7 +147,6 @@ export default function FreelancersPage() {
 
       <div style={{ paddingTop: 80, position: 'relative', zIndex: 2 }}>
 
-        {/* ── Hero ── */}
         <div style={{
           padding: '48px 44px 36px',
           borderBottom: '0.5px solid var(--border)',
@@ -182,10 +178,8 @@ export default function FreelancersPage() {
         <div className="container" style={{ paddingTop: 32, paddingBottom: 80 }}>
           <div style={{ display: 'grid', gridTemplateColumns: '240px 1fr', gap: 28, alignItems: 'start' }}>
 
-            {/* ── Sidebar ── */}
             <div style={{ position: 'sticky', top: 80, display: 'flex', flexDirection: 'column', gap: 14 }}>
 
-              {/* Search */}
               <div style={{ background: 'var(--bg-card)', border: '0.5px solid var(--border)', borderRadius: 16, padding: 18 }}>
                 <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.7, marginBottom: 12 }}>
                   Поиск
@@ -202,7 +196,6 @@ export default function FreelancersPage() {
                 </div>
               </div>
 
-              {/* Category filter */}
               <div style={{ background: 'var(--bg-card)', border: '0.5px solid var(--border)', borderRadius: 16, padding: 18 }}>
                 <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.7, marginBottom: 12 }}>
                   Категория
@@ -249,7 +242,6 @@ export default function FreelancersPage() {
               </div>
             </div>
 
-            {/* ── List ── */}
             <div>
               {loading ? (
                 <div style={{ textAlign: 'center', padding: '80px 0' }}>

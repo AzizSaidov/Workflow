@@ -38,7 +38,6 @@ export default function App() {
       .catch(() => {})
   }, [])
 
-  // Winter color palette override
   useEffect(() => {
     const root = document.documentElement
     if (holidayMode) {
@@ -61,7 +60,6 @@ export default function App() {
       <Toast />
       {holidayMode && <Snowflakes />}
       <Routes>
-        {/* Public */}
         <Route path="/" element={<Home />} />
         <Route path="/role" element={<RoleSelect />} />
         <Route path="/register" element={<Register />} />
@@ -73,7 +71,6 @@ export default function App() {
         <Route path="/client/:id" element={<ClientProfile />} />
         <Route path="/achievements" element={<Achievements />} />
 
-        {/* Protected */}
         <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
         <Route path="/projects/new" element={<ProtectedRoute requireRole="client"><CreateProject /></ProtectedRoute>} />
         <Route path="/projects/:id/edit" element={<ProtectedRoute requireRole="client"><EditProject /></ProtectedRoute>} />

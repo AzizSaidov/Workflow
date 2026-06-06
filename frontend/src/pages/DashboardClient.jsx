@@ -71,7 +71,6 @@ export default function DashboardClient() {
       <div style={{ paddingTop: 80, position: 'relative', zIndex: 2 }}>
         <div className="container page-enter" style={{ paddingTop: 36, paddingBottom: 80 }}>
 
-          {/* Header */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 32 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
               <div style={{ position: 'relative' }}>
@@ -108,7 +107,6 @@ export default function DashboardClient() {
             </div>
           </div>
 
-          {/* Stats */}
           <div className="stagger" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 32 }}>
             <StatCard icon="briefcase" label="Всего проектов" value={stats?.total_projects ?? projects.length} color="var(--accent)" />
             <StatCard icon="loader-2" label="В работе" value={stats?.active_projects ?? projects.filter(p => p.status === 'in_progress').length} color="#EF9F27" sub="активных" />
@@ -116,7 +114,6 @@ export default function DashboardClient() {
             <StatCard icon="wallet" label="Вложено ($)" value={stats?.total_spent ? '$' + Number(stats.total_spent).toLocaleString() : '$0'} color="var(--accent-teal)" sub="выплачено исполнителям" />
           </div>
 
-          {/* Requires attention — delivered projects */}
           {needsAttention.length > 0 && (
             <div style={{ marginBottom: 24 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
@@ -168,7 +165,6 @@ export default function DashboardClient() {
             </div>
           )}
 
-          {/* Open with bids to review */}
           {openWithBids.length > 0 && (
             <div style={{ marginBottom: 24 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
@@ -205,7 +201,6 @@ export default function DashboardClient() {
             </div>
           )}
 
-          {/* Empty state */}
           {projects.length === 0 && !loading && (
             <div style={{
               borderRadius: 20, padding: 32, marginBottom: 32,
@@ -229,7 +224,6 @@ export default function DashboardClient() {
             </div>
           )}
 
-          {/* Tabs */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
             <div style={{ display: 'flex', gap: 4, background: 'var(--bg-card)', border: '0.5px solid var(--border)', borderRadius: 12, padding: 4 }}>
               {STATUS_TABS.map(tab => (
@@ -256,7 +250,6 @@ export default function DashboardClient() {
             </span>
           </div>
 
-          {/* Projects grid */}
           {loading ? (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 18 }}>
               {Array.from({ length: 6 }).map((_, i) => (

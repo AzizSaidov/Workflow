@@ -9,7 +9,6 @@ import Avatar from './Avatar'
 import NotificationBell from './NotificationBell'
 import Logo from './Logo'
 
-// Role-based nav config
 function getNavLinks(user) {
   if (!user) {
     return [
@@ -63,8 +62,6 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', handler)
   }, [])
 
-  // Global unread-chat indicator: poll last messages, compare against the per-chat
-  // read markers ChatsPage writes to localStorage. Re-checks on every navigation.
   useEffect(() => {
     if (!user?.id) { setUnreadChats(0); return }
     let active = true
@@ -115,7 +112,6 @@ export default function Navbar() {
       backdropFilter: 'blur(18px)',
       transition: 'background 0.3s, border-color 0.3s',
     }}>
-      {/* Logo */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
         <Logo size="sm" />
         {winter && (
@@ -131,7 +127,6 @@ export default function Navbar() {
         )}
       </div>
 
-      {/* Center nav */}
       <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
         {navLinks.map(({ to, label, icon }) => {
           const active = isActive(to)
@@ -164,7 +159,6 @@ export default function Navbar() {
         })}
       </div>
 
-      {/* Right side */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
 
         <ThemeToggle />
@@ -173,7 +167,6 @@ export default function Navbar() {
           <>
             <NotificationBell />
 
-            {/* Client: create project CTA */}
             {user?.role === 'client' && (
               <Link to="/projects/new" style={{ textDecoration: 'none' }}>
                 <button className="btn btn-primary btn-sm" style={{ fontSize: 12.5, padding: '6px 14px' }}>
@@ -183,7 +176,6 @@ export default function Navbar() {
               </Link>
             )}
 
-            {/* Avatar dropdown */}
             <div ref={menuRef} style={{ cursor: 'pointer', position: 'relative' }} onClick={() => setMenuOpen(!menuOpen)}>
               <Avatar src={user?.avatar_url} name={user?.full_name} size={34} online />
 
@@ -197,7 +189,6 @@ export default function Navbar() {
                   boxShadow: isDark ? '0 8px 40px rgba(0,0,0,0.5)' : '0 8px 40px rgba(0,0,0,0.12)',
                   zIndex: 200,
                 }}>
-                  {/* User info */}
                   <div style={{ padding: '10px 16px 12px', borderBottom: '0.5px solid var(--border)' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                       <Avatar src={user?.avatar_url} name={user?.full_name} size={36} />
@@ -212,7 +203,6 @@ export default function Navbar() {
                     </div>
                   </div>
 
-                  {/* Menu items */}
                   {[
                     !(user?.is_admin || user?.role === 'admin') && { to: user?.role === 'client' ? `/client/${user?.id}` : `/profile/${user?.id}`, icon: 'user', label: 'Профиль' },
                     { to: '/dashboard', icon: 'layout-dashboard', label: 'Дашборд' },

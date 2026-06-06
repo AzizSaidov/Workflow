@@ -8,6 +8,5 @@ export default function Dashboard() {
   if (user?.role === 'client') return <DashboardClient />
   if (user?.role === 'freelancer') return <DashboardFreelancer />
 
-  // admin fallback
   return <DashboardClient />
 }

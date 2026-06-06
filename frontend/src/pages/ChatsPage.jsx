@@ -261,7 +261,6 @@ export default function ChatsPage() {
         const readAt = stored ? new Date(stored) : new Date(0)
         if (new Date(msg.created_at) > readAt) unread.add(pid)
       })
-      // mark initially selected chat as read
       if (initial) {
         localStorage.setItem(`chat_read_${userId}_${initial.id}`, new Date().toISOString())
         unread.delete(initial.id)
@@ -432,7 +431,6 @@ export default function ChatsPage() {
 
       <div style={{ position: 'fixed', top: 64, left: 0, right: 0, bottom: 0, zIndex: 2, display: 'flex', borderTop: '0.5px solid var(--border)' }}>
 
-        {/* ── SIDEBAR ── */}
         <div style={{
           width: 300, flexShrink: 0, borderRight: '0.5px solid var(--border)',
           display: 'flex', flexDirection: 'column',
@@ -550,7 +548,6 @@ export default function ChatsPage() {
           </div>
         </div>
 
-        {/* ── CHAT WINDOW ── */}
         {!selected ? (
           <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 12 }}>
             <i className="ti ti-message-2" style={{ fontSize: 48, color: 'var(--text-muted)', opacity: 0.15 }} />
@@ -560,7 +557,6 @@ export default function ChatsPage() {
         ) : (
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
 
-            {/* Header */}
             <div style={{
               padding: '12px 20px', borderBottom: '0.5px solid var(--border)',
               display: 'flex', alignItems: 'center', gap: 12,
@@ -598,7 +594,6 @@ export default function ChatsPage() {
               </button>
             </div>
 
-            {/* Messages */}
             <div style={{ flex: 1, overflowY: 'auto', paddingTop: 16, paddingBottom: 8 }}>
               {messages.length === 0 ? (
                 <div style={{ textAlign: 'center', padding: '80px 0', color: 'var(--text-muted)' }}>
@@ -618,7 +613,6 @@ export default function ChatsPage() {
               <div ref={messagesEndRef} />
             </div>
 
-            {/* Input */}
             <div style={{
               padding: '10px 14px', borderTop: '0.5px solid var(--border)',
               background: isDark ? 'rgba(7,7,14,0.88)' : 'rgba(240,245,255,0.88)',

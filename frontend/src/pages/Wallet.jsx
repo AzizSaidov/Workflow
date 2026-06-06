@@ -221,7 +221,6 @@ export default function Wallet() {
       <div style={{ paddingTop: 80, position: 'relative', zIndex: 2 }}>
         <div className="container" style={{ paddingTop: 36, paddingBottom: 80, maxWidth: 920 }}>
 
-          {/* ── Page title ───────────────────────────────────────────── */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 28 }}>
             <h1 style={{
               fontFamily: 'Syne, sans-serif', fontSize: 32, fontWeight: 800,
@@ -240,7 +239,6 @@ export default function Wallet() {
             </div>
           </div>
 
-          {/* ── Balance hero card ────────────────────────────────────── */}
           <div style={{
             background: isDark
               ? 'linear-gradient(135deg, rgba(127,119,221,0.15) 0%, rgba(13,13,24,0.95) 60%, rgba(29,158,117,0.07) 100%)'
@@ -249,7 +247,6 @@ export default function Wallet() {
             borderRadius: 24, padding: '36px 40px', marginBottom: 16,
             position: 'relative', overflow: 'hidden',
           }}>
-            {/* Decorative glow */}
             <div style={{
               position: 'absolute', top: -60, right: -60, width: 200, height: 200,
               borderRadius: '50%', background: 'radial-gradient(circle, rgba(127,119,221,0.12) 0%, transparent 70%)',
@@ -257,7 +254,6 @@ export default function Wallet() {
             }} />
 
             <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 40, flexWrap: 'wrap', position: 'relative' }}>
-              {/* Left: main balance */}
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
                   <div style={{
@@ -285,7 +281,6 @@ export default function Wallet() {
                 )}
               </div>
 
-              {/* Right: frozen */}
               <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                 <div style={{
                   background: 'rgba(239,159,39,0.08)', border: '0.5px solid rgba(239,159,39,0.28)',
@@ -316,7 +311,6 @@ export default function Wallet() {
             </div>
           </div>
 
-          {/* ── Stats row ────────────────────────────────────────────── */}
           {!loading && (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 28 }}>
               <StatCard
@@ -347,12 +341,10 @@ export default function Wallet() {
             </div>
           )}
 
-          {/* ── Transactions section ─────────────────────────────────── */}
           <div style={{
             background: 'var(--bg-card)', border: '0.5px solid var(--border)',
             borderRadius: 20, overflow: 'hidden',
           }}>
-            {/* Header + filter tabs */}
             <div style={{
               padding: '20px 24px 0',
               borderBottom: '0.5px solid var(--border)',
@@ -398,14 +390,12 @@ export default function Wallet() {
               </div>
             </div>
 
-            {/* Loading */}
             {loading && (
               <div style={{ padding: '52px 24px', textAlign: 'center' }}>
                 <i className="ti ti-loader-2" style={{ fontSize: 32, color: 'var(--accent)', animation: 'spin 0.8s linear infinite' }} />
               </div>
             )}
 
-            {/* Empty */}
             {!loading && filteredTxs.length === 0 && (
               <div style={{ padding: '72px 24px', textAlign: 'center' }}>
                 <div style={{
@@ -422,12 +412,10 @@ export default function Wallet() {
               </div>
             )}
 
-            {/* Grouped rows */}
             {!loading && filteredTxs.length > 0 && (
               <div>
                 {grouped.map((group, gi) => (
                   <div key={group.label}>
-                    {/* Date group header */}
                     <div style={{
                       padding: '14px 24px 8px',
                       borderTop: gi > 0 ? '0.5px solid var(--border)' : 'none',
@@ -465,7 +453,6 @@ export default function Wallet() {
                           onMouseEnter={e => e.currentTarget.style.background = isDark ? 'rgba(255,255,255,0.022)' : 'rgba(59,91,219,0.025)'}
                           onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                         >
-                          {/* Direction icon */}
                           <div style={{
                             width: 44, height: 44, borderRadius: 13, flexShrink: 0,
                             background: dirStyle.bg, display: 'flex',
@@ -474,7 +461,6 @@ export default function Wallet() {
                             <i className={`ti ti-${dirStyle.icon}`} style={{ fontSize: 19, color: dirStyle.color }} />
                           </div>
 
-                          {/* Project + counterparty */}
                           <div style={{ flex: 1, minWidth: 0 }}>
                             <Link
                               to={`/projects/${tx.project_id}`}
@@ -508,7 +494,6 @@ export default function Wallet() {
                             )}
                           </div>
 
-                          {/* Amount + status + time */}
                           <div style={{ textAlign: 'right', flexShrink: 0 }}>
                             <div style={{
                               fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 16,

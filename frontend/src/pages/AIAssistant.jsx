@@ -186,7 +186,6 @@ export default function AIAssistant() {
           borderTop: '0.5px solid var(--border)',
         }}>
 
-          {/* ══════════ SIDEBAR ══════════ */}
           <aside style={{
             borderRight: '0.5px solid var(--border)',
             display: 'flex',
@@ -195,7 +194,6 @@ export default function AIAssistant() {
             background: isDark ? 'rgba(13,13,24,0.6)' : 'rgba(240,245,255,0.7)',
           }}>
 
-            {/* Branding */}
             <div style={{ padding: '20px 20px 18px', borderBottom: '0.5px solid var(--border)', flexShrink: 0 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                 <div style={{
@@ -219,7 +217,6 @@ export default function AIAssistant() {
               </div>
             </div>
 
-            {/* Mode tabs */}
             <div style={{ padding: '14px 12px 12px', borderBottom: '0.5px solid var(--border)', flexShrink: 0 }}>
               <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.9, padding: '0 6px', marginBottom: 8 }}>
                 Режим
@@ -260,7 +257,6 @@ export default function AIAssistant() {
               })}
             </div>
 
-            {/* Quick prompts — chat only */}
             {mode === 'chat' && (
               <div style={{ flex: 1, overflowY: 'auto', padding: '14px 12px 0' }}>
                 <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.9, padding: '0 6px', marginBottom: 10 }}>
@@ -287,7 +283,6 @@ export default function AIAssistant() {
               </div>
             )}
 
-            {/* Info for forms */}
             {mode !== 'chat' && (
               <div style={{ flex: 1, padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: 12 }}>
                 <div style={{ fontSize: 11, color: 'var(--text-muted)', lineHeight: 1.6 }}>
@@ -308,7 +303,6 @@ export default function AIAssistant() {
               </div>
             )}
 
-            {/* Clear chat button */}
             {mode === 'chat' && messages.length > 1 && (
               <div style={{ padding: '12px 16px 18px', flexShrink: 0 }}>
                 <button onClick={clearChat} style={{
@@ -327,14 +321,11 @@ export default function AIAssistant() {
             )}
           </aside>
 
-          {/* ══════════ CONTENT ══════════ */}
           <main style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0, overflow: 'hidden' }}>
 
-            {/* ── CHAT MODE ── */}
             {mode === 'chat' && (
               <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
 
-                {/* Messages */}
                 <div style={{ flex: 1, overflowY: 'auto', padding: '28px 40px 16px' }}>
                   {messages.map((msg, i) => (
                     <div key={i} style={{
@@ -390,7 +381,6 @@ export default function AIAssistant() {
                   <div ref={messagesEndRef} />
                 </div>
 
-                {/* Input */}
                 <div style={{ borderTop: '0.5px solid var(--border)', padding: '14px 40px 20px', flexShrink: 0 }}>
                   <form onSubmit={e => { e.preventDefault(); sendMessage() }} style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
                     <input
@@ -417,11 +407,9 @@ export default function AIAssistant() {
               </div>
             )}
 
-            {/* ── PROJECT / BID MODE ── */}
             {(mode === 'project' || mode === 'bid') && (
               <div style={{ flex: 1, overflowY: 'auto', padding: '28px 32px' }}>
 
-                {/* Header */}
                 <div style={{ marginBottom: 24 }}>
                   <h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: 24, fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.5px', marginBottom: 4 }}>
                     {mode === 'project' ? 'Создать описание проекта' : 'Написать заявку'}
@@ -433,10 +421,8 @@ export default function AIAssistant() {
                   </p>
                 </div>
 
-                {/* Split layout — always 50/50 */}
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, minHeight: 420 }}>
 
-                  {/* ── Form card ── */}
                   <div style={{
                     background: 'var(--bg-card)',
                     border: '0.5px solid var(--border)',
@@ -553,7 +539,6 @@ export default function AIAssistant() {
                     )}
                   </div>
 
-                  {/* ── Result card ── */}
                   <div style={{
                     background: 'var(--bg-card)',
                     border: `0.5px solid ${(mode === 'project' ? projectResult : bidResult) ? 'rgba(127,119,221,0.35)' : 'var(--border)'}`,
@@ -563,7 +548,6 @@ export default function AIAssistant() {
                     transition: 'border-color 0.3s',
                   }}>
 
-                    {/* Loading state */}
                     {(mode === 'project' ? projectLoading : bidLoading) && (
                       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16 }}>
                         <div style={{
@@ -588,7 +572,6 @@ export default function AIAssistant() {
                       </div>
                     )}
 
-                    {/* Empty state */}
                     {!(mode === 'project' ? projectLoading || projectResult : bidLoading || bidResult) && (
                       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 14 }}>
                         <div style={{
@@ -610,7 +593,6 @@ export default function AIAssistant() {
                       </div>
                     )}
 
-                    {/* Result content */}
                     {(mode === 'project' ? projectResult && !projectLoading : bidResult && !bidLoading) && (
                       <>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16, flexShrink: 0 }}>

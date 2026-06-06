@@ -23,8 +23,8 @@ export default function Favorites() {
   const [tab, setTab] = useState('users')
   const [loading, setLoading] = useState(true)
 
-  const [savedUsers, setSavedUsers] = useState([])   // { fav, user, profile }
-  const [savedProjects, setSavedProjects] = useState([]) // { fav, project }
+  const [savedUsers, setSavedUsers] = useState([])
+  const [savedProjects, setSavedProjects] = useState([])
 
   const load = async () => {
     setLoading(true)
@@ -102,7 +102,6 @@ export default function Favorites() {
             </p>
           </div>
 
-          {/* Tabs */}
           <div style={{ display: 'flex', gap: 4, marginBottom: 28, borderBottom: '0.5px solid var(--border)', paddingBottom: 0 }}>
             {tabs.map(t => (
               <button

@@ -15,7 +15,6 @@ import Tag from '../components/Tag'
 import Avatar from '../components/Avatar'
 import Rating from '../components/Rating'
 
-// --- Count-up hook ---
 function useCountUp(target, duration = 1800, started = false) {
   const [value, setValue] = useState(0)
   useEffect(() => {
@@ -165,7 +164,6 @@ export default function Home() {
     })
   }, [user?.latitude, user?.longitude])
 
-  // Hero CTA by role
   const heroCTA = () => {
     if (!user) return (
       <>
@@ -202,10 +200,8 @@ export default function Home() {
       <div className="glow-blob glow-2" />
       <Navbar />
 
-      {/* ===== HERO ===== */}
       <section style={{ position: 'relative', zIndex: 2, paddingTop: 120, paddingBottom: 80 }}>
         <div className="container" style={{ display: 'flex', alignItems: 'center', gap: 40, minHeight: 480, position: 'relative' }}>
-          {/* Escrow badge — centered at bottom of hero */}
           <div style={{
             position: 'absolute', bottom: -20, left: '50%', transform: 'translateX(-50%)',
             zIndex: 10,
@@ -222,7 +218,6 @@ export default function Home() {
             <span style={{ color: 'var(--text-primary)', fontWeight: 500 }}>Эскроу-защита</span>
           </div>
 
-          {/* Left */}
           <div style={{ flex: 1, maxWidth: 580 }}>
             <div className="animate-in" style={{
               display: 'inline-flex', alignItems: 'center', gap: 8,
@@ -277,7 +272,6 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Globe */}
           <div className="animate-fade" style={{ flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', animationDelay: '0.3s' }}>
             <div style={{ position: 'absolute', inset: '-20px', borderRadius: '50%', background: isDark ? 'radial-gradient(circle, rgba(127,119,221,0.12) 0%, transparent 70%)' : 'radial-gradient(circle, rgba(59,91,219,0.1) 0%, transparent 70%)', pointerEvents: 'none' }} />
             <Globe locations={locations} width={460} height={460} />
@@ -285,12 +279,10 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ===== MARQUEE ===== */}
       <SkillMarquee isDark={isDark} />
 
       <div className="gradient-divider" style={{ position: 'relative', zIndex: 2 }} />
 
-      {/* ===== STATS ===== */}
       <section style={{ position: 'relative', zIndex: 2, padding: '64px 0' }}>
         <div className="container">
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 0 }}>
@@ -310,7 +302,6 @@ export default function Home() {
 
       <div className="gradient-divider" style={{ position: 'relative', zIndex: 2 }} />
 
-      {/* ===== CATEGORIES ===== */}
       <section style={{ position: 'relative', zIndex: 2, padding: '72px 0' }}>
         <div className="container">
           <div style={{ textAlign: 'center', marginBottom: 48 }}>
@@ -331,7 +322,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ===== RECENT PROJECTS ===== */}
       {projects.length > 0 && (
         <section style={{ position: 'relative', zIndex: 2, padding: '72px 0' }}>
           <div className="container">
@@ -355,7 +345,6 @@ export default function Home() {
         </section>
       )}
 
-      {/* ===== TOP FREELANCERS LEADERBOARD ===== */}
       {freelancers.length > 0 && (
         <section style={{ position: 'relative', zIndex: 2, padding: '72px 0' }}>
           <div className="container">
@@ -378,7 +367,6 @@ export default function Home() {
               </Link>
             </div>
 
-            {/* Podium top 3 */}
             {(() => {
               const MEDAL = {
                 1: { color: '#F5C518', glow: 'rgba(245,197,24,0.2)' },
@@ -392,7 +380,6 @@ export default function Home() {
 
               return (
                 <div>
-                  {/* Podium row */}
                   <div style={{ display: 'flex', gap: 20, alignItems: 'flex-start', paddingTop: 28, marginBottom: 20 }}>
                     {podium.map(({ f, rank, offset }) => {
                       const m = MEDAL[rank]
@@ -460,7 +447,6 @@ export default function Home() {
                     })}
                   </div>
 
-                  {/* Rows 4–10: скрыты для заказчика — он видит только топ-3 */}
                   {top.slice(3).length > 0 && user?.role !== 'client' && (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                       {top.slice(3).map((f, i) => (
@@ -505,7 +491,6 @@ export default function Home() {
         </section>
       )}
 
-      {/* ===== HOW ESCROW WORKS ===== */}
       <section style={{ position: 'relative', zIndex: 2, padding: '72px 0' }}>
         <div className="container">
           <div style={{ textAlign: 'center', marginBottom: 56 }}>
@@ -536,14 +521,12 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ===== BOTTOM CTA ===== */}
       <section style={{ position: 'relative', zIndex: 2, padding: '72px 0 80px' }}>
         <div className="container">
           <div style={{
             display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20,
             maxWidth: 860, margin: '0 auto',
           }}>
-            {/* For clients */}
             <div style={{
               background: isDark
                 ? 'linear-gradient(135deg, rgba(127,119,221,0.13) 0%, rgba(13,13,24,0.95) 100%)'
@@ -571,7 +554,6 @@ export default function Home() {
               </Link>
             </div>
 
-            {/* For freelancers */}
             <div style={{
               background: isDark
                 ? 'linear-gradient(135deg, rgba(29,158,117,0.1) 0%, rgba(13,13,24,0.95) 100%)'

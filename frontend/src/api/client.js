@@ -1,6 +1,5 @@
 import axios from 'axios'
 
-// Backend origin (no /api suffix) — use for media/file URLs that already include /api/media/...
 export const API_ORIGIN = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 
 const client = axios.create({
@@ -65,7 +64,6 @@ client.interceptors.response.use(
         )
         const newAccess = data.access_token
 
-        // Update store
         const parsed = JSON.parse(raw)
         parsed.state.accessToken = newAccess
         localStorage.setItem('workflow-auth', JSON.stringify(parsed))

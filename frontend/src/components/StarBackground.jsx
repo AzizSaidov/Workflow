@@ -14,7 +14,6 @@ export default function StarBackground({ isDark = true, intensity = 'full' }) {
 
   useEffect(() => {
     if (isDarkRef.current === isDark) return
-    // Fade out → switch → fade in
     fadingRef.current = true
     canvasAlphaRef.current = 1
     const fadeOut = setInterval(() => {
@@ -48,7 +47,6 @@ export default function StarBackground({ isDark = true, intensity = 'full' }) {
     resize()
     window.addEventListener('resize', resize)
 
-    // Stars (dark) — palIdx: 0=accent, 1=teal, 2=white
     const count = intensity === 'full' ? 220 : 110
     const darkStars = []
     for (let i = 0; i < count; i++) {
@@ -85,13 +83,12 @@ export default function StarBackground({ isDark = true, intensity = 'full' }) {
       s.vx = Math.cos(ang) * sp; s.vy = Math.sin(ang) * sp; s.a = 1
     }
 
-    // === LIGHT THEME: mesh blobs + dot grid ===
     const blobCount = intensity === 'full' ? 6 : 4
     const lightBlobs = []
     const blobColors = [
-      [59, 91, 219],   // purple
-      [14, 159, 110],  // green
-      [104, 128, 229], // light purple
+      [59, 91, 219],
+      [14, 159, 110],
+      [104, 128, 229],
       [59, 91, 219],
       [14, 159, 110],
       [86, 112, 224],
@@ -107,9 +104,7 @@ export default function StarBackground({ isDark = true, intensity = 'full' }) {
         col: blobColors[i % blobColors.length],
       })
     }
-    // Dot grid
     const dotGridSpacing = intensity === 'full' ? 38 : 52
-    // Floating colored particles
     const particleCount = intensity === 'full' ? 55 : 25
     const lightParticles = []
     for (let i = 0; i < particleCount; i++) {
@@ -181,7 +176,6 @@ export default function StarBackground({ isDark = true, intensity = 'full' }) {
           }
         }
       } else {
-        // --- Mesh blobs ---
         for (let i = 0; i < lightBlobs.length; i++) {
           const o = lightBlobs[i]
           o.x += o.vx; o.y += o.vy
@@ -199,7 +193,6 @@ export default function StarBackground({ isDark = true, intensity = 'full' }) {
           ctx.fillStyle = g; ctx.globalAlpha = 1; ctx.fill()
         }
 
-        // --- Dot grid ---
         const cols = Math.ceil(canvas.width / dotGridSpacing) + 1
         const rows = Math.ceil(canvas.height / dotGridSpacing) + 1
         for (let r = 0; r < rows; r++) {
@@ -216,7 +209,6 @@ export default function StarBackground({ isDark = true, intensity = 'full' }) {
           }
         }
 
-        // --- Floating particles ---
         for (let i = 0; i < lightParticles.length; i++) {
           const s = lightParticles[i]
           s.x += s.vx; s.y += s.vy
